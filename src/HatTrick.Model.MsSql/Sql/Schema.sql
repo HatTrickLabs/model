@@ -1,0 +1,1 @@
+﻿select * from sys.schemas where principal_id = 1;
