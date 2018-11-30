@@ -112,7 +112,7 @@ namespace HatTrick.Model.MsSql
         #region resolve schemas
         public void ResolveSchemas(ref MsSqlModel model)
         {
-            List<MsSqlSchema> schemas = new List<MsSqlSchema>();
+            EnumerableNamedSet<MsSqlSchema> schemas = new EnumerableNamedSet<MsSqlSchema>();
 
             string sql = _resourceAccessor.Get("Schema");
 
@@ -131,7 +131,7 @@ namespace HatTrick.Model.MsSql
 
             this.ExecuteSql(sql, action);
 
-            model.Schemas = schemas.ToDictionary(s => s.Name);
+            model.Schemas = schemas;
         }
         #endregion
 
@@ -160,9 +160,9 @@ namespace HatTrick.Model.MsSql
 
             this.ExecuteSql(sql, action);
 
-            foreach (MsSqlSchema schema in model.Schemas.Values)
+            foreach (MsSqlSchema schema in model.Schemas)
             {
-                schema.Tables = tables.FindAll(t => t.Item1 == schema.Name).ConvertAll(t => t.Item2).ToDictionary(t => t.Name);
+                schema.Tables = new EnumerableNamedSet<MsSqlTable>(tables.FindAll(t => t.Item1 == schema.Name).ConvertAll(t => t.Item2));
             }
         }
         #endregion
@@ -202,11 +202,11 @@ namespace HatTrick.Model.MsSql
 
             this.ExecuteSql(sql, action);
 
-            foreach (MsSqlSchema schema in model.Schemas.Values)
+            foreach (MsSqlSchema schema in model.Schemas)
             {
-                foreach (MsSqlTable table in schema.Tables.Values)
+                foreach (MsSqlTable table in schema.Tables)
                 {
-                    table.Columns = columns.FindAll(c => c.ParentObjectId == table.ObjectId).ToDictionary(c => c.Name);
+                    table.Columns = new EnumerableNamedSet<MsSqlColumn>(columns.FindAll(c => c.ParentObjectId == table.ObjectId));
                 }
             }
         }
@@ -236,6 +236,7 @@ namespace HatTrick.Model.MsSql
                             Name = indexName,
                             IndexId = (int)dr["index_id"],
                             IsPrimaryKey = (bool)dr["is_primary_key"],
+                            IndexType = (IndexType)(int)dr["index_type_code"],
                             IsUnique = (bool)dr["is_unique"]
                         };
                         indexes.Add(index);
@@ -257,12 +258,12 @@ namespace HatTrick.Model.MsSql
 
             this.ExecuteSql(sql, action);
 
-            foreach (MsSqlSchema schema in model.Schemas.Values)
+            foreach (MsSqlSchema schema in model.Schemas)
             {
-                foreach (MsSqlTable table in schema.Tables.Values)
+                foreach (MsSqlTable table in schema.Tables)
                 {
-                    table.Indexes = indexes.FindAll(i => i.ParentObjectId == table.ObjectId).ToDictionary(i => i.Name);
-                    foreach (MsSqlIndex index in table.Indexes.Values)
+                    table.Indexes = new EnumerableNamedSet<MsSqlIndex>(indexes.FindAll(i => i.ParentObjectId == table.ObjectId));
+                    foreach (MsSqlIndex index in table.Indexes)
                     {
                         index.IndexedColumns = indexedColumns.FindAll(ic => ic.ParentObjectId == index.ParentObjectId && ic.IndexId == index.IndexId).ToArray();
                     }
@@ -296,9 +297,9 @@ namespace HatTrick.Model.MsSql
 
             this.ExecuteSql(sql, action);
 
-            foreach (MsSqlSchema schema in model.Schemas.Values)
+            foreach (MsSqlSchema schema in model.Schemas)
             {
-                schema.Views = views.FindAll(v => v.Item1 == schema.Name).ConvertAll(v => v.Item2).ToDictionary(v => v.Name);
+                schema.Views = new EnumerableNamedSet<MsSqlView>(views.FindAll(v => v.Item1 == schema.Name).ConvertAll(v => v.Item2));
             }
         }
         #endregion
@@ -337,11 +338,11 @@ namespace HatTrick.Model.MsSql
 
             this.ExecuteSql(sql, action);
 
-            foreach (MsSqlSchema schema in model.Schemas.Values)
+            foreach (MsSqlSchema schema in model.Schemas)
             {
-                foreach (MsSqlView view in schema.Views.Values)
+                foreach (MsSqlView view in schema.Views)
                 {
-                    view.Columns = columns.FindAll(c => c.ParentObjectId == view.ObjectId).ToDictionary(c => c.Name);
+                    view.Columns = new EnumerableNamedSet<MsSqlColumn>(columns.FindAll(c => c.ParentObjectId == view.ObjectId));
                 }
             }
         }
@@ -373,9 +374,9 @@ namespace HatTrick.Model.MsSql
 
             this.ExecuteSql(sql, action);
 
-            foreach (MsSqlSchema schema in model.Schemas.Values)
+            foreach (MsSqlSchema schema in model.Schemas)
             {
-                schema.Procedures = sprocs.FindAll(p => p.Item1 == schema.Name).ConvertAll(p => p.Item2).ToList().ToDictionary(p => p.Name);
+                schema.Procedures = new EnumerableNamedSet<MsSqlProcedure>(sprocs.FindAll(p => p.Item1 == schema.Name).ConvertAll(p => p.Item2).ToList());
             }
         }
         #endregion
@@ -415,11 +416,11 @@ namespace HatTrick.Model.MsSql
 
             this.ExecuteSql(sql, action);
 
-            foreach (MsSqlSchema schema in model.Schemas.Values)
+            foreach (MsSqlSchema schema in model.Schemas)
             {
-                foreach (MsSqlProcedure sproc in schema.Procedures.Values)
+                foreach (MsSqlProcedure sproc in schema.Procedures)
                 {
-                    sproc.Parameters = parameters.FindAll(p => p.ParentObjectId == sproc.ObjectId).ToDictionary(p => p.Name);
+                    sproc.Parameters = new EnumerableNamedSet<MsSqlParameter>(parameters.FindAll(p => p.ParentObjectId == sproc.ObjectId));
                 }
             }
         }
@@ -457,9 +458,9 @@ namespace HatTrick.Model.MsSql
 
             this.ExecuteSql(sql, action);
 
-            foreach (MsSqlSchema schema in model.Schemas.Values)
+            foreach (MsSqlSchema schema in model.Schemas)
             {
-                schema.Relationships = relationships.FindAll(p => p.Item1 == schema.Name).ConvertAll(p => p.Item2).ToDictionary(p => p.Name);
+                schema.Relationships = new EnumerableNamedSet<MsSqlRelationship>(relationships.FindAll(p => p.Item1 == schema.Name).ConvertAll(p => p.Item2));
             }
         }
         #endregion

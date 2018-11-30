@@ -7,7 +7,7 @@ using System.Data.SqlClient;
 
 namespace HatTrick.Model.MsSql
 {
-    public class MsSqlIndex
+    public class MsSqlIndex : IName
     {
         #region interface
         public int ParentObjectId { get; set; }
@@ -17,6 +17,8 @@ namespace HatTrick.Model.MsSql
         public int IndexId { get; set; }
 
         public bool IsPrimaryKey { get; set; }
+
+        public IndexType IndexType { get; set; }
 
         public bool IsUnique { get; set; }
 
@@ -30,4 +32,13 @@ namespace HatTrick.Model.MsSql
         }
         #endregion
     }
+
+    #region index type enum
+    public enum IndexType
+    {
+        Heap = 0,
+        Clustered = 1,
+        Nonclustered = 2
+    }
+    #endregion
 }

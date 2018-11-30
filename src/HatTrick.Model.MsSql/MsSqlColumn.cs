@@ -7,7 +7,7 @@ using System.Data.SqlClient;
 
 namespace HatTrick.Model.MsSql
 {
-    public class MsSqlColumn
+    public class MsSqlColumn : IName
     {
         #region interface
         public int ParentObjectId { get; set; }

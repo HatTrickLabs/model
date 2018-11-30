@@ -41,6 +41,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="EnumerableNamedSet{T}.cs" />
+    <Compile Include="IName.cs" />
     <Compile Include="MsSqlModelBuilder.cs" />
     <Compile Include="MsSqlColumn.cs" />
     <Compile Include="MsSqlIndex.cs" />

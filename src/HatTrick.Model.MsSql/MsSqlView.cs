@@ -7,14 +7,14 @@ using System.Data.SqlClient;
 
 namespace HatTrick.Model.MsSql
 {
-    public class MsSqlView
+    public class MsSqlView : IName
     {
         #region interface
         public int ObjectId { get; set; }
 
         public string Name { get; set; }
 
-        public Dictionary<string, MsSqlColumn> Columns { get; set; }
+        public EnumerableNamedSet<MsSqlColumn> Columns { get; set; }
         #endregion
 
         #region apply
