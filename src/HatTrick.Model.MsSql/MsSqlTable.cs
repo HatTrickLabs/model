@@ -7,16 +7,16 @@ using System.Data.SqlClient;
 
 namespace HatTrick.Model.MsSql
 {
-    public class MsSqlTable
+    public class MsSqlTable : IName
     {
         #region interface
         public int ObjectId { get; set; }
 
         public string Name { get; set; }
 
-        public Dictionary<string, MsSqlColumn> Columns { get; set; }
+        public EnumerableNamedSet<MsSqlColumn> Columns { get; set; }
 
-        public Dictionary<string, MsSqlIndex> Indexes { get; set; }
+        public EnumerableNamedSet<MsSqlIndex> Indexes { get; set; }
         #endregion
 
         #region apply

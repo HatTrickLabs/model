@@ -12,7 +12,7 @@ namespace HatTrick.Model.MsSql
         #region interface
         public string MsSqlDbName { get; set; }
 
-        public Dictionary<string, MsSqlSchema> Schemas { get; set; }
+        public EnumerableNamedSet<MsSqlSchema> Schemas { get; set; }
         #endregion
 
         #region constructors
