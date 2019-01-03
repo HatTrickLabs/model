@@ -236,7 +236,7 @@ namespace HatTrick.Model.MsSql
                             Name = indexName,
                             IndexId = (int)dr["index_id"],
                             IsPrimaryKey = (bool)dr["is_primary_key"],
-                            IndexType = (IndexType)(int)dr["index_type_code"],
+                            IndexType = (IndexType)(byte)dr["index_type_code"],
                             IsUnique = (bool)dr["is_unique"]
                         };
                         indexes.Add(index);
