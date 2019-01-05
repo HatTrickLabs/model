@@ -43,6 +43,7 @@
   <ItemGroup>
     <Compile Include="EnumerableNamedSet{T}.cs" />
     <Compile Include="IName.cs" />
+    <Compile Include="MsSqlExtendedProperty.cs" />
     <Compile Include="MsSqlModelBuilder.cs" />
     <Compile Include="MsSqlColumn.cs" />
     <Compile Include="MsSqlIndex.cs" />
@@ -67,6 +68,12 @@
     <EmbeddedResource Include="Sql\Table_Index.sql" />
     <EmbeddedResource Include="Sql\View.sql" />
     <EmbeddedResource Include="Sql\View_Column.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Sql\Table_Column_Ext_Props.sql" />
+    <EmbeddedResource Include="Sql\Table_Ext_Props.sql" />
+    <EmbeddedResource Include="Sql\View_Column_Ext_Props.sql" />
+    <EmbeddedResource Include="Sql\View_Ext_Props.sql" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -33,6 +33,8 @@ namespace HatTrick.Model.MsSql
         public bool IsComputed { get; set; }
 
         public string DefaultDefinition { get; set; }
+
+        public EnumerableNamedSet<MsSqlExtendedProperty> ExtendedProperties { get; set; }
         #endregion
 
         #region apply

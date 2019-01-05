@@ -17,6 +17,8 @@ namespace HatTrick.Model.MsSql
         public EnumerableNamedSet<MsSqlColumn> Columns { get; set; }
 
         public EnumerableNamedSet<MsSqlIndex> Indexes { get; set; }
+
+        public EnumerableNamedSet<MsSqlExtendedProperty> ExtendedProperties { get; set; }
         #endregion
 
         #region apply

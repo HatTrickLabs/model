@@ -14,6 +14,10 @@ namespace HatTrick.Model.MsSql
         private SqlConnection _sqlConnection;
         #endregion
 
+        #region interface
+        public Action<Exception> OnError { get; set; }
+        #endregion
+
         #region constructors
         public MsSqlModelBuilder(string sqlConnectionString)
         {
@@ -58,19 +62,31 @@ namespace HatTrick.Model.MsSql
         {
             MsSqlModel model = new MsSqlModel();
 
-            this.ResolveName(ref model);
-            this.ResolveSchemas(ref model);
-            this.ResolveTables(ref model);
-            this.ResolveTableColumns(ref model);
-            this.ResolveTableIndexes(ref model);
-            this.ResolveViews(ref model);
-            this.ResolveViewColumns(ref model);
-            this.ResolveProcedures(ref model);
-            this.ResolveProcedureParameters(ref model);
-            this.ResolveRelationships(ref model);
-
-            this.CloseConnection();
-
+            try
+            {
+                this.ResolveName(ref model);
+                this.ResolveSchemas(ref model);
+                this.ResolveTables(ref model);
+                this.ResolveTableColumns(ref model);
+                this.ResolveTableIndexes(ref model);
+                this.ResolveViews(ref model);
+                this.ResolveViewColumns(ref model);
+                this.ResolveProcedures(ref model);
+                this.ResolveProcedureParameters(ref model);
+                this.ResolveRelationships(ref model);
+                this.ResolveTableExtendedProperties(ref model);
+                this.ResolveTableColumnExtendedProperties(ref model);
+                this.ResolveViewExtendedProperties(ref model);
+                this.ResolveViewColumnExtendedProperties(ref model);
+            }
+            catch(Exception ex)
+            {
+                this.OnError?.Invoke(ex);
+            }
+            finally
+            {
+                this.CloseConnection();
+            }
             return model;
         }
         #endregion
@@ -89,10 +105,9 @@ namespace HatTrick.Model.MsSql
 
                 action(reader);
             }
-            catch (Exception ex)
+            catch
             {
-                //TODO: JRod, handle errors...
-                string msv = ex.Message;
+                throw;
             }
             finally
             {
@@ -461,6 +476,156 @@ namespace HatTrick.Model.MsSql
             foreach (MsSqlSchema schema in model.Schemas)
             {
                 schema.Relationships = new EnumerableNamedSet<MsSqlRelationship>(relationships.FindAll(p => p.Item1 == schema.Name).ConvertAll(p => p.Item2));
+            }
+        }
+        #endregion
+
+        #region resolve table ext props
+        public void ResolveTableExtendedProperties(ref MsSqlModel model)
+        {
+            List<MsSqlExtendedProperty> extProps = new List<MsSqlExtendedProperty>();
+
+            string sql = _resourceAccessor.Get("Table_Ext_Props");
+
+            Action<DbDataReader> action = (dr) =>
+            {
+                MsSqlExtendedProperty p = null;
+                while (dr.Read())
+                {
+                    p = new MsSqlExtendedProperty
+                    {
+                        MajorId = (int)dr["table_id"],
+                        MinorId = null,
+                        Name = dr["name"].ToString(),
+                        Value = dr["value"].ToString()
+                    };
+                    extProps.Add(p);
+                }
+            };
+
+            this.ExecuteSql(sql, action);
+
+            foreach (MsSqlSchema schema in model.Schemas)
+            {
+                foreach (MsSqlTable table in schema.Tables)
+                {
+                    table.ExtendedProperties = new EnumerableNamedSet<MsSqlExtendedProperty>(extProps.FindAll(p => p.MajorId == table.ObjectId));
+                }
+            }
+        }
+        #endregion
+
+        #region resolve table column ext props
+        public void ResolveTableColumnExtendedProperties(ref MsSqlModel model)
+        {
+            List<MsSqlExtendedProperty> extProps = new List<MsSqlExtendedProperty>();
+
+            string sql = _resourceAccessor.Get("Table_Column_Ext_Props");
+
+            Action<DbDataReader> action = (dr) =>
+            {
+                MsSqlExtendedProperty p = null;
+                while (dr.Read())
+                {
+                    p = new MsSqlExtendedProperty
+                    {
+                        MajorId = (int)dr["table_id"],
+                        MinorId = (int)dr["column_id"],
+                        Name = dr["name"].ToString(),
+                        Value = dr["value"].ToString()
+                    };
+                    extProps.Add(p);
+                }
+            };
+
+            this.ExecuteSql(sql, action);
+
+            foreach (MsSqlSchema schema in model.Schemas)
+            {
+                foreach (MsSqlTable table in schema.Tables)
+                {
+                    foreach (MsSqlColumn column in table.Columns)
+                    {
+                        column.ExtendedProperties = new EnumerableNamedSet<MsSqlExtendedProperty>(
+                            extProps.FindAll(p => p.MajorId == table.ObjectId && p.MinorId == column.ColumnId)
+                        );
+                    }
+                }
+            }
+        }
+        #endregion
+
+        #region resolve view ext props
+        public void ResolveViewExtendedProperties(ref MsSqlModel model)
+        {
+            List<MsSqlExtendedProperty> extProps = new List<MsSqlExtendedProperty>();
+
+            string sql = _resourceAccessor.Get("View_Ext_Props");
+
+            Action<DbDataReader> action = (dr) =>
+            {
+                MsSqlExtendedProperty p = null;
+                while (dr.Read())
+                {
+                    p = new MsSqlExtendedProperty
+                    {
+                        MajorId = (int)dr["view_id"],
+                        MinorId = null,
+                        Name = dr["name"].ToString(),
+                        Value = dr["value"].ToString()
+                    };
+                    extProps.Add(p);
+                }
+            };
+
+            this.ExecuteSql(sql, action);
+
+            foreach (MsSqlSchema schema in model.Schemas)
+            {
+                foreach (MsSqlView view in schema.Views)
+                {
+                    view.ExtendedProperties = new EnumerableNamedSet<MsSqlExtendedProperty>(extProps.FindAll(p => p.MajorId == view.ObjectId));
+                }
+            }
+        }
+        #endregion
+
+        #region resolve view column ext props
+        public void ResolveViewColumnExtendedProperties(ref MsSqlModel model)
+        {
+            List<MsSqlExtendedProperty> extProps = new List<MsSqlExtendedProperty>();
+
+            string sql = _resourceAccessor.Get("View_Column_Ext_Props");
+
+            Action<DbDataReader> action = (dr) =>
+            {
+                MsSqlExtendedProperty p = null;
+                while (dr.Read())
+                {
+                    p = new MsSqlExtendedProperty
+                    {
+                        MajorId = (int)dr["view_id"],
+                        MinorId = (int)dr["column_id"],
+                        Name = dr["name"].ToString(),
+                        Value = dr["value"].ToString()
+                    };
+                    extProps.Add(p);
+                }
+            };
+
+            this.ExecuteSql(sql, action);
+
+            foreach (MsSqlSchema schema in model.Schemas)
+            {
+                foreach (MsSqlView view in schema.Views)
+                {
+                    foreach (MsSqlColumn column in view.Columns)
+                    {
+                        column.ExtendedProperties = new EnumerableNamedSet<MsSqlExtendedProperty>(
+                            extProps.FindAll(p => p.MajorId == view.ObjectId && p.MinorId == column.ColumnId)
+                        );
+                    }
+                }
             }
         }
         #endregion

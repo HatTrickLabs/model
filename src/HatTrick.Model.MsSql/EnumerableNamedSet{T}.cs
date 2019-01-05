@@ -18,6 +18,11 @@ namespace HatTrick.Model.MsSql
         {
             get { return _set[name]; }
         }
+
+        public T this[int index]
+        {
+            get { return _set.ElementAt(index).Value; }
+        }
         #endregion
 
         #region constructors
