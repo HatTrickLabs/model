@@ -55,9 +55,9 @@ namespace HatTrick.Model.MsSql
             get { return (_set as IDictionary).IsSynchronized; }
         }
 
-        public bool IsFixedSize => false;
+        public bool IsFixedSize => (_set as IDictionary).IsFixedSize;
 
-        public bool IsReadOnly => false;
+        public bool IsReadOnly => (_set as IDictionary).IsReadOnly;
         #endregion
 
         #region constructors
