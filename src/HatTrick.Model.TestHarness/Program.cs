@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using HatTrick.Model.MsSql;
 
-namespace TestHarness
+namespace HatTrick.Model.TestHarness
 {
     class Program
     {

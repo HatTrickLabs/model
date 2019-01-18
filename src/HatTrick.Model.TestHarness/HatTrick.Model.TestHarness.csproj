@@ -6,8 +6,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{A598FE62-96EB-40A5-8D88-E137DD8DF7F5}</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <RootNamespace>TestHarness</RootNamespace>
-    <AssemblyName>TestHarness</AssemblyName>
+    <RootNamespace>HatTrick.Model.TestHarness</RootNamespace>
+    <AssemblyName>HatTrick.Model.TestHarness</AssemblyName>
     <TargetFrameworkVersion>v4.7.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
