@@ -81,7 +81,10 @@ namespace HatTrick.Model.MsSql
             }
             catch(Exception ex)
             {
-                this.OnError?.Invoke(ex);
+                if (this.OnError != null)
+                { this.OnError.Invoke(ex); }
+                else
+                { throw; }
             }
             finally
             {
