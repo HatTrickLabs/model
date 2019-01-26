@@ -7,7 +7,7 @@ using System.Data.SqlClient;
 
 namespace HatTrick.Model.MsSql
 {
-    public class MsSqlTable : IName
+    public class MsSqlTable : IName, IMeta
     {
         #region interface
         public int ObjectId { get; set; }
@@ -19,6 +19,8 @@ namespace HatTrick.Model.MsSql
         public EnumerableNamedSet<MsSqlIndex> Indexes { get; set; }
 
         public EnumerableNamedSet<MsSqlExtendedProperty> ExtendedProperties { get; set; }
+
+        public string Meta { get; set; }
         #endregion
 
         #region apply

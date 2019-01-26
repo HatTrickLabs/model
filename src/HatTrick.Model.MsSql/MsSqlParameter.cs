@@ -7,7 +7,7 @@ using System.Data.SqlClient;
 
 namespace HatTrick.Model.MsSql
 {
-    public class MsSqlParameter : IName
+    public class MsSqlParameter : IName, IMeta
     {
         #region interface
         public int ParentObjectId { get; set; }
@@ -33,6 +33,8 @@ namespace HatTrick.Model.MsSql
         public bool IsOutput { get; set; }
 
         public bool IsReadOnly { get; set; }
+
+        public string Meta { get; set; }
         #endregion
 
         #region apply
