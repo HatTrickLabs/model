@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace HatTrick.Model.MsSql
 {
-    public class EnumerableNamedSet<T> : IDictionary, IEnumerable<T> where T : IName
+    public class EnumerableNamedMetaSet<T> : IDictionary, IEnumerable<T> where T : INamedMeta// IName, IMeta
     {
         #region internals
         private Dictionary<string, T> _set;
@@ -61,12 +61,12 @@ namespace HatTrick.Model.MsSql
         #endregion
 
         #region constructors
-        public EnumerableNamedSet()
+        public EnumerableNamedMetaSet()
         {
             _set = new Dictionary<string, T>();
         }
 
-        public EnumerableNamedSet(IEnumerable<T> values)
+        public EnumerableNamedMetaSet(IEnumerable<T> values)
         {
             _set = new Dictionary<string, T>();
             if (values != null && values.Count() > 0)

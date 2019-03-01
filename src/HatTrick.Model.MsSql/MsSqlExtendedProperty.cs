@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace HatTrick.Model.MsSql
 {
-    public class MsSqlExtendedProperty : IName
+    public class MsSqlExtendedProperty : INamedMeta
     {
         #region interface
         public int MajorId { get; set; }//table_id or view_id
@@ -16,6 +16,8 @@ namespace HatTrick.Model.MsSql
         public string Name { get; set; }
 
         public string Value { get; set; }
+
+        public string Meta { get; set; }
         #endregion
 
         #region apply
