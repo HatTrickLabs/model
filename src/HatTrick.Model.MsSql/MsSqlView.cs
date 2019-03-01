@@ -7,16 +7,16 @@ using System.Data.SqlClient;
 
 namespace HatTrick.Model.MsSql
 {
-    public class MsSqlView : IName, IMeta
+    public class MsSqlView : INamedMeta
     {
         #region interface
         public int ObjectId { get; set; }
 
         public string Name { get; set; }
 
-        public EnumerableNamedSet<MsSqlColumn> Columns { get; set; }
+        public EnumerableNamedMetaSet<MsSqlColumn> Columns { get; set; }
 
-        public EnumerableNamedSet<MsSqlExtendedProperty> ExtendedProperties { get; set; }
+        public EnumerableNamedMetaSet<MsSqlExtendedProperty> ExtendedProperties { get; set; }
 
         public string Meta { get; set; }
         #endregion

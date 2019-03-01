@@ -130,7 +130,7 @@ namespace HatTrick.Model.MsSql
         #region resolve schemas
         public void ResolveSchemas(ref MsSqlModel model)
         {
-            EnumerableNamedSet<MsSqlSchema> schemas = new EnumerableNamedSet<MsSqlSchema>();
+            EnumerableNamedMetaSet<MsSqlSchema> schemas = new EnumerableNamedMetaSet<MsSqlSchema>();
 
             string sql = _resourceAccessor.Get("Schema");
 
@@ -180,7 +180,7 @@ namespace HatTrick.Model.MsSql
 
             foreach (MsSqlSchema schema in model.Schemas)
             {
-                schema.Tables = new EnumerableNamedSet<MsSqlTable>(tables.FindAll(t => t.Item1 == schema.Name).ConvertAll(t => t.Item2));
+                schema.Tables = new EnumerableNamedMetaSet<MsSqlTable>(tables.FindAll(t => t.Item1 == schema.Name).ConvertAll(t => t.Item2));
             }
         }
         #endregion
@@ -224,7 +224,7 @@ namespace HatTrick.Model.MsSql
             {
                 foreach (MsSqlTable table in schema.Tables)
                 {
-                    table.Columns = new EnumerableNamedSet<MsSqlColumn>(columns.FindAll(c => c.ParentObjectId == table.ObjectId));
+                    table.Columns = new EnumerableNamedMetaSet<MsSqlColumn>(columns.FindAll(c => c.ParentObjectId == table.ObjectId));
                 }
             }
         }
@@ -280,7 +280,7 @@ namespace HatTrick.Model.MsSql
             {
                 foreach (MsSqlTable table in schema.Tables)
                 {
-                    table.Indexes = new EnumerableNamedSet<MsSqlIndex>(indexes.FindAll(i => i.ParentObjectId == table.ObjectId));
+                    table.Indexes = new EnumerableNamedMetaSet<MsSqlIndex>(indexes.FindAll(i => i.ParentObjectId == table.ObjectId));
                     foreach (MsSqlIndex index in table.Indexes)
                     {
                         index.IndexedColumns = indexedColumns.FindAll(ic => ic.ParentObjectId == index.ParentObjectId && ic.IndexId == index.IndexId).ToArray();
@@ -317,7 +317,7 @@ namespace HatTrick.Model.MsSql
 
             foreach (MsSqlSchema schema in model.Schemas)
             {
-                schema.Views = new EnumerableNamedSet<MsSqlView>(views.FindAll(v => v.Item1 == schema.Name).ConvertAll(v => v.Item2));
+                schema.Views = new EnumerableNamedMetaSet<MsSqlView>(views.FindAll(v => v.Item1 == schema.Name).ConvertAll(v => v.Item2));
             }
         }
         #endregion
@@ -360,7 +360,7 @@ namespace HatTrick.Model.MsSql
             {
                 foreach (MsSqlView view in schema.Views)
                 {
-                    view.Columns = new EnumerableNamedSet<MsSqlColumn>(columns.FindAll(c => c.ParentObjectId == view.ObjectId));
+                    view.Columns = new EnumerableNamedMetaSet<MsSqlColumn>(columns.FindAll(c => c.ParentObjectId == view.ObjectId));
                 }
             }
         }
@@ -394,7 +394,7 @@ namespace HatTrick.Model.MsSql
 
             foreach (MsSqlSchema schema in model.Schemas)
             {
-                schema.Procedures = new EnumerableNamedSet<MsSqlProcedure>(sprocs.FindAll(p => p.Item1 == schema.Name).ConvertAll(p => p.Item2).ToList());
+                schema.Procedures = new EnumerableNamedMetaSet<MsSqlProcedure>(sprocs.FindAll(p => p.Item1 == schema.Name).ConvertAll(p => p.Item2).ToList());
             }
         }
         #endregion
@@ -438,7 +438,7 @@ namespace HatTrick.Model.MsSql
             {
                 foreach (MsSqlProcedure sproc in schema.Procedures)
                 {
-                    sproc.Parameters = new EnumerableNamedSet<MsSqlParameter>(parameters.FindAll(p => p.ParentObjectId == sproc.ObjectId));
+                    sproc.Parameters = new EnumerableNamedMetaSet<MsSqlParameter>(parameters.FindAll(p => p.ParentObjectId == sproc.ObjectId));
                 }
             }
         }
@@ -478,7 +478,7 @@ namespace HatTrick.Model.MsSql
 
             foreach (MsSqlSchema schema in model.Schemas)
             {
-                schema.Relationships = new EnumerableNamedSet<MsSqlRelationship>(relationships.FindAll(p => p.Item1 == schema.Name).ConvertAll(p => p.Item2));
+                schema.Relationships = new EnumerableNamedMetaSet<MsSqlRelationship>(relationships.FindAll(p => p.Item1 == schema.Name).ConvertAll(p => p.Item2));
             }
         }
         #endregion
@@ -512,7 +512,7 @@ namespace HatTrick.Model.MsSql
             {
                 foreach (MsSqlTable table in schema.Tables)
                 {
-                    table.ExtendedProperties = new EnumerableNamedSet<MsSqlExtendedProperty>(extProps.FindAll(p => p.MajorId == table.ObjectId));
+                    table.ExtendedProperties = new EnumerableNamedMetaSet<MsSqlExtendedProperty>(extProps.FindAll(p => p.MajorId == table.ObjectId));
                 }
             }
         }
@@ -549,7 +549,7 @@ namespace HatTrick.Model.MsSql
                 {
                     foreach (MsSqlColumn column in table.Columns)
                     {
-                        column.ExtendedProperties = new EnumerableNamedSet<MsSqlExtendedProperty>(
+                        column.ExtendedProperties = new EnumerableNamedMetaSet<MsSqlExtendedProperty>(
                             extProps.FindAll(p => p.MajorId == table.ObjectId && p.MinorId == column.ColumnId)
                         );
                     }
@@ -587,7 +587,7 @@ namespace HatTrick.Model.MsSql
             {
                 foreach (MsSqlView view in schema.Views)
                 {
-                    view.ExtendedProperties = new EnumerableNamedSet<MsSqlExtendedProperty>(extProps.FindAll(p => p.MajorId == view.ObjectId));
+                    view.ExtendedProperties = new EnumerableNamedMetaSet<MsSqlExtendedProperty>(extProps.FindAll(p => p.MajorId == view.ObjectId));
                 }
             }
         }
@@ -624,7 +624,7 @@ namespace HatTrick.Model.MsSql
                 {
                     foreach (MsSqlColumn column in view.Columns)
                     {
-                        column.ExtendedProperties = new EnumerableNamedSet<MsSqlExtendedProperty>(
+                        column.ExtendedProperties = new EnumerableNamedMetaSet<MsSqlExtendedProperty>(
                             extProps.FindAll(p => p.MajorId == view.ObjectId && p.MinorId == column.ColumnId)
                         );
                     }

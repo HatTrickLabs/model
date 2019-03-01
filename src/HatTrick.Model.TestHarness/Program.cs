@@ -36,23 +36,12 @@ namespace HatTrick.Model.TestHarness
 
             //build model
             MsSqlModel sqlModel = builder.Build();
-
-            Resolve(sqlModel);
-
             if (!error)
             {
-                //example remove an element
-                sqlModel.Schemas["dbo"].Tables.Remove("TypeCode");
-
-                //example override and element
-                sqlModel.Schemas["dbo"].Tables["Address"].Columns["Line2"].Apply((c) =>
-                {
-                    c.Name = "AddressSet";
-                    c.MaxLength = 50;
-                    c.SqlType = SqlDbType.VarChar;
-                    c.SqlTypeName = "varchar";
-                    c.IsNullable = false;
-                });
+                TestResolveObjects(sqlModel);
+                TestObjectValueOverrides(sqlModel);
+                TestApplyObjectMeta(sqlModel);
+                TestRemoveObjects(sqlModel);
             }
 
             sw.Stop();
@@ -60,137 +49,55 @@ namespace HatTrick.Model.TestHarness
             Console.ReadLine();
         }
 
-        static void Resolve(MsSqlModel model)
+        static void TestResolveObjects(MsSqlModel model)
         {
-            string key = @"dbo.Address.Line1\.Line2.Meta";
+            //walk the dictionary stack
+            MsSqlTable person1 = model.Schemas["dbo"].Tables["Person"];
+            MsSqlColumn firstName1 = person1.Columns["FirstName"];
+            MsSqlColumn zip1 = model.Schemas["dbo"].Tables["Address"].Columns["Zip"];
+            SqlDbType birthDateType1 = model.Schemas["dbo"].Tables["Person"].Columns["BirthDate"].SqlType;
 
-            TokenEmitter te = new TokenEmitter(key);
-            te.Next = (tkn) =>
-            {
-                Console.WriteLine(tkn);
-            };
-            te.Parse();
-
-            return;
-
-            string[] keys = key.Split('.');
-
-            MsSqlSchema s = model.Schemas[keys[0]];
-
-            MsSqlTable t;
-            MsSqlView v;
-            MsSqlProcedure p;
-            MsSqlRelationship r;
-            for (int i = 0; i < keys.Length; i++)
-            {
-                t = s.Tables[keys[i]];
-                if (t != null)
-                {
-                }
-
-                v = s.Views[keys[i]];
-                if (v != null)
-                {
-                }
-
-                p = s.Procedures[keys[i]];
-                if (p != null)
-                {
-                }
-
-                r = s.Relationships[keys[i]];
-                if (r != null)
-                {
-                }
-
-            }
-
-            //dbo.Address.Line2  => Name = AddressSet; MaxLen = 40
-            //dbo.Address.AddressType => Type = AddressType;
-            //dbo.TypeCode => Ignore = true
-
-            //-Schemas
-            //  - Tables
-            //    - Columns
-            //    - Indexes
-            //  - Views
-            //    - Columns
-            //  - Procedures
-            //    - Parameters
-            //  - Relationships
-
+            //resolve items
+            MsSqlTable person2 = model.ResolveItem("dbo.Person") as MsSqlTable;
+            MsSqlColumn firstName2 = model.ResolveItem("dbo.Person.FirstName") as MsSqlColumn;
+            MsSqlColumn zip2 = model.ResolveItem("dbo.Address.Zip") as MsSqlColumn;
+            SqlDbType birthDateType2 = (model.ResolveItem("dbo.Person.BirthDate") as MsSqlColumn).SqlType;
         }
-    }
 
-    public class TokenEmitter
-    {
-        #region internals
-        private char _delim = '.';
-        private char _escape = '\\';
-
-        private int _index;
-        private int _length;
-
-        private string _expression;
-
-        private char[] _token;
-        #endregion
-
-        #region interface
-        public Action<string> Next { get; set; }
-        #endregion
-
-        #region constructor
-        public TokenEmitter(string expression)
+        static void TestObjectValueOverrides(MsSqlModel model)
         {
-            _expression = expression;
-            _length = expression.Length;
-            _index = 0;
-            _token = new char[128];
-        }
-        #endregion
-
-        #region parse
-        public void Parse()
-        {
-            string token;
-            while ((token = this.Walk()) != null)
+            //example override and element
+            model.Schemas["dbo"].Tables["Address"].Columns["Line2"].Apply((c) =>
             {
-                this.Next(token);
-            }
-        }
-        #endregion
+                c.Name = "AddressSet";
+                c.MaxLength = 50;
+                c.SqlType = SqlDbType.VarChar;
+                c.SqlTypeName = "varchar";
+                c.IsNullable = false;
+            });
 
-        #region walk
-        private string Walk()
-        {
-            string token = null;
-            char c;
-            int len = 0;
-            while (_index < _length && token == null)
+            model.Schemas["dbo"].Tables["Purchase"].Apply((t) =>
             {
-                c = _expression[_index];
-                if (c == _escape && _expression[_index + 1] == _delim)
-                {
-                    _token[len++] = _expression[++_index];
-                }
-                else if (c == _delim)
-                {
-                    token = new string(_token, 0, len);
-                }
-                else
-                {
-                    _token[len++] = c;
-                    if (_index == (_length - 1))
-                    {
-                        token = new string(_token, 0, len);
-                    }
-                }
-                _index += 1;
-            }
-
-            return token;
+                t.Name = "PurchaseSet";
+            });
         }
-        #endregion
+
+        static void TestApplyObjectMeta(MsSqlModel model)
+        {
+            //walking the dictionary stack
+            model.Schemas["dbo"].Tables["Address"].Columns["AddressType"].Meta = "code-gen-type=AddressTypeCode";
+
+            //or resolve by expression
+            model.ResolveItem("dbo.Address.AddressType").Meta = "code-gen-type=AddressTypeCode";
+        }
+
+        static void TestRemoveObjects(MsSqlModel model)
+        {
+            //remove entire schema
+            model.Schemas.Remove("sec");
+
+            //remove table
+            model.Schemas["dbo"].Tables.Remove("TypeCode");
+        }
     }
 }

@@ -7,7 +7,7 @@ using System.Data.SqlClient;
 
 namespace HatTrick.Model.MsSql
 {
-    public class MsSqlRelationship : IName, IMeta
+    public class MsSqlRelationship : INamedMeta
     {
         #region interface
         public string Name { get; set; }
