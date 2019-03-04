@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27130.2027
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HatTrick.Model.MsSql", "HatTrick.Model.MsSql\HatTrick.Model.MsSql.csproj", "{60694610-2946-4AC9-B6C5-B75D03077AF0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HatTrick.Model.MsSql", "HatTrick.Model.MsSql\HatTrick.Model.MsSql.csproj", "{60694610-2946-4AC9-B6C5-B75D03077AF0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestHarness", "TestHarness\TestHarness.csproj", "{A598FE62-96EB-40A5-8D88-E137DD8DF7F5}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HatTrick.Model.TestHarness", "HatTrick.Model.TestHarness\HatTrick.Model.TestHarness.csproj", "{A598FE62-96EB-40A5-8D88-E137DD8DF7F5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

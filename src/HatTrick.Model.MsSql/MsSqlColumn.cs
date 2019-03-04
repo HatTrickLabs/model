@@ -7,7 +7,7 @@ using System.Data.SqlClient;
 
 namespace HatTrick.Model.MsSql
 {
-    public class MsSqlColumn : IName
+    public class MsSqlColumn : INamedMeta
     {
         #region interface
         public int ParentObjectId { get; set; }
@@ -33,6 +33,10 @@ namespace HatTrick.Model.MsSql
         public bool IsComputed { get; set; }
 
         public string DefaultDefinition { get; set; }
+
+        public EnumerableNamedMetaSet<MsSqlExtendedProperty> ExtendedProperties { get; set; }
+
+        public string Meta { get; set; }
         #endregion
 
         #region apply

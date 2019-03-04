@@ -5,8 +5,7 @@ using System.Text;
 
 namespace HatTrick.Model.MsSql
 {
-    public interface IName
+    public interface INamedMeta  : IName, IMeta
     {
-        string Name { get; set; }
     }
 }

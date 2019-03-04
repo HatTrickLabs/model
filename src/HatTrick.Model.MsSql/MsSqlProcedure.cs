@@ -7,7 +7,7 @@ using System.Data.SqlClient;
 
 namespace HatTrick.Model.MsSql
 {
-    public class MsSqlProcedure : IName
+    public class MsSqlProcedure : INamedMeta
     {
         #region inteface
         public int ObjectId { get; set; }
@@ -16,7 +16,9 @@ namespace HatTrick.Model.MsSql
 
         public bool IsStartupProcedure { get; set; }
 
-        public EnumerableNamedSet<MsSqlParameter> Parameters { get; set; }
+        public EnumerableNamedMetaSet<MsSqlParameter> Parameters { get; set; }
+
+        public string Meta { get; set; }
         #endregion
 
         #region apply

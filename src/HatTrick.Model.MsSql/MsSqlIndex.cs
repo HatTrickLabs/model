@@ -7,7 +7,7 @@ using System.Data.SqlClient;
 
 namespace HatTrick.Model.MsSql
 {
-    public class MsSqlIndex : IName
+    public class MsSqlIndex : INamedMeta
     {
         #region interface
         public int ParentObjectId { get; set; }
@@ -23,6 +23,8 @@ namespace HatTrick.Model.MsSql
         public bool IsUnique { get; set; }
 
         public MsSqlIndexedColumn[] IndexedColumns { get; set; }
+
+        public string Meta { get; set; }
         #endregion
 
         #region apply
