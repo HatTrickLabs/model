@@ -7,12 +7,21 @@ using System.Data.SqlClient;
 
 namespace HatTrick.Model.MsSql
 {
-    public class MsSqlModel
+    public class MsSqlModel : INamedMeta
     {
         #region interface
+        public string Name
+        {
+            get { return this.MsSqlDbName; }
+            set { this.MsSqlDbName = value; }
+        }
+
+        [Obsolete("This property is marked for deletion in future versions.  Use property 'Name' instead.")]
         public string MsSqlDbName { get; set; }
 
         public EnumerableNamedMetaSet<MsSqlSchema> Schemas { get; set; }
+
+        public string Meta { get; set; }
         #endregion
 
         #region constructors
