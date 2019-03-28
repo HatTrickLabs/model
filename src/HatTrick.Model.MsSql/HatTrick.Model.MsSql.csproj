@@ -11,10 +11,10 @@
     <PackageProjectUrl>https://github.com/HatTrickLabs/model</PackageProjectUrl>
     <RepositoryUrl>https://github.com/HatTrickLabs/model</RepositoryUrl>
     <PackageTags>sql mssql model extraction generation</PackageTags>
-    <PackageReleaseNotes>MsSqlModel now implements INamedMeta</PackageReleaseNotes>
+    <PackageReleaseNotes>EnumerableNamedMetaSet&lt;T&gt; where T : INamedMeta now has an implicit operator to EnumerableNamedMeta&lt;INamedMeta&gt;</PackageReleaseNotes>
     <RepositoryType>git</RepositoryType>
-    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
-    <Version>1.0.1</Version>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Version>1.0.2</Version>
   </PropertyGroup>
 
   <ItemGroup>
