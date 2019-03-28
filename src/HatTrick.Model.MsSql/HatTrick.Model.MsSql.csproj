@@ -11,10 +11,10 @@
     <PackageProjectUrl>https://github.com/HatTrickLabs/model</PackageProjectUrl>
     <RepositoryUrl>https://github.com/HatTrickLabs/model</RepositoryUrl>
     <PackageTags>sql mssql model extraction generation</PackageTags>
-    <PackageReleaseNotes>EnumerableNamedMetaSet&lt;T&gt; where T : INamedMeta now has an implicit operator to EnumerableNamedMeta&lt;INamedMeta&gt;</PackageReleaseNotes>
+    <PackageReleaseNotes>fixed bug in ResolveItem returning the parent of an item not found</PackageReleaseNotes>
     <RepositoryType>git</RepositoryType>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>1.0.2</Version>
+    <Version>1.0.3</Version>
   </PropertyGroup>
 
   <ItemGroup>

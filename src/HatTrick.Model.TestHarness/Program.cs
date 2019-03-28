@@ -62,6 +62,9 @@ namespace HatTrick.Model.TestHarness
             MsSqlColumn firstName2 = model.ResolveItem("dbo.Person.FirstName") as MsSqlColumn;
             MsSqlColumn zip2 = model.ResolveItem("dbo.Address.Zip") as MsSqlColumn;
             SqlDbType birthDateType2 = (model.ResolveItem("dbo.Person.BirthDate") as MsSqlColumn).SqlType;
+
+            //not found
+            var isNull = model.ResolveItem("dbo.Address.ABCCC");
         }
 
         static void TestObjectValueOverrides(MsSqlModel model)
