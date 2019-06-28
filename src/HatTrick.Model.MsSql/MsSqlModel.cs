@@ -10,14 +10,7 @@ namespace HatTrick.Model.MsSql
     public class MsSqlModel : INamedMeta
     {
         #region interface
-        public string Name
-        {
-            get { return this.MsSqlDbName; }
-            set { this.MsSqlDbName = value; }
-        }
-
-        [Obsolete("This property is marked for deletion in future versions.  Use property 'Name' instead.")]
-        public string MsSqlDbName { get; set; }
+        public string Name {  get; set;  }
 
         public EnumerableNamedMetaSet<MsSqlSchema> Schemas { get; set; }
 
@@ -52,6 +45,9 @@ namespace HatTrick.Model.MsSql
             { throw new ArgumentException($"{nameof(path)} must contain a value"); }
 
             INamedMeta namedMeta = null;
+
+            if (path[0] == @"/")
+                return this;
 
             MsSqlSchema s = null;
             MsSqlTable t = null;

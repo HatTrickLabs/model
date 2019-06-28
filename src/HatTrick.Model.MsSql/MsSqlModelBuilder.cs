@@ -123,7 +123,7 @@ namespace HatTrick.Model.MsSql
         public void ResolveName(ref MsSqlModel model)
         {
             var conn = this.EnsureConnection();
-            model.MsSqlDbName = conn.Database;
+            model.Name = conn.Database;
         }
         #endregion
 
