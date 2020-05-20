@@ -10,6 +10,7 @@ namespace HatTrick.Model.MsSql
     public class MsSqlTable : INamedMeta
     {
         #region interface
+        public INamedMeta Parent { get; set; }
         public int ObjectId { get; set; }
 
         public string Name { get; set; }

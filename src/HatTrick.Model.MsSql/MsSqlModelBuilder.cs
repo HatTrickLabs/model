@@ -101,7 +101,9 @@ namespace HatTrick.Model.MsSql
             try
             {
                 var cmd = this.EnsureConnection().CreateCommand();
+#pragma warning disable CA2100 // Review SQL queries for security vulnerabilities
                 cmd.CommandText = sql;
+#pragma warning restore CA2100 // Review SQL queries for security vulnerabilities
                 cmd.CommandType = CommandType.Text;
 
                 reader = cmd.ExecuteReader(CommandBehavior.SingleResult);
@@ -181,6 +183,10 @@ namespace HatTrick.Model.MsSql
             foreach (MsSqlSchema schema in model.Schemas)
             {
                 schema.Tables = new EnumerableNamedMetaSet<MsSqlTable>(tables.FindAll(t => t.Item1 == schema.Name).ConvertAll(t => t.Item2));
+                foreach (var table in schema.Tables)
+                {
+                    table.Parent = schema;
+                }
             }
         }
         #endregion
@@ -225,6 +231,10 @@ namespace HatTrick.Model.MsSql
                 foreach (MsSqlTable table in schema.Tables)
                 {
                     table.Columns = new EnumerableNamedMetaSet<MsSqlColumn>(columns.FindAll(c => c.ParentObjectId == table.ObjectId));
+                    foreach (var column in table.Columns)
+                    {
+                        column.Parent = table;
+                    }
                 }
             }
         }
@@ -318,6 +328,10 @@ namespace HatTrick.Model.MsSql
             foreach (MsSqlSchema schema in model.Schemas)
             {
                 schema.Views = new EnumerableNamedMetaSet<MsSqlView>(views.FindAll(v => v.Item1 == schema.Name).ConvertAll(v => v.Item2));
+                foreach (var view in schema.Views)
+                {
+                    view.Parent = schema;
+                }
             }
         }
         #endregion
@@ -361,6 +375,10 @@ namespace HatTrick.Model.MsSql
                 foreach (MsSqlView view in schema.Views)
                 {
                     view.Columns = new EnumerableNamedMetaSet<MsSqlColumn>(columns.FindAll(c => c.ParentObjectId == view.ObjectId));
+                    foreach (var column in view.Columns)
+                    {
+                        column.Parent = view;
+                    }
                 }
             }
         }
@@ -395,6 +413,10 @@ namespace HatTrick.Model.MsSql
             foreach (MsSqlSchema schema in model.Schemas)
             {
                 schema.Procedures = new EnumerableNamedMetaSet<MsSqlProcedure>(sprocs.FindAll(p => p.Item1 == schema.Name).ConvertAll(p => p.Item2).ToList());
+                foreach (var procedure in schema.Procedures)
+                {
+                    procedure.Parent = schema;
+                }
             }
         }
         #endregion
@@ -479,6 +501,10 @@ namespace HatTrick.Model.MsSql
             foreach (MsSqlSchema schema in model.Schemas)
             {
                 schema.Relationships = new EnumerableNamedMetaSet<MsSqlRelationship>(relationships.FindAll(p => p.Item1 == schema.Name).ConvertAll(p => p.Item2));
+                foreach (var relationship in schema.Relationships)
+                {
+                    relationship.Parent = schema;
+                }
             }
         }
         #endregion

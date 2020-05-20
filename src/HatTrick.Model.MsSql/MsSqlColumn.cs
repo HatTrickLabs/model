@@ -10,6 +10,7 @@ namespace HatTrick.Model.MsSql
     public class MsSqlColumn : INamedMeta
     {
         #region interface
+        public INamedMeta Parent { get; set; }
         public int ParentObjectId { get; set; }
 
         public int ColumnId { get; set; } //also ordinal

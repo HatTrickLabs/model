@@ -10,6 +10,7 @@ namespace HatTrick.Model.MsSql
     public class MsSqlRelationship : INamedMeta
     {
         #region interface
+        public INamedMeta Parent { get; set; }
         public string Name { get; set; }
 
         public int BaseTableId { get; set; }
