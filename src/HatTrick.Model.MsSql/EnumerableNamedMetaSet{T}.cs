@@ -165,5 +165,17 @@ namespace HatTrick.Model.MsSql
             return (_set as IDictionary).GetEnumerator();
         }
         #endregion
+
+        #region implict => EnumerableNamedSet<INamedMeta>
+        public static implicit operator EnumerableNamedMetaSet<INamedMeta>(EnumerableNamedMetaSet<T> from)
+        {
+            EnumerableNamedMetaSet<INamedMeta> to = new EnumerableNamedMetaSet<INamedMeta>();
+            foreach (var item in from._set)
+            {
+                to.Add(item.Value);
+            }
+            return to;
+        }
+        #endregion
     }
 }

@@ -58,10 +58,14 @@ namespace HatTrick.Model.TestHarness
             SqlDbType birthDateType1 = model.Schemas["dbo"].Tables["Person"].Columns["BirthDate"].SqlType;
 
             //resolve items
+            MsSqlModel mdl = model.ResolveItem("/") as MsSqlModel;
             MsSqlTable person2 = model.ResolveItem("dbo.Person") as MsSqlTable;
             MsSqlColumn firstName2 = model.ResolveItem("dbo.Person.FirstName") as MsSqlColumn;
             MsSqlColumn zip2 = model.ResolveItem("dbo.Address.Zip") as MsSqlColumn;
             SqlDbType birthDateType2 = (model.ResolveItem("dbo.Person.BirthDate") as MsSqlColumn).SqlType;
+
+            //not found
+            var isNull = model.ResolveItem("dbo.Address.ABCCC");
         }
 
         static void TestObjectValueOverrides(MsSqlModel model)
