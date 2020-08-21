@@ -14,13 +14,13 @@ namespace HatTrick.Model.MsSql
 
         public string Name { get; set; }
 
-        public EnumerableNamedMetaSet<MsSqlTable> Tables { get; set; }
+        public Dictionary<string, MsSqlTable> Tables { get; set; }
 
-        public EnumerableNamedMetaSet<MsSqlView> Views { get; set; }
+        public Dictionary<string, MsSqlView> Views { get; set; }
 
-        public EnumerableNamedMetaSet<MsSqlRelationship> Relationships { get; set; }
+        public Dictionary<string, MsSqlRelationship> Relationships { get; set; }
 
-        public EnumerableNamedMetaSet<MsSqlProcedure> Procedures { get; set; }
+        public Dictionary<string, MsSqlProcedure> Procedures { get; set; }
 
         public string Meta { get; set; }
         #endregion

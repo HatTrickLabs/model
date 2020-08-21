@@ -294,20 +294,6 @@ namespace HatTrick.Model.MsSql
 		}
 		#endregion
 
-		#region ensure segments
-		//private bool IsValidateSegments(string[] segments, out string message)
-		//{
-		//	char wildcard = this.Wildcard;
-		//	int cnt = segments.Count(s => s.Contains(wildcard));
-		//	bool isInFinal = (cnt > 0) && segments[segments.Length - 1].Contains(wildcard);
-
-		//	if (cnt > 1 || (cnt > 0 && !isInFinal))
-		//	{
-		//		message = "{ can only contain a wildcard in the final segment";
-		//	}
-		//}
-		#endregion
-
 		#region is string match
 		public bool IsStringMatch(string left, string right)
 		{

@@ -132,7 +132,7 @@ namespace HatTrick.Model.MsSql
         #region resolve schemas
         public void ResolveSchemas(ref MsSqlModel model)
         {
-            EnumerableNamedMetaSet<MsSqlSchema> schemas = new EnumerableNamedMetaSet<MsSqlSchema>();
+            Dictionary<string, MsSqlSchema> schemas = new Dictionary<string, MsSqlSchema>();
 
             string sql = _resourceAccessor.Get("Schema");
 
@@ -180,12 +180,14 @@ namespace HatTrick.Model.MsSql
 
             this.ExecuteSql(sql, action);
 
-            foreach (MsSqlSchema schema in model.Schemas)
+            foreach (MsSqlSchema schema in model.Schemas.Values)
             {
-                schema.Tables = new EnumerableNamedMetaSet<MsSqlTable>(tables.FindAll(t => t.Item1 == schema.Name).ConvertAll(t => t.Item2));
-                foreach (var table in schema.Tables)
+                schema.Tables = new Dictionary<string, MsSqlTable>()
+                    .AddRange(tables.FindAll(t => t.Item1 == schema.Name).ConvertAll(t => t.Item2));
+
+                foreach (var table in schema.Tables.Values)
                 {
-                    table.Parent = schema;
+                    table.SetParent(schema);
                 }
             }
         }
@@ -226,14 +228,16 @@ namespace HatTrick.Model.MsSql
 
             this.ExecuteSql(sql, action);
 
-            foreach (MsSqlSchema schema in model.Schemas)
+            foreach (MsSqlSchema schema in model.Schemas.Values)
             {
-                foreach (MsSqlTable table in schema.Tables)
+                foreach (MsSqlTable table in schema.Tables.Values)
                 {
-                    table.Columns = new EnumerableNamedMetaSet<MsSqlTableColumn>(columns.FindAll(c => c.ParentObjectId == table.ObjectId));
-                    foreach (var column in table.Columns)
+                    table.Columns = new Dictionary<string, MsSqlTableColumn>()
+                        .AddRange(columns.FindAll(c => c.ParentObjectId == table.ObjectId));
+
+                    foreach (var column in table.Columns.Values)
                     {
-                        column.Parent = table;
+                        column.SetParent(table);
                     }
                 }
             }
@@ -286,12 +290,14 @@ namespace HatTrick.Model.MsSql
 
             this.ExecuteSql(sql, action);
 
-            foreach (MsSqlSchema schema in model.Schemas)
+            foreach (MsSqlSchema schema in model.Schemas.Values)
             {
-                foreach (MsSqlTable table in schema.Tables)
+                foreach (MsSqlTable table in schema.Tables.Values)
                 {
-                    table.Indexes = new EnumerableNamedMetaSet<MsSqlIndex>(indexes.FindAll(i => i.ParentObjectId == table.ObjectId));
-                    foreach (MsSqlIndex index in table.Indexes)
+                    table.Indexes = new Dictionary<string, MsSqlIndex>()
+                        .AddRange(indexes.FindAll(i => i.ParentObjectId == table.ObjectId));
+
+                    foreach (MsSqlIndex index in table.Indexes.Values)
                     {
                         index.IndexedColumns = indexedColumns.FindAll(ic => ic.ParentObjectId == index.ParentObjectId && ic.IndexId == index.IndexId).ToArray();
                     }
@@ -325,12 +331,14 @@ namespace HatTrick.Model.MsSql
 
             this.ExecuteSql(sql, action);
 
-            foreach (MsSqlSchema schema in model.Schemas)
+            foreach (MsSqlSchema schema in model.Schemas.Values)
             {
-                schema.Views = new EnumerableNamedMetaSet<MsSqlView>(views.FindAll(v => v.Item1 == schema.Name).ConvertAll(v => v.Item2));
-                foreach (var view in schema.Views)
+                schema.Views = new Dictionary<string, MsSqlView>()
+                    .AddRange(views.FindAll(v => v.Item1 == schema.Name).ConvertAll(v => v.Item2));
+
+                foreach (var view in schema.Views.Values)
                 {
-                    view.Parent = schema;
+                    view.SetParent(schema);
                 }
             }
         }
@@ -370,14 +378,16 @@ namespace HatTrick.Model.MsSql
 
             this.ExecuteSql(sql, action);
 
-            foreach (MsSqlSchema schema in model.Schemas)
+            foreach (MsSqlSchema schema in model.Schemas.Values)
             {
-                foreach (MsSqlView view in schema.Views)
+                foreach (MsSqlView view in schema.Views.Values)
                 {
-                    view.Columns = new EnumerableNamedMetaSet<MsSqlViewColumn>(columns.FindAll(c => c.ParentObjectId == view.ObjectId));
-                    foreach (var column in view.Columns)
+                    view.Columns = new Dictionary<string, MsSqlViewColumn>()
+                        .AddRange(columns.FindAll(c => c.ParentObjectId == view.ObjectId));
+
+                    foreach (var column in view.Columns.Values)
                     {
-                        column.Parent = view;
+                        column.SetParent(view);
                     }
                 }
             }
@@ -410,12 +420,14 @@ namespace HatTrick.Model.MsSql
 
             this.ExecuteSql(sql, action);
 
-            foreach (MsSqlSchema schema in model.Schemas)
+            foreach (MsSqlSchema schema in model.Schemas.Values)
             {
-                schema.Procedures = new EnumerableNamedMetaSet<MsSqlProcedure>(sprocs.FindAll(p => p.Item1 == schema.Name).ConvertAll(p => p.Item2).ToList());
-                foreach (var procedure in schema.Procedures)
+                schema.Procedures = new Dictionary<string, MsSqlProcedure>()
+                    .AddRange(sprocs.FindAll(p => p.Item1 == schema.Name).ConvertAll(p => p.Item2).ToList());
+
+                foreach (var procedure in schema.Procedures.Values)
                 {
-                    procedure.Parent = schema;
+                    procedure.SetParent(schema);
                 }
             }
         }
@@ -456,11 +468,12 @@ namespace HatTrick.Model.MsSql
 
             this.ExecuteSql(sql, action);
 
-            foreach (MsSqlSchema schema in model.Schemas)
+            foreach (MsSqlSchema schema in model.Schemas.Values)
             {
-                foreach (MsSqlProcedure sproc in schema.Procedures)
+                foreach (MsSqlProcedure sproc in schema.Procedures.Values)
                 {
-                    sproc.Parameters = new EnumerableNamedMetaSet<MsSqlParameter>(parameters.FindAll(p => p.ParentObjectId == sproc.ObjectId));
+                    sproc.Parameters = new Dictionary<string, MsSqlParameter>()
+                        .AddRange(parameters.FindAll(p => p.ParentObjectId == sproc.ObjectId));
                 }
             }
         }
@@ -498,12 +511,14 @@ namespace HatTrick.Model.MsSql
 
             this.ExecuteSql(sql, action);
 
-            foreach (MsSqlSchema schema in model.Schemas)
+            foreach (MsSqlSchema schema in model.Schemas.Values)
             {
-                schema.Relationships = new EnumerableNamedMetaSet<MsSqlRelationship>(relationships.FindAll(p => p.Item1 == schema.Name).ConvertAll(p => p.Item2));
-                foreach (var relationship in schema.Relationships)
+                schema.Relationships = new Dictionary<string, MsSqlRelationship>()
+                    .AddRange(relationships.FindAll(p => p.Item1 == schema.Name).ConvertAll(p => p.Item2));
+
+                foreach (var relationship in schema.Relationships.Values)
                 {
-                    relationship.Parent = schema;
+                    relationship.SetParent(schema);
                 }
             }
         }
@@ -534,11 +549,12 @@ namespace HatTrick.Model.MsSql
 
             this.ExecuteSql(sql, action);
 
-            foreach (MsSqlSchema schema in model.Schemas)
+            foreach (MsSqlSchema schema in model.Schemas.Values)
             {
-                foreach (MsSqlTable table in schema.Tables)
+                foreach (MsSqlTable table in schema.Tables.Values)
                 {
-                    table.ExtendedProperties = new EnumerableNamedMetaSet<MsSqlExtendedProperty>(extProps.FindAll(p => p.MajorId == table.ObjectId));
+                    table.ExtendedProperties = new Dictionary<string, MsSqlExtendedProperty>()
+                        .AddRange(extProps.FindAll(p => p.MajorId == table.ObjectId));
                 }
             }
         }
@@ -569,15 +585,14 @@ namespace HatTrick.Model.MsSql
 
             this.ExecuteSql(sql, action);
 
-            foreach (MsSqlSchema schema in model.Schemas)
+            foreach (MsSqlSchema schema in model.Schemas.Values)
             {
-                foreach (MsSqlTable table in schema.Tables)
+                foreach (MsSqlTable table in schema.Tables.Values)
                 {
-                    foreach (MsSqlColumn column in table.Columns)
+                    foreach (MsSqlColumn column in table.Columns.Values)
                     {
-                        column.ExtendedProperties = new EnumerableNamedMetaSet<MsSqlExtendedProperty>(
-                            extProps.FindAll(p => p.MajorId == table.ObjectId && p.MinorId == column.ColumnId)
-                        );
+                        column.ExtendedProperties = new Dictionary<string, MsSqlExtendedProperty>()
+                            .AddRange(extProps.FindAll(p => p.MajorId == table.ObjectId && p.MinorId == column.ColumnId));
                     }
                 }
             }
@@ -609,11 +624,12 @@ namespace HatTrick.Model.MsSql
 
             this.ExecuteSql(sql, action);
 
-            foreach (MsSqlSchema schema in model.Schemas)
+            foreach (MsSqlSchema schema in model.Schemas.Values)
             {
-                foreach (MsSqlView view in schema.Views)
+                foreach (MsSqlView view in schema.Views.Values)
                 {
-                    view.ExtendedProperties = new EnumerableNamedMetaSet<MsSqlExtendedProperty>(extProps.FindAll(p => p.MajorId == view.ObjectId));
+                    view.ExtendedProperties = new Dictionary<string, MsSqlExtendedProperty>()
+                        .AddRange(extProps.FindAll(p => p.MajorId == view.ObjectId));
                 }
             }
         }
@@ -644,15 +660,14 @@ namespace HatTrick.Model.MsSql
 
             this.ExecuteSql(sql, action);
 
-            foreach (MsSqlSchema schema in model.Schemas)
+            foreach (MsSqlSchema schema in model.Schemas.Values)
             {
-                foreach (MsSqlView view in schema.Views)
+                foreach (MsSqlView view in schema.Views.Values)
                 {
-                    foreach (MsSqlColumn column in view.Columns)
+                    foreach (MsSqlColumn column in view.Columns.Values)
                     {
-                        column.ExtendedProperties = new EnumerableNamedMetaSet<MsSqlExtendedProperty>(
-                            extProps.FindAll(p => p.MajorId == view.ObjectId && p.MinorId == column.ColumnId)
-                        );
+                        column.ExtendedProperties = new Dictionary<string, MsSqlExtendedProperty>()
+                            .AddRange(extProps.FindAll(p => p.MajorId == view.ObjectId && p.MinorId == column.ColumnId));
                     }
                 }
             }

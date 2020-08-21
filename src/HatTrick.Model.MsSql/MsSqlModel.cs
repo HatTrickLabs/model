@@ -16,7 +16,7 @@ namespace HatTrick.Model.MsSql
 		#region interface
 		public string Name {  get; set;  }
 
-        public EnumerableNamedMetaSet<MsSqlSchema> Schemas { get; set; }
+        public Dictionary<string, MsSqlSchema> Schemas { get; set; }
 
         public string Meta { get; set; }
         #endregion

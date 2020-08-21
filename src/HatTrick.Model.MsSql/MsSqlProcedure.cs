@@ -9,17 +9,36 @@ namespace HatTrick.Model.MsSql
 {
     public class MsSqlProcedure : INamedMeta
     {
-        #region interface
-        public INamedMeta Parent { get; set; }
-        public int ObjectId { get; set; }
+        #region internals
+        private INamedMeta _parent;
+		#endregion
+
+		#region interface
+		//public INamedMeta Parent { get; set; }
+
+		public int ObjectId { get; set; }
 
         public string Name { get; set; }
 
         public bool IsStartupProcedure { get; set; }
 
-        public EnumerableNamedMetaSet<MsSqlParameter> Parameters { get; set; }
+        public Dictionary<string, MsSqlParameter> Parameters { get; set; }
 
         public string Meta { get; set; }
+        #endregion
+
+        #region set parent
+        public void SetParent(MsSqlSchema schema)
+        {
+            _parent = schema;
+        }
+        #endregion
+
+        #region get parent
+        public INamedMeta GetParent()
+        {
+            return _parent;
+        }
         #endregion
 
         #region apply

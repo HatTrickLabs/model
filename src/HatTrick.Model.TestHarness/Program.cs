@@ -5,7 +5,7 @@ using System.Data;
 using System.Linq;
 using System.Text;
 using HatTrick.Model.MsSql;
-using HatTrick.Reflection;
+//using HatTrick.Reflection;
 
 namespace HatTrick.Model.TestHarness
 {
@@ -36,7 +36,7 @@ namespace HatTrick.Model.TestHarness
             //build model
             MsSqlModel sqlModel = builder.Build();
 
-            var set = sqlModel.ResolveItemSet<MsSqlViewColumn>("dbo.*.*");
+            var set = sqlModel.ResolveItemSet<MsSqlTableColumn>("dbo.Person.FirstName");
 
             if (!error)
             {
