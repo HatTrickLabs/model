@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using HatTrick.Model.MsSql;
 using HatTrick.Reflection;
 
@@ -36,6 +35,9 @@ namespace HatTrick.Model.TestHarness
 
             //build model
             MsSqlModel sqlModel = builder.Build();
+
+            var set = sqlModel.ResolveItemSet<MsSqlViewColumn>("dbo.*.*");
+
             if (!error)
             {
                 TestResolveObjects(sqlModel);
@@ -58,8 +60,10 @@ namespace HatTrick.Model.TestHarness
             SqlDbType birthDateType1 = model.Schemas["dbo"].Tables["Person"].Columns["BirthDate"].SqlType;
 
             //resolve items
-            MsSqlModel mdl = model.ResolveItem("/") as MsSqlModel;
+            MsSqlModel mdl = model.ResolveItem(".") as MsSqlModel;
             MsSqlTable person2 = model.ResolveItem("dbo.Person") as MsSqlTable;
+            MsSqlTable person3 = model.ResolveItem("dbo.[$Person.Single]") as MsSqlTable;
+            MsSqlTable person4 = model.ResolveItem("dbo.[$Person%.Single]") as MsSqlTable;
             MsSqlColumn firstName2 = model.ResolveItem("dbo.Person.FirstName") as MsSqlColumn;
             MsSqlColumn zip2 = model.ResolveItem("dbo.Address.Zip") as MsSqlColumn;
             SqlDbType birthDateType2 = (model.ResolveItem("dbo.Person.BirthDate") as MsSqlColumn).SqlType;

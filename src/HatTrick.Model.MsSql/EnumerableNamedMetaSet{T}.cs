@@ -7,22 +7,22 @@ using System.Threading.Tasks;
 
 namespace HatTrick.Model.MsSql
 {
-    public class EnumerableNamedMetaSet<T> : IDictionary, IEnumerable<T> where T : INamedMeta// IName, IMeta
+    public class EnumerableNamedMetaSet<T> : IDictionary, IEnumerable<T> where T : INamedMeta
     {
         #region internals
         private Dictionary<string, T> _set;
         #endregion
 
         #region interface
-        public T this[string name]
+        public T this[string key]
         {
-            get { return _set[name]; }
+            get { return _set[key]; }
         }
 
-        public object this[object name]
+        public object this[object key]
         {
-            get { return this[name.ToString()]; }
-            set { _set[name.ToString()] = (T)value; }
+            get { return this[key.ToString()]; }
+            set { _set[key.ToString()] = (T)value; }
         }
 
         public T this[int index]
@@ -63,12 +63,12 @@ namespace HatTrick.Model.MsSql
         #region constructors
         public EnumerableNamedMetaSet()
         {
-            _set = new Dictionary<string, T>();
+            _set = new Dictionary<string, T>(StringComparer.OrdinalIgnoreCase);
         }
 
         public EnumerableNamedMetaSet(IEnumerable<T> values)
         {
-            _set = new Dictionary<string, T>();
+            _set = new Dictionary<string, T>(StringComparer.OrdinalIgnoreCase);
             if (values != null && values.Count() > 0)
             {
                 foreach (T v in values)
@@ -89,34 +89,44 @@ namespace HatTrick.Model.MsSql
         {
             string name = (key as string);
             if (name == null)
-            {
                 throw new ArgumentException("key must be a string", nameof(key));
-            }
+
             if (!(value is T val))
-            {
                 throw new ArgumentException($"value must be a type of {typeof(T)}", nameof(value));
-            }
+
             if (val.Name != name)
-            {
                 throw new ArgumentException("argument provided for 'key' must be a string and the string value must be equal to ((T)value).Name");
-            }
+
             this.Add(val);
         }
         #endregion
 
-        #region remove
-        public void Remove(string name)
+        #region region add range
+        public EnumerableNamedMetaSet<T> AddRange(EnumerableNamedMetaSet<T> values)
         {
-            _set.Remove(name);
+            if (values == null || values.Count == 0)
+                return this;
+
+            foreach (var value in values)
+            {
+                _set.Add(value.Name, value);
+            }
+
+            return this;
+        }
+        #endregion
+
+        #region remove
+        public void Remove(string key)
+        {
+            _set.Remove(key);
         }
 
         public void Remove(object key)
         {
             string name = (key as string);
             if (name == null)
-            {
                 throw new ArgumentException("key must be a string", nameof(key));
-            }
 
             _set.Remove(name);
         }
@@ -125,13 +135,68 @@ namespace HatTrick.Model.MsSql
         #region contains
         public bool Contains(object key)
         {
+            if (key == null)
+                throw new ArgumentNullException(nameof(key));
+
             string name = (key as string);
             if (name == null)
-            {
                 throw new ArgumentException("key must be a string", nameof(key));
-            }
 
             return _set.Keys.Contains(name);
+        }
+        #endregion
+
+        #region has match
+        public bool HasMatch(string key, Func<string, string, bool> isKeyMatch)
+        {
+            if (key == null)
+                throw new ArgumentNullException(nameof(key));
+
+            if (key == string.Empty)
+                throw new ArgumentException("argument must contain a value", nameof(key));
+
+            bool found = false;
+            foreach (var item in _set)
+            {
+                if (isKeyMatch(item.Key, key))
+                {
+                    found = true;
+                    break;
+                }
+            }
+            return found;
+        }
+        #endregion
+
+        #region get matches
+        public EnumerableNamedMetaSet<T> GetMatches(string key, Func<string, string, bool> isKeyMatch)
+        {
+            EnumerableNamedMetaSet<T> matches = new EnumerableNamedMetaSet<T>();
+            foreach (var item in _set)
+            {
+                if (isKeyMatch(item.Key, key))
+                {
+                    matches.Add(item.Key, item.Value);
+                }
+            }
+
+            return matches;
+        }
+        #endregion
+
+        #region get match list
+        public List<T> GetMatchList(string key, Func<string, string, bool> isKeyMatch)
+        {
+            List<T> matches = new List<T>();
+            foreach (var item in _set)
+            {
+                if (isKeyMatch(item.Key, key))
+                {
+                    matches.Add(item.Value);
+                }
+            }
+
+            return matches;
         }
         #endregion
 

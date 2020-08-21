@@ -11,11 +11,12 @@ namespace HatTrick.Model.MsSql
     {
         #region interface
         public INamedMeta Parent { get; set; }
+
         public int ObjectId { get; set; }
 
         public string Name { get; set; }
 
-        public EnumerableNamedMetaSet<MsSqlColumn> Columns { get; set; }
+        public EnumerableNamedMetaSet<MsSqlTableColumn> Columns { get; set; }
 
         public EnumerableNamedMetaSet<MsSqlIndex> Indexes { get; set; }
 

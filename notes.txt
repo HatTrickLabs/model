@@ -1,0 +1,67 @@
+Depth
+--------------------------
+[0]	Schema
+
+[1]	Table
+[1]	View
+[1]	Procedure
+[1]	Relationship
+
+
+[2]	Index
+[2]	Column (table, view)
+[2]	Parameter
+
+[2] TableExtendedProperty
+[2] ViewExtendedProperty
+[3] TableColumnExtendedProperty
+[3] TableColumnExtendedProperty
+
+
+.								=> Model
+*								=> all Schemas
+*.Person						=> all Tables, Views, Procedures and Relationships named Person from within all schemas
+*.Person, table					=> all Tables named Person from any Schema
+dbo.*, view						=> all Views within the dbo schemas
+dbo.*, column					=> !!! WRONG Depth !!!
+dbo.MS_*, table					=> all tables having a name starting with MS_
+sec								=> Schema with name sec
+dbo.*.Id						=> ??? TABLE Id Coj
+dbo.*.ModifiedAt				=> ???? I need all TABLE.COLUMN but not View.COLUMN ???
+	
+	
+	
+INamedMeta ResolveItem(string path);
+
+"dbo.Person.*
+EnumerableNamedMetaSet<INamedMeta> ResolveItemSet(string path); //allows wildcard
+
+"dbo.*"
+EnumerableNamedMetaSet<T> ResolveItemSet<T>(string path); //allows wildcard
+
+
+
+
+dbo.*.ModifiedAt type="tableColumn" 
+Apply Type="DateTimeOffset"  
+
+
+
+dbo.1
+Views,Tables
+
+DateTime TSQL
+DateTime C#
+DateTimeOffset
+
+
+
+
+
+
+
+
+
+
+
+

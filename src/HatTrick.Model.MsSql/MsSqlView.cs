@@ -15,7 +15,7 @@ namespace HatTrick.Model.MsSql
 
         public string Name { get; set; }
 
-        public EnumerableNamedMetaSet<MsSqlColumn> Columns { get; set; }
+        public EnumerableNamedMetaSet<MsSqlViewColumn> Columns { get; set; }
 
         public EnumerableNamedMetaSet<MsSqlExtendedProperty> ExtendedProperties { get; set; }
 

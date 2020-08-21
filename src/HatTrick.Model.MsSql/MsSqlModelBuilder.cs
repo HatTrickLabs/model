@@ -194,18 +194,18 @@ namespace HatTrick.Model.MsSql
         #region resolve table columns
         public void ResolveTableColumns(ref MsSqlModel model)
         {
-            List<MsSqlColumn> columns = new List<MsSqlColumn>();
+            List<MsSqlTableColumn> columns = new List<MsSqlTableColumn>();
 
             string sql = _resourceAccessor.Get("Table_Column");
 
             Action<DbDataReader> action = (dr) =>
             {
                 SqlDbType sqlType;
-                MsSqlColumn c = null;
+                MsSqlTableColumn c = null;
                 while (dr.Read())
                 {
                     bool typeParsed = Enum.TryParse<SqlDbType>((string)dr["data_type_name"], true, out sqlType);
-                    c = new MsSqlColumn
+                    c = new MsSqlTableColumn
                     {
                         ColumnId = (int)dr["column_id"],
                         ParentObjectId = (int)dr["table_id"],
@@ -230,7 +230,7 @@ namespace HatTrick.Model.MsSql
             {
                 foreach (MsSqlTable table in schema.Tables)
                 {
-                    table.Columns = new EnumerableNamedMetaSet<MsSqlColumn>(columns.FindAll(c => c.ParentObjectId == table.ObjectId));
+                    table.Columns = new EnumerableNamedMetaSet<MsSqlTableColumn>(columns.FindAll(c => c.ParentObjectId == table.ObjectId));
                     foreach (var column in table.Columns)
                     {
                         column.Parent = table;
@@ -339,18 +339,18 @@ namespace HatTrick.Model.MsSql
         #region resolve view columns
         public void ResolveViewColumns(ref MsSqlModel model)
         {
-            List<MsSqlColumn> columns = new List<MsSqlColumn>();
+            List<MsSqlViewColumn> columns = new List<MsSqlViewColumn>();
 
             string sql = _resourceAccessor.Get("View_Column");
 
             Action<DbDataReader> action = (dr) =>
             {
                 SqlDbType sqlType;
-                MsSqlColumn c = null;
+                MsSqlViewColumn c = null;
                 while (dr.Read())
                 {
                     bool typeParsed = Enum.TryParse<SqlDbType>((string)dr["data_type_name"], true, out sqlType);
-                    c = new MsSqlColumn
+                    c = new MsSqlViewColumn
                     {
                         ColumnId = (int)dr["column_id"],
                         ParentObjectId = (int)dr["view_id"],
@@ -374,7 +374,7 @@ namespace HatTrick.Model.MsSql
             {
                 foreach (MsSqlView view in schema.Views)
                 {
-                    view.Columns = new EnumerableNamedMetaSet<MsSqlColumn>(columns.FindAll(c => c.ParentObjectId == view.ObjectId));
+                    view.Columns = new EnumerableNamedMetaSet<MsSqlViewColumn>(columns.FindAll(c => c.ParentObjectId == view.ObjectId));
                     foreach (var column in view.Columns)
                     {
                         column.Parent = view;

@@ -9,8 +9,12 @@ namespace HatTrick.Model.MsSql
 {
     public class MsSqlModel : INamedMeta
     {
-        #region interface
-        public string Name {  get; set;  }
+        #region internals
+        private NamedMetaAccessor _accessor;
+		#endregion
+
+		#region interface
+		public string Name {  get; set;  }
 
         public EnumerableNamedMetaSet<MsSqlSchema> Schemas { get; set; }
 
@@ -20,96 +24,45 @@ namespace HatTrick.Model.MsSql
         #region constructors
         public MsSqlModel()
         {
+            _accessor = new NamedMetaAccessor(this);
         }
         #endregion
 
         #region resolve meta
         public INamedMeta ResolveItem(string path)
         {
-            return this.ResolveItem(path?.Split('.') ?? null);
+            return _accessor.ResolveItem(path);
         }
-        //-Schemas
-        //  - Tables
-        //    - Columns
-        //    - Indexes
-        //  - Views
-        //    - Columns
-        //  - Procedures
-        //    - Parameters
-        //  - Relationships
-        //TODO: JRod, this works, but should try refactor into a recursive call working against EnumerableNamedSet<T> 
-        //      OR do internal yeild  return on the EnumerableNamedSet in same resolve order being 
-        public INamedMeta ResolveItem(string[] path)
+        #endregion
+
+        #region resolve item set
+        public IEnumerable<INamedMeta> ResolveItemSet(string path)
         {
-            if (path == null || path.Length == 0)
-            { throw new ArgumentException($"{nameof(path)} must contain a value"); }
+            return _accessor.ResolveItemSet(path);
+        }
 
-            INamedMeta namedMeta = null;
-
-            if (path[0] == @"/")
-                return this;
-
-            MsSqlSchema s = null;
-            MsSqlTable t = null;
-            MsSqlColumn c = null;
-            MsSqlIndex ix = null;
-            MsSqlView v = null;
-            MsSqlProcedure p = null;
-            MsSqlParameter pm = null;
-            MsSqlRelationship r = null;
-            int i; //declare outside loop scope so we can ensure we found the path ALL the way through on exit...
-            for (i = 0; i < path.Length; i++)
+        public IEnumerable<T> ResolveItemSet<T>(string path) where T : INamedMeta
+        {
+            var set =_accessor.ResolveItemSet(path);
+            List<T> typedSet = new List<T>();
+            foreach (var item in set)
             {
-                string key = path[i];
-                if (i == 0)
-                {
-                    if (this.Schemas.Contains(key))
-                    { namedMeta = s = this.Schemas[key]; }
-                    else
-                    { break; }
-                }
-                else if (i == 1)
-                {
-                    if (s.Tables.Contains(key))
-                    { namedMeta = t = s.Tables[key]; }
-                    else if (s.Views.Contains(key))
-                    { namedMeta = v = s.Views[key]; }
-                    else if (s.Procedures.Contains(key))
-                    { namedMeta = p = s.Procedures[key]; }
-                    else if (s.Relationships.Contains(key))
-                    { namedMeta = r = s.Relationships[key]; }
-                    else
-                    { break; }
-                }
-                else if (i == 2)
-                {
-                    if (t != null)
-                    { 
-                        if (t.Columns.Contains(key))
-                        { namedMeta = c = t.Columns[key]; }
-                        else if (t.Indexes.Contains(key))
-                        { namedMeta = ix = t.Indexes[key]; }
-                        else
-                        { break; }
-                    }
-                    else if (v != null)
-                    {
-                        if (v.Columns.Contains(key))
-                        { namedMeta = c = v.Columns[key]; }
-                        else
-                        { break; }
-                    }
-                    else if (p != null)
-                    {
-                        if (p.Parameters.Contains(key))
-                        { namedMeta = pm = p.Parameters[key]; }
-                        else
-                        { break; }
-                    }
-                }
+                if (item is T itm)
+                    typedSet.Add(itm);
             }
+            return typedSet;
+        }
 
-            return i == path.Length ? namedMeta : null;
+        public IEnumerable<T> ResolveItemSet<T>(string path, Predicate<T> predicate) where T : INamedMeta
+        {
+            var set = _accessor.ResolveItemSet(path);
+            List<T> typedSet = new List<T>();
+            foreach (var item in set)
+            {
+                if (item is T itm)
+                    typedSet.Add(itm);
+            }
+            return typedSet;
         }
         #endregion
     }
