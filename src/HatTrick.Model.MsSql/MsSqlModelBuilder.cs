@@ -132,7 +132,7 @@ namespace HatTrick.Model.MsSql
         #region resolve schemas
         public void ResolveSchemas(ref MsSqlModel model)
         {
-            Dictionary<string, MsSqlSchema> schemas = new Dictionary<string, MsSqlSchema>();
+            Dictionary<string, MsSqlSchema> schemas = new Dictionary<string, MsSqlSchema>(StringComparer.OrdinalIgnoreCase);
 
             string sql = _resourceAccessor.Get("Schema");
 
@@ -182,7 +182,7 @@ namespace HatTrick.Model.MsSql
 
             foreach (MsSqlSchema schema in model.Schemas.Values)
             {
-                schema.Tables = new Dictionary<string, MsSqlTable>()
+                schema.Tables = new Dictionary<string, MsSqlTable>(StringComparer.OrdinalIgnoreCase)
                     .AddRange(tables.FindAll(t => t.Item1 == schema.Name).ConvertAll(t => t.Item2));
 
                 foreach (var table in schema.Tables.Values)
@@ -232,7 +232,7 @@ namespace HatTrick.Model.MsSql
             {
                 foreach (MsSqlTable table in schema.Tables.Values)
                 {
-                    table.Columns = new Dictionary<string, MsSqlTableColumn>()
+                    table.Columns = new Dictionary<string, MsSqlTableColumn>(StringComparer.OrdinalIgnoreCase)
                         .AddRange(columns.FindAll(c => c.ParentObjectId == table.ObjectId));
 
                     foreach (var column in table.Columns.Values)
@@ -294,7 +294,7 @@ namespace HatTrick.Model.MsSql
             {
                 foreach (MsSqlTable table in schema.Tables.Values)
                 {
-                    table.Indexes = new Dictionary<string, MsSqlIndex>()
+                    table.Indexes = new Dictionary<string, MsSqlIndex>(StringComparer.OrdinalIgnoreCase)
                         .AddRange(indexes.FindAll(i => i.ParentObjectId == table.ObjectId));
 
                     foreach (MsSqlIndex index in table.Indexes.Values)
@@ -333,7 +333,7 @@ namespace HatTrick.Model.MsSql
 
             foreach (MsSqlSchema schema in model.Schemas.Values)
             {
-                schema.Views = new Dictionary<string, MsSqlView>()
+                schema.Views = new Dictionary<string, MsSqlView>(StringComparer.OrdinalIgnoreCase)
                     .AddRange(views.FindAll(v => v.Item1 == schema.Name).ConvertAll(v => v.Item2));
 
                 foreach (var view in schema.Views.Values)
@@ -382,7 +382,7 @@ namespace HatTrick.Model.MsSql
             {
                 foreach (MsSqlView view in schema.Views.Values)
                 {
-                    view.Columns = new Dictionary<string, MsSqlViewColumn>()
+                    view.Columns = new Dictionary<string, MsSqlViewColumn>(StringComparer.OrdinalIgnoreCase)
                         .AddRange(columns.FindAll(c => c.ParentObjectId == view.ObjectId));
 
                     foreach (var column in view.Columns.Values)
@@ -422,7 +422,7 @@ namespace HatTrick.Model.MsSql
 
             foreach (MsSqlSchema schema in model.Schemas.Values)
             {
-                schema.Procedures = new Dictionary<string, MsSqlProcedure>()
+                schema.Procedures = new Dictionary<string, MsSqlProcedure>(StringComparer.OrdinalIgnoreCase)
                     .AddRange(sprocs.FindAll(p => p.Item1 == schema.Name).ConvertAll(p => p.Item2).ToList());
 
                 foreach (var procedure in schema.Procedures.Values)
@@ -472,7 +472,7 @@ namespace HatTrick.Model.MsSql
             {
                 foreach (MsSqlProcedure sproc in schema.Procedures.Values)
                 {
-                    sproc.Parameters = new Dictionary<string, MsSqlParameter>()
+                    sproc.Parameters = new Dictionary<string, MsSqlParameter>(StringComparer.OrdinalIgnoreCase)
                         .AddRange(parameters.FindAll(p => p.ParentObjectId == sproc.ObjectId));
                 }
             }
@@ -513,7 +513,7 @@ namespace HatTrick.Model.MsSql
 
             foreach (MsSqlSchema schema in model.Schemas.Values)
             {
-                schema.Relationships = new Dictionary<string, MsSqlRelationship>()
+                schema.Relationships = new Dictionary<string, MsSqlRelationship>(StringComparer.OrdinalIgnoreCase)
                     .AddRange(relationships.FindAll(p => p.Item1 == schema.Name).ConvertAll(p => p.Item2));
 
                 foreach (var relationship in schema.Relationships.Values)
@@ -553,7 +553,7 @@ namespace HatTrick.Model.MsSql
             {
                 foreach (MsSqlTable table in schema.Tables.Values)
                 {
-                    table.ExtendedProperties = new Dictionary<string, MsSqlExtendedProperty>()
+                    table.ExtendedProperties = new Dictionary<string, MsSqlExtendedProperty>(StringComparer.OrdinalIgnoreCase)
                         .AddRange(extProps.FindAll(p => p.MajorId == table.ObjectId));
                 }
             }
@@ -591,7 +591,7 @@ namespace HatTrick.Model.MsSql
                 {
                     foreach (MsSqlColumn column in table.Columns.Values)
                     {
-                        column.ExtendedProperties = new Dictionary<string, MsSqlExtendedProperty>()
+                        column.ExtendedProperties = new Dictionary<string, MsSqlExtendedProperty>(StringComparer.OrdinalIgnoreCase)
                             .AddRange(extProps.FindAll(p => p.MajorId == table.ObjectId && p.MinorId == column.ColumnId));
                     }
                 }
@@ -628,7 +628,7 @@ namespace HatTrick.Model.MsSql
             {
                 foreach (MsSqlView view in schema.Views.Values)
                 {
-                    view.ExtendedProperties = new Dictionary<string, MsSqlExtendedProperty>()
+                    view.ExtendedProperties = new Dictionary<string, MsSqlExtendedProperty>(StringComparer.OrdinalIgnoreCase)
                         .AddRange(extProps.FindAll(p => p.MajorId == view.ObjectId));
                 }
             }
@@ -666,7 +666,7 @@ namespace HatTrick.Model.MsSql
                 {
                     foreach (MsSqlColumn column in view.Columns.Values)
                     {
-                        column.ExtendedProperties = new Dictionary<string, MsSqlExtendedProperty>()
+                        column.ExtendedProperties = new Dictionary<string, MsSqlExtendedProperty>(StringComparer.OrdinalIgnoreCase)
                             .AddRange(extProps.FindAll(p => p.MajorId == view.ObjectId && p.MinorId == column.ColumnId));
                     }
                 }

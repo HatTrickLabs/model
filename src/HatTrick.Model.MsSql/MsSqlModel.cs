@@ -56,13 +56,13 @@ namespace HatTrick.Model.MsSql
         public IEnumerable<T> ResolveItemSet<T>(string path, Predicate<T> predicate) where T : INamedMeta
         {
             var set = _accessor.ResolveItemSet(path);
-            List<T> typedSet = new List<T>();
+            List<T> filteredSet = new List<T>();
             foreach (var item in set)
             {
-                if (item is T itm)
-                    typedSet.Add(itm);
+                if (item is T itm && predicate(itm))
+                    filteredSet.Add(itm);
             }
-            return typedSet;
+            return filteredSet;
         }
         #endregion
     }

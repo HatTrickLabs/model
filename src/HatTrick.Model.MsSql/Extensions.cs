@@ -5,6 +5,7 @@ using System.Text;
 
 namespace HatTrick.Model.MsSql
 {
+	#region dictionary
 	public static class DictionaryExtensions
 	{
 		#region contains
@@ -69,4 +70,5 @@ namespace HatTrick.Model.MsSql
 		}
 		#endregion
 	}
+	#endregion
 }
