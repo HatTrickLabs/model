@@ -5,7 +5,8 @@ using System.Data;
 using System.Linq;
 using System.Text;
 using HatTrick.Model.MsSql;
-//using HatTrick.Reflection;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace HatTrick.Model.TestHarness
 {
@@ -36,11 +37,10 @@ namespace HatTrick.Model.TestHarness
             //build model
             MsSqlModel sqlModel = builder.Build();
 
-            var set = sqlModel.ResolveItemSet<MsSqlTableColumn>("dbo.Person.FirstName");
-
             if (!error)
             {
-                TestResolveObjects(sqlModel);
+                TestResolveObject(sqlModel);
+                TestResolveObjectSet(sqlModel);
                 TestObjectValueOverrides(sqlModel);
                 TestApplyObjectMeta(sqlModel);
                 TestRemoveObjects(sqlModel);
@@ -51,7 +51,7 @@ namespace HatTrick.Model.TestHarness
             Console.ReadLine();
         }
 
-        static void TestResolveObjects(MsSqlModel model)
+        static void TestResolveObject(MsSqlModel model)
         {
             //walk the dictionary stack
             MsSqlTable person1 = model.Schemas["dbo"].Tables["Person"];
@@ -59,17 +59,52 @@ namespace HatTrick.Model.TestHarness
             MsSqlColumn zip1 = model.Schemas["dbo"].Tables["Address"].Columns["Zip"];
             SqlDbType birthDateType1 = model.Schemas["dbo"].Tables["Person"].Columns["BirthDate"].SqlType;
 
-            //resolve items
-            MsSqlModel mdl = model.ResolveItem(".") as MsSqlModel;
-            MsSqlTable person2 = model.ResolveItem("dbo.Person") as MsSqlTable;
-            MsSqlTable person3 = model.ResolveItem("dbo.[$Person.Single]") as MsSqlTable;
-            MsSqlTable person4 = model.ResolveItem("dbo.[$Person%.Single]") as MsSqlTable;
-            MsSqlColumn firstName2 = model.ResolveItem("dbo.Person.FirstName") as MsSqlColumn;
-            MsSqlColumn zip2 = model.ResolveItem("dbo.Address.Zip") as MsSqlColumn;
-            SqlDbType birthDateType2 = (model.ResolveItem("dbo.Person.BirthDate") as MsSqlColumn).SqlType;
+            //resolve item by path
+            SqlModelAccessor accessor = new SqlModelAccessor(model);
+            MsSqlModel mdl = accessor.ResolveItem(".") as MsSqlModel;
+
+            MsSqlTable person2 = accessor.ResolveItem("dbo.Person") as MsSqlTable;
+            MsSqlColumn firstName2 = accessor.ResolveItem("dbo.Person.FirstName") as MsSqlColumn;
+            MsSqlColumn zip2 = accessor.ResolveItem("dbo.Address.Zip") as MsSqlColumn;
+            SqlDbType birthDateType2 = (accessor.ResolveItem("dbo.Person.BirthDate") as MsSqlColumn).SqlType;
 
             //not found
-            var isNull = model.ResolveItem("dbo.Address.ABCCC");
+            var isNull = accessor.ResolveItem("dbo.Address.ABCCC");
+        }
+
+        static void TestResolveObjectSet(MsSqlModel model)
+        {
+            //Segment Depth Chart
+            //--------------------------
+            //[0] Schema
+            //[1] Table
+            //[1] View
+            //[1] Procedure
+            //[1] Relationship
+            //[2] Index
+            //[2] Column(table, view)
+            //[2] Parameter
+            //[2] TableExtendedProperty
+            //[2] ViewExtendedProperty
+            //[3] TableColumnExtendedProperty
+            //[3] TableColumnExtendedProperty
+
+            var accessor = new SqlModelAccessor(model);
+
+            //resolve item set for all objects at depth 1 within the dbo schema (table, view, procedure, relationship)
+            IList<INamedMeta> set1 = accessor.ResolveItemSet("dbo.*"); 
+            //resolve all columns and indexes within the address table
+            IList<INamedMeta> set2 = accessor.ResolveItemSet("dbo.Address.*");
+
+            //resolve all tables within the dbo schema
+            IList<MsSqlTable> set3 = accessor.ResolveItemSet<MsSqlTable>("dbo.*");
+            //resolve all tables within any schema that start with the letter 'P'
+            IList<MsSqlTable> set4 = accessor.ResolveItemSet<MsSqlTable>("*.P*");
+            //resolve all tables within the dbo schema that contain the '_' character (association tables)
+            IList<MsSqlTable> set5 = accessor.ResolveItemSet<MsSqlTable>("dbo.*_*");
+
+            //resolve all columns within the dbo schema that match: name: Id, IsIdentity: true
+            IList<MsSqlColumn> set6 = accessor.ResolveItemSet<MsSqlColumn>("dbo.*.Id", (c) => c.IsIdentity);
         }
 
         static void TestObjectValueOverrides(MsSqlModel model)
@@ -96,7 +131,8 @@ namespace HatTrick.Model.TestHarness
             model.Schemas["dbo"].Tables["Address"].Columns["AddressType"].Meta = "code-gen-type=AddressTypeCode";
 
             //or resolve by expression
-            model.ResolveItem("dbo.Address.AddressType").Meta = "code-gen-type=AddressTypeCode";
+            SqlModelAccessor accessor = new SqlModelAccessor(model);
+            accessor.ResolveItem("dbo.Address.AddressType").Meta = "code-gen-type=AddressTypeCode";
         }
 
         static void TestRemoveObjects(MsSqlModel model)

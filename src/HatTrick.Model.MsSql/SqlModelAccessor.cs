@@ -5,7 +5,7 @@ using System.Text;
 
 namespace HatTrick.Model.MsSql
 {
-	internal class NamedMetaAccessor
+	public class SqlModelAccessor
 	{
 		#region internals
 		private readonly char _defaultWildcard = '*';
@@ -19,7 +19,7 @@ namespace HatTrick.Model.MsSql
 		#endregion
 
 		#region constructors
-		public NamedMetaAccessor(MsSqlModel model)
+		public SqlModelAccessor(MsSqlModel model)
 		{
 			_model = model;
 			_wildcardOverride = '\0';
@@ -63,7 +63,7 @@ namespace HatTrick.Model.MsSql
 			MsSqlRelationship r = null;
 			int i; //declare outside loop scope so we can ensure we found the path ALL the way through on exit...
 			INamedMeta namedMeta = null;
-			for (i = 0; i < path.Length; i++)
+			for (i = 0; i < segments.Length; i++)
 			{
 				string key = segments[i];
 				if (i == 0)
@@ -114,7 +114,7 @@ namespace HatTrick.Model.MsSql
 				}
 			}
 
-			return i == path.Length ? namedMeta : null;
+			return i == segments.Length ? namedMeta : null;
 		}
 		#endregion
 
@@ -250,6 +250,30 @@ namespace HatTrick.Model.MsSql
 			}
 
 			return set;
+		}
+
+		public IList<T> ResolveItemSet<T>(string path) where T : INamedMeta
+		{
+			var set = this.ResolveItemSet(path);
+			List<T> typedSet = new List<T>();
+			foreach (var item in set)
+			{
+				if (item is T itm)
+					typedSet.Add(itm);
+			}
+			return typedSet;
+		}
+
+		public IList<T> ResolveItemSet<T>(string path, Predicate<T> predicate) where T : INamedMeta
+		{
+			var set = this.ResolveItemSet(path);
+			List<T> filteredSet = new List<T>();
+			foreach (var item in set)
+			{
+				if (item is T itm && predicate(itm))
+					filteredSet.Add(itm);
+			}
+			return filteredSet;
 		}
 		#endregion
 
