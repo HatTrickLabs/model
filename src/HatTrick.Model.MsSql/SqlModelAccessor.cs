@@ -127,6 +127,9 @@ namespace HatTrick.Model.MsSql
 			string[] segments = this.SplitPath(path);
 			string nextSegment = null;
 
+			if (path == ".")
+				return new List<INamedMeta> { _model };
+
 			//-Schemas
 			//  - Tables
 			//    - Columns

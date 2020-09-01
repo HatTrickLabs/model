@@ -14,8 +14,6 @@ namespace HatTrick.Model.MsSql
 		#endregion
 
 		#region interface
-		//public INamedMeta Parent { get; set; }
-
 		public string Name { get; set; }
 
         public int BaseTableId { get; set; }

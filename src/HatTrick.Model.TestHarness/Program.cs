@@ -5,8 +5,6 @@ using System.Data;
 using System.Linq;
 using System.Text;
 using HatTrick.Model.MsSql;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 
 namespace HatTrick.Model.TestHarness
 {
@@ -90,6 +88,9 @@ namespace HatTrick.Model.TestHarness
             //[3] TableColumnExtendedProperty
 
             var accessor = new SqlModelAccessor(model);
+
+            //resolve the model itself as  IList<MsSqlModel>
+            IList<MsSqlModel> set = accessor.ResolveItemSet<MsSqlModel>(".");
 
             //resolve item set for all objects at depth 1 within the dbo schema (table, view, procedure, relationship)
             IList<INamedMeta> set1 = accessor.ResolveItemSet("dbo.*"); 

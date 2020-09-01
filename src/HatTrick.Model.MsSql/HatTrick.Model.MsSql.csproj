@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
@@ -7,14 +7,15 @@
     <Product>HatTrick.Model.MsSql</Product>
     <Description>Microsoft SQL Server model extraction utility.</Description>
     <Copyright>Hat Trick Labs</Copyright>
-    <PackageLicenseUrl>https://github.com/HatTrickLabs/model/blob/master/LICENSE</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/HatTrickLabs/model</PackageProjectUrl>
     <RepositoryUrl>https://github.com/HatTrickLabs/model</RepositoryUrl>
     <PackageTags>sql mssql model extraction generation</PackageTags>
-    <PackageReleaseNotes>feature: return base object on resolve item when '/' is passed as the path.</PackageReleaseNotes>
+    <PackageReleaseNotes>1.  Enhanced model accessor functionality:  Wildcard paths, typed access and predicate matches.
+2.  Removed custom Dictionary implementation in favor of the standard library Dictionary&lt;TKey, TValue&gt;.</PackageReleaseNotes>
     <RepositoryType>git</RepositoryType>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>1.0.4</Version>
+    <Version>2.0.0</Version>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
   </PropertyGroup>
 
   <ItemGroup>
@@ -50,9 +51,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="HatTrick.Reflection" Version="1.0.4" />
     <PackageReference Include="System.Data.SqlClient" Version="4.8.1" />
-    <PackageReference Include="System.Text.Json" Version="4.7.2" />
   </ItemGroup>
 
 </Project>
