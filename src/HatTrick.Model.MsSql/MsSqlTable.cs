@@ -9,19 +9,36 @@ namespace HatTrick.Model.MsSql
 {
     public class MsSqlTable : INamedMeta
     {
-        #region interface
-        public INamedMeta Parent { get; set; }
-        public int ObjectId { get; set; }
+        #region internals
+        private INamedMeta _parent;
+		#endregion
+
+		#region interface
+		public int ObjectId { get; set; }
 
         public string Name { get; set; }
 
-        public EnumerableNamedMetaSet<MsSqlColumn> Columns { get; set; }
+        public Dictionary<string, MsSqlTableColumn> Columns { get; set; }
 
-        public EnumerableNamedMetaSet<MsSqlIndex> Indexes { get; set; }
+        public Dictionary<string, MsSqlIndex> Indexes { get; set; }
 
-        public EnumerableNamedMetaSet<MsSqlExtendedProperty> ExtendedProperties { get; set; }
+        public Dictionary<string, MsSqlExtendedProperty> ExtendedProperties { get; set; }
 
         public string Meta { get; set; }
+        #endregion
+
+        #region set parent
+        public void SetParent(MsSqlSchema schema)
+        {
+            _parent = schema;
+        }
+        #endregion
+
+        #region get parent
+        public INamedMeta GetParent()
+        {
+            return _parent;
+        }
         #endregion
 
         #region apply

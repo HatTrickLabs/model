@@ -9,9 +9,12 @@ namespace HatTrick.Model.MsSql
 {
     public class MsSqlRelationship : INamedMeta
     {
-        #region interface
-        public INamedMeta Parent { get; set; }
-        public string Name { get; set; }
+        #region internals
+        private INamedMeta _parent;
+		#endregion
+
+		#region interface
+		public string Name { get; set; }
 
         public int BaseTableId { get; set; }
 
@@ -30,6 +33,20 @@ namespace HatTrick.Model.MsSql
         public string ReferenceColumnName { get; set; }
 
         public string Meta { get; set; }
+        #endregion
+
+        #region set parent
+        public void SetParent(MsSqlSchema schema)
+        {
+            _parent = schema;
+        }
+        #endregion
+
+        #region get parent
+        public INamedMeta GetParent()
+        {
+            return _parent;
+        }
         #endregion
 
         #region apply

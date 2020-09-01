@@ -7,11 +7,14 @@ using System.Data.SqlClient;
 
 namespace HatTrick.Model.MsSql
 {
-    public class MsSqlColumn : INamedMeta
+    public abstract class MsSqlColumn : INamedMeta
     {
-        #region interface
-        public INamedMeta Parent { get; set; }
-        public int ParentObjectId { get; set; }
+        #region internals
+        private INamedMeta _parent;
+		#endregion
+
+		#region interface
+		public int ParentObjectId { get; set; }
 
         public int ColumnId { get; set; } //also ordinal
 
@@ -35,9 +38,23 @@ namespace HatTrick.Model.MsSql
 
         public string DefaultDefinition { get; set; }
 
-        public EnumerableNamedMetaSet<MsSqlExtendedProperty> ExtendedProperties { get; set; }
+        public Dictionary<string, MsSqlExtendedProperty> ExtendedProperties { get; set; }
 
         public string Meta { get; set; }
+        #endregion
+
+        #region set parent
+        protected void SetParent(INamedMeta parent)
+        {
+            _parent = parent;
+        }
+        #endregion
+
+        #region get parent
+        public INamedMeta GetParent()
+        {
+            return _parent;
+        }
         #endregion
 
         #region apply
