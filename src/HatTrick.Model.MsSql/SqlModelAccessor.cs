@@ -273,7 +273,7 @@ namespace HatTrick.Model.MsSql
 			List<T> filteredSet = new List<T>();
 			foreach (var item in set)
 			{
-				if (item is T itm && predicate(itm))
+				if (item is T itm && (predicate == null || predicate(itm)))
 					filteredSet.Add(itm);
 			}
 			return filteredSet;

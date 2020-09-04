@@ -106,6 +106,7 @@ namespace HatTrick.Model.TestHarness
 
             //resolve all columns within the dbo schema that match: name: Id, IsIdentity: true
             IList<MsSqlColumn> set6 = accessor.ResolveItemSet<MsSqlColumn>("dbo.*.Id", (c) => c.IsIdentity);
+            IList<MsSqlColumn> set7 = accessor.ResolveItemSet<MsSqlColumn>("dbo.*.Id", null);
         }
 
         static void TestObjectValueOverrides(MsSqlModel model)

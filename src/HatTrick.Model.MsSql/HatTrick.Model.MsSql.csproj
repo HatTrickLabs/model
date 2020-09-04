@@ -10,11 +10,10 @@
     <PackageProjectUrl>https://github.com/HatTrickLabs/model</PackageProjectUrl>
     <RepositoryUrl>https://github.com/HatTrickLabs/model</RepositoryUrl>
     <PackageTags>sql mssql model extraction generation</PackageTags>
-    <PackageReleaseNotes>1.  Enhanced model accessor functionality:  Wildcard paths, typed access and predicate matches.
-2.  Removed custom Dictionary implementation in favor of the standard library Dictionary&lt;TKey, TValue&gt;.</PackageReleaseNotes>
+    <PackageReleaseNotes>1.  Allow null predicate on ResolveItemSet&lt;T&gt;(string path, predicate&lt;T&gt; predicate)</PackageReleaseNotes>
     <RepositoryType>git</RepositoryType>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>2.0.0</Version>
+    <Version>2.0.1</Version>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
   </PropertyGroup>
 
