@@ -4,6 +4,7 @@ using System.Linq;
 using System.Data;
 using System.Data.Common;
 using System.Data.SqlClient;
+using System.Xml;
 
 namespace HatTrick.Model.MsSql
 {
@@ -486,26 +487,43 @@ namespace HatTrick.Model.MsSql
 
             string sql = _resourceAccessor.Get("Relationships");
 
+            Action<string, MsSqlRelationship> AddOrMerge = (s, r) =>
+            {
+                int idx = relationships.FindIndex(x => x.Item2.Name == r.Name);
+                if (idx > -1) //multi column FK..just add the colmn info to the existing
+                {
+                    MsSqlRelationship tmp = relationships[idx].Item2;
+                    tmp.BaseColumnIds.Add(r.BaseColumnIds[0]);
+                    tmp.BaseColumnNames.Add(r.BaseColumnNames[0]);
+                    tmp.ReferenceColumnIds.Add(r.ReferenceColumnIds[0]);
+                    tmp.ReferenceColumnNames.Add(r.ReferenceColumnNames[0]);
+                }
+                else
+                {
+                    relationships.Add((s, r));
+                }
+            };
+
             Action<DbDataReader> action = (dr) =>
             {
                 string s = null;
-                MsSqlRelationship p = null;
+                MsSqlRelationship r = null;
                 while (dr.Read())
                 {
                     s = (string)dr["schema_name"];
-                    p = new MsSqlRelationship()
+                    r = new MsSqlRelationship()
                     {
                         Name = (string)dr["relationship_name"],
                         BaseTableId = (int)dr["base_table_id"],
                         BaseTableName = (string)dr["base_table_name"],
-                        BaseColumnId = (int)dr["base_column_id"],
-                        BaseColumnName = (string)dr["base_column_name"],
+                        BaseColumnIds = new List<int> { (int)dr["base_column_id"] },
+                        BaseColumnNames = new List<string> { (string)dr["base_column_name"] },
                         ReferenceTableId = (int)dr["referenced_table_id"],
                         ReferenceTableName = (string)dr["referenced_table_name"],
-                        ReferenceColumnId = (int)dr["referenced_column_id"],
-                        ReferenceColumnName = (string)dr["referenced_column_name"]
+                        ReferenceColumnIds = new List<int> { (int)dr["referenced_column_id"] },
+                        ReferenceColumnNames = new List<string> { (string)dr["referenced_column_name"] }
                     };
-                    relationships.Add((s, p));
+                    AddOrMerge(s, r);
                 }
             };
 

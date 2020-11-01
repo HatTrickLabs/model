@@ -10,10 +10,10 @@
     <PackageProjectUrl>https://github.com/HatTrickLabs/model</PackageProjectUrl>
     <RepositoryUrl>https://github.com/HatTrickLabs/model</RepositoryUrl>
     <PackageTags>sql mssql model extraction generation</PackageTags>
-    <PackageReleaseNotes>1.  Allow null predicate on ResolveItemSet&lt;T&gt;(string path, predicate&lt;T&gt; predicate)</PackageReleaseNotes>
+    <PackageReleaseNotes>1.  Support model extraction on multi-key FK relationships.</PackageReleaseNotes>
     <RepositoryType>git</RepositoryType>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>2.0.1</Version>
+    <Version>2.1.0</Version>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
   </PropertyGroup>
 

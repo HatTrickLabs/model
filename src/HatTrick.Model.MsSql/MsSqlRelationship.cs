@@ -20,17 +20,17 @@ namespace HatTrick.Model.MsSql
 
         public string BaseTableName { get; set; }//Primary Key Table
 
-        public int BaseColumnId { get; set; }
+        public IList<int> BaseColumnIds { get; set; }
 
-        public string BaseColumnName { get; set; }
+        public IList<string> BaseColumnNames { get; set; }
 
         public int ReferenceTableId { get; set; }//Foreign Key Table
 
         public string ReferenceTableName { get; set; }
 
-        public int ReferenceColumnId { get; set; }
+        public IList<int> ReferenceColumnIds { get; set; }
 
-        public string ReferenceColumnName { get; set; }
+        public IList<string> ReferenceColumnNames { get; set; }
 
         public string Meta { get; set; }
         #endregion
