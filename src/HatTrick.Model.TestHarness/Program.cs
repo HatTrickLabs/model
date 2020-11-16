@@ -22,7 +22,7 @@ namespace HatTrick.Model.TestHarness
             sw.Start();
 
             //init builder
-            MsSqlModelBuilder builder = new MsSqlModelBuilder("server=localhost;initial catalog=MsSqlTest;integrated security=true");
+            MsSqlModelBuilder builder = new MsSqlModelBuilder("Data Source=(LocalDB)\\MSSQLLocalDB;Initial Catalog=MsSqlDbExTest;Integrated Security=true;Connect Timeout=5");
 
             //provide on error action callback
             bool error = false;

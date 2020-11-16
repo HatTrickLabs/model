@@ -207,15 +207,21 @@ namespace HatTrick.Model.MsSql
                 MsSqlTableColumn c = null;
                 while (dr.Read())
                 {
-                    bool typeParsed = Enum.TryParse<SqlDbType>((string)dr["data_type_name"], true, out sqlType);
+                    string typeName = (string)dr["data_type_name"];
+
+                    //need to swap out numeric for decimal.. SqlDbType enum does NOT have 'numeric'
+                    if (string.Compare(typeName, "numeric", true) == 0)
+                        typeName = "decimal";
+
+                    bool knownTYpe = Enum.TryParse<SqlDbType>(typeName, true, out sqlType);
                     c = new MsSqlTableColumn
                     {
                         ColumnId = (int)dr["column_id"],
                         ParentObjectId = (int)dr["table_id"],
                         Name = (string)dr["column_name"],
                         IsIdentity = (bool)dr["is_identity"],
-                        SqlTypeName = (string)dr["data_type_name"],
-                        SqlType = typeParsed ? sqlType : SqlDbType.VarChar,
+                        SqlTypeName = typeName,
+                        SqlType = knownTYpe ? sqlType : SqlDbType.NVarChar,
                         IsNullable = (bool)dr["is_nullable"],
                         MaxLength = (short)dr["max_length"],
                         Precision = (byte)dr["precision"],
