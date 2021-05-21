@@ -135,6 +135,7 @@ namespace HatTrick.Model.MsSql
 			//    - Columns
 			//      - Ext Props
 			//    - Indexes
+			//    - Triggers
 			//    - Ext Props
 			//  - Views
 			//    - Columns
@@ -148,6 +149,7 @@ namespace HatTrick.Model.MsSql
 			List<MsSqlTable> tables = null;
 			List<MsSqlTableColumn> tableColumns = null;
 			List<MsSqlIndex> indexes = null;
+			List<MsSqlTrigger> triggers = null;
 			List<MsSqlExtendedProperty> tableColExtProps = null;
 			List<MsSqlExtendedProperty> tableExtProps = null;
 
@@ -199,11 +201,13 @@ namespace HatTrick.Model.MsSql
 				{
 					tableColumns = new List<MsSqlTableColumn>();
 					indexes = new List<MsSqlIndex>();
+					triggers = new List<MsSqlTrigger>();
 					tableExtProps = new List<MsSqlExtendedProperty>();
 					foreach (var table in tables)
 					{
 						tableColumns.AddRange(table.Columns.GetMatchList(nextSegment, IsStringMatch));
 						indexes.AddRange(table.Indexes.GetMatchList(nextSegment, IsStringMatch));
+						triggers.AddRange(table.Triggers.GetMatchList(nextSegment, IsStringMatch));
 						tableExtProps.AddRange(table.ExtendedProperties.GetMatchList(nextSegment, IsStringMatch));
 					}
 
@@ -224,6 +228,7 @@ namespace HatTrick.Model.MsSql
 					{
 						set.AddRange(tableColumns);
 						set.AddRange(indexes);
+						set.AddRange(triggers);
 						set.AddRange(tableExtProps);
 						set.AddRange(viewColumns);
 						set.AddRange(viewExtProps);

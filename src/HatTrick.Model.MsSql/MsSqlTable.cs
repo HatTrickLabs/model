@@ -22,6 +22,8 @@ namespace HatTrick.Model.MsSql
 
         public Dictionary<string, MsSqlIndex> Indexes { get; set; }
 
+        public Dictionary<string, MsSqlTrigger> Triggers { get; set; }
+
         public Dictionary<string, MsSqlExtendedProperty> ExtendedProperties { get; set; }
 
         public string Meta { get; set; }

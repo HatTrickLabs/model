@@ -75,6 +75,7 @@ namespace HatTrick.Model.MsSql
                 this.ResolveProcedures(ref model);
                 this.ResolveProcedureParameters(ref model);
                 this.ResolveRelationships(ref model);
+                this.ResolveTriggers(ref model);
                 this.ResolveTableExtendedProperties(ref model);
                 this.ResolveTableColumnExtendedProperties(ref model);
                 this.ResolveViewExtendedProperties(ref model);
@@ -213,7 +214,7 @@ namespace HatTrick.Model.MsSql
                     if (string.Compare(typeName, "numeric", true) == 0)
                         typeName = "decimal";
 
-                    bool knownTYpe = Enum.TryParse<SqlDbType>(typeName, true, out sqlType);
+                    bool knownType = Enum.TryParse<SqlDbType>(typeName, true, out sqlType);
                     c = new MsSqlTableColumn
                     {
                         ColumnId = (int)dr["column_id"],
@@ -221,7 +222,7 @@ namespace HatTrick.Model.MsSql
                         Name = (string)dr["column_name"],
                         IsIdentity = (bool)dr["is_identity"],
                         SqlTypeName = typeName,
-                        SqlType = knownTYpe ? sqlType : SqlDbType.NVarChar,
+                        SqlType = knownType ? sqlType : SqlDbType.VarChar,
                         IsNullable = (bool)dr["is_nullable"],
                         MaxLength = (short)dr["max_length"],
                         Precision = (byte)dr["precision"],
@@ -364,7 +365,13 @@ namespace HatTrick.Model.MsSql
                 MsSqlViewColumn c = null;
                 while (dr.Read())
                 {
-                    bool typeParsed = Enum.TryParse<SqlDbType>((string)dr["data_type_name"], true, out sqlType);
+                    string typeName = (string)dr["data_type_name"];
+
+                    //need to swap out numeric for decimal.. SqlDbType enum does NOT have 'numeric'
+                    if (string.Compare(typeName, "numeric", true) == 0)
+                        typeName = "decimal";
+
+                    bool knownType = Enum.TryParse<SqlDbType>(typeName, true, out sqlType);
                     c = new MsSqlViewColumn
                     {
                         ColumnId = (int)dr["column_id"],
@@ -372,7 +379,7 @@ namespace HatTrick.Model.MsSql
                         Name = (string)dr["column_name"],
                         IsIdentity = (bool)dr["is_identity"],
                         SqlTypeName = (string)dr["data_type_name"],
-                        SqlType = typeParsed ? sqlType : SqlDbType.VarChar,
+                        SqlType = knownType ? sqlType : SqlDbType.VarChar,
                         IsNullable = (bool)dr["is_nullable"],
                         IsComputed = (bool)dr["is_computed"],
                         MaxLength = (short)dr["max_length"],
@@ -453,17 +460,24 @@ namespace HatTrick.Model.MsSql
                 MsSqlParameter p = null;
                 while (dr.Read())
                 {
-                    bool typeParsed = Enum.TryParse<SqlDbType>((string)dr["data_type_name"], true, out sqlType);
+                    string typeName = (string)dr["data_type_name"];
+
+                    //need to swap out numeric for decimal.. SqlDbType enum does NOT have 'numeric'
+                    if (string.Compare(typeName, "numeric", true) == 0)
+                        typeName = "decimal";
+
+                    bool knownType = Enum.TryParse<SqlDbType>(typeName, true, out sqlType);
                     p = new MsSqlParameter
                     {
                         ParentObjectId = (int)dr["sproc_id"],
                         ParameterId = (int)dr["parameter_id"],
                         Name = (string)dr["parameter_name"],
                         SqlTypeName = (string)dr["data_type_name"],
-                        SqlType = typeParsed ? sqlType : SqlDbType.VarChar,
+                        SqlType = knownType ? sqlType : SqlDbType.VarChar,
                         IsOutput = (bool)dr["is_output"],
                         IsReadOnly = (bool)dr["is_readonly"],
                         HasDefaultValue = (bool)dr["has_default_value"],
+                        IsNullable = (bool)dr["is_nullable"],
                         DefaultValue = dr["default_value"] == DBNull.Value ? null : (object)dr["default_value"],//only valid on clr procedures
                         Precision = (byte)dr["precision"],
                         Scale = (byte)dr["scale"],
@@ -548,8 +562,53 @@ namespace HatTrick.Model.MsSql
         }
         #endregion
 
-        #region resolve table ext props
-        public void ResolveTableExtendedProperties(ref MsSqlModel model)
+        #region resolve triggers
+        public void ResolveTriggers(ref MsSqlModel model)
+        {
+            List<MsSqlTrigger> triggers = new List<MsSqlTrigger>();
+
+            string sql = _resourceAccessor.Get("Trigger");
+
+            Action<DbDataReader> action = (dr) =>
+            {
+                string s = null;
+                MsSqlTrigger t = null;
+                while (dr.Read())
+                {
+                    s = (string)dr["schema_name"];
+                    t = new MsSqlTrigger()
+                    {
+                        ParentObjectId = (int)dr["table_object_id"],
+                        ObjectId = (int)dr["object_id"],
+                        Name = (string)dr["trigger_name"],
+                        EventType = (string)dr["type_desc"],
+                        IsDisabled = (bool)dr["is_disabled"],
+                        IsInsteadOfTrigger = (bool)dr["is_instead_of_trigger"]
+                    };
+                    triggers.Add(t);
+                }
+            };
+
+            this.ExecuteSql(sql, action);
+
+            foreach (MsSqlSchema schema in model.Schemas.Values)
+            {
+                foreach (MsSqlTable table in schema.Tables.Values)
+                {
+                    table.Triggers = new Dictionary<string, MsSqlTrigger>(StringComparer.OrdinalIgnoreCase)
+                        .AddRange(triggers.FindAll(t => t.ParentObjectId == table.ObjectId));
+
+                    foreach (var trigger in table.Triggers.Values)
+                    {
+                        trigger.SetParent(table);
+                    }
+                }
+            }
+        }
+		#endregion
+
+		#region resolve table ext props
+		public void ResolveTableExtendedProperties(ref MsSqlModel model)
         {
             List<MsSqlExtendedProperty> extProps = new List<MsSqlExtendedProperty>();
 

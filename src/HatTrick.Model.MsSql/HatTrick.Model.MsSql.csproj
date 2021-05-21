@@ -27,6 +27,7 @@
     <None Remove="Sql\Table_Column_Ext_Props.sql" />
     <None Remove="Sql\Table_Ext_Props.sql" />
     <None Remove="Sql\Table_Index.sql" />
+    <None Remove="Sql\Trigger.sql" />
     <None Remove="Sql\View.sql" />
     <None Remove="Sql\View_Column.sql" />
     <None Remove="Sql\View_Column_Ext_Props.sql" />
@@ -43,6 +44,7 @@
     <EmbeddedResource Include="Sql\Table_Column_Ext_Props.sql" />
     <EmbeddedResource Include="Sql\Table_Ext_Props.sql" />
     <EmbeddedResource Include="Sql\Table_Index.sql" />
+    <EmbeddedResource Include="Sql\Trigger.sql" />
     <EmbeddedResource Include="Sql\View.sql" />
     <EmbeddedResource Include="Sql\View_Column.sql" />
     <EmbeddedResource Include="Sql\View_Column_Ext_Props.sql" />

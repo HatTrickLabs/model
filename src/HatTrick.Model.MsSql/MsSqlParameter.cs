@@ -34,6 +34,8 @@ namespace HatTrick.Model.MsSql
 
         public bool IsReadOnly { get; set; }
 
+        public bool IsNullable { get; set; }
+
         public string Meta { get; set; }
         #endregion
 

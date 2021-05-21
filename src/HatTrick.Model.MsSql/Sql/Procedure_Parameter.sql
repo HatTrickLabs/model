@@ -10,7 +10,8 @@ sys.parameters.precision,
 sys.parameters.is_output,
 sys.parameters.has_default_value,
 sys.parameters.default_value,
-sys.parameters.is_readonly
+sys.parameters.is_readonly,
+sys.parameters.is_nullable
 FROM sys.parameters
 INNER JOIN sys.objects ON sys.objects.object_id = sys.parameters.object_id
 INNER JOIN sys.types ON sys.parameters.user_type_id = sys.types.user_type_id

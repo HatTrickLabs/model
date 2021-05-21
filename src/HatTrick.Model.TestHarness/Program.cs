@@ -23,7 +23,6 @@ namespace HatTrick.Model.TestHarness
 
             //init builder
             MsSqlModelBuilder builder = new MsSqlModelBuilder("Data Source=(LocalDB)\\MSSQLLocalDB;Initial Catalog=MsSqlDbExTest;Integrated Security=true;Connect Timeout=5");
-
             //provide on error action callback
             bool error = false;
             builder.OnError += (ex) =>
@@ -51,6 +50,7 @@ namespace HatTrick.Model.TestHarness
 
         static void TestResolveObject(MsSqlModel model)
         {
+            //walk the dictionary stack
             //walk the dictionary stack
             MsSqlTable person1 = model.Schemas["dbo"].Tables["Person"];
             MsSqlColumn firstName1 = person1.Columns["FirstName"];
@@ -107,6 +107,8 @@ namespace HatTrick.Model.TestHarness
             //resolve all columns within the dbo schema that match: name: Id, IsIdentity: true
             IList<MsSqlColumn> set6 = accessor.ResolveItemSet<MsSqlColumn>("dbo.*.Id", (c) => c.IsIdentity);
             IList<MsSqlColumn> set7 = accessor.ResolveItemSet<MsSqlColumn>("dbo.*.Id", null);
+
+            IList<MsSqlTrigger> set8 = accessor.ResolveItemSet<MsSqlTrigger>("dbo.*.*");
         }
 
         static void TestObjectValueOverrides(MsSqlModel model)
