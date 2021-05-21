@@ -3,18 +3,20 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <Authors>Jerrod Eiman</Authors>
-    <Company>Hat Trick Labs</Company>
+    <Company>HatTrick Labs, LLC</Company>
     <Product>HatTrick.Model.MsSql</Product>
     <Description>Microsoft SQL Server model extraction utility.</Description>
-    <Copyright>Hat Trick Labs</Copyright>
+    <Copyright>HatTrick Labs, LLC</Copyright>
     <PackageProjectUrl>https://github.com/HatTrickLabs/model</PackageProjectUrl>
     <RepositoryUrl>https://github.com/HatTrickLabs/model</RepositoryUrl>
     <PackageTags>sql mssql model extraction generation</PackageTags>
-    <PackageReleaseNotes>1.  Map numeric data types to SqlDbType.Decimal</PackageReleaseNotes>
+    <PackageReleaseNotes>1.  Trigger model extraction and accessor support.
+2.  Parameter bug fix (wired up is_nullable attribute).</PackageReleaseNotes>
     <RepositoryType>git</RepositoryType>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>2.1.1</Version>
+    <Version>2.2.0</Version>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <PackageIcon>htl-nuget-logo.png</PackageIcon>
   </PropertyGroup>
 
   <ItemGroup>
@@ -32,6 +34,10 @@
     <None Remove="Sql\View_Column.sql" />
     <None Remove="Sql\View_Column_Ext_Props.sql" />
     <None Remove="Sql\View_Ext_Props.sql" />
+    <None Include="..\..\build\htl-nuget-logo.png">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
   </ItemGroup>
 
   <ItemGroup>
