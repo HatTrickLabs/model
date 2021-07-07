@@ -10,7 +10,7 @@
     <PackageProjectUrl>https://github.com/HatTrickLabs/model</PackageProjectUrl>
     <RepositoryUrl>https://github.com/HatTrickLabs/model</RepositoryUrl>
     <PackageTags>sql mssql model extraction generation</PackageTags>
-    <PackageReleaseNotes>1.  Bugfix for multiple event target trigger extraction (issue #11).</PackageReleaseNotes>
+    <PackageReleaseNotes>1.  Bugfix for default SqlDbType mapping  to Udt (issue #13).</PackageReleaseNotes>
     <RepositoryType>git</RepositoryType>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Version>2.2.2</Version>
