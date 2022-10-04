@@ -11,4 +11,5 @@ from sys.objects
 INNER JOIN sys.schemas on sys.objects.schema_id = sys.schemas.schema_id
 INNER JOIN sys.triggers on sys.objects.object_id = sys.triggers.object_id
 INNER JOIN sys.tables on sys.objects.parent_object_id = sys.tables.object_id
-where sys.objects.type = 'TR' and sys.triggers.is_ms_shipped = 0;
+where sys.objects.type = 'TR' and sys.triggers.is_ms_shipped = 0
+order by schema_name asc, table_name asc, trigger_name asc;

@@ -1,4 +1,4 @@
-﻿USE [MsSqlTest]
+﻿USE [MsSqlDbExTest]
 GO
 /****** Object:  Schema [sec]    Script Date: 1/19/2019 11:50:28 AM ******/
 CREATE SCHEMA [sec]
