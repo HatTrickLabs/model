@@ -9,11 +9,11 @@
     <Copyright>HatTrick Labs, LLC</Copyright>
     <PackageProjectUrl>https://github.com/HatTrickLabs/model</PackageProjectUrl>
     <RepositoryUrl>https://github.com/HatTrickLabs/model</RepositoryUrl>
-    <PackageTags>sql mssql model extraction generation</PackageTags>
-    <PackageReleaseNotes>1.  Bugfix for default SqlDbType mapping  to Udt (issue #13).</PackageReleaseNotes>
+    <PackageTags>sql mssql model extraction generation sql-server</PackageTags>
+    <PackageReleaseNotes>Applied explicit order by to all sql queries to ensure consistent order on extracted schema objects.  Fix for issue #15.</PackageReleaseNotes>
     <RepositoryType>git</RepositoryType>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>2.2.2</Version>
+    <Version>2.3.0</Version>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <PackageIcon>htl-nuget-logo.png</PackageIcon>
   </PropertyGroup>
