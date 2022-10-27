@@ -1,26 +1,23 @@
+using HatTrick.Model.Sql;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Data;
-using System.Data.Common;
-using System.Data.SqlClient;
 
 namespace HatTrick.Model.MsSql
 {
-    public class MsSqlSchema : INamedMeta
+    public class MsSqlSchema : ISqlSchema
     {
         #region interface
         public int SchemaId { get; set; }
 
         public string Name { get; set; }
 
-        public Dictionary<string, MsSqlTable> Tables { get; set; }
+        public Dictionary<string, MsSqlTable> Tables { get; set; } = new();
 
-        public Dictionary<string, MsSqlView> Views { get; set; }
+        public Dictionary<string, MsSqlView> Views { get; set; } = new();
 
-        public Dictionary<string, MsSqlRelationship> Relationships { get; set; }
+        public Dictionary<string, MsSqlRelationship> Relationships { get; set; } = new();
 
-        public Dictionary<string, MsSqlProcedure> Procedures { get; set; }
+        public Dictionary<string, MsSqlProcedure> Procedures { get; set; } = new();
 
         public string Meta { get; set; }
         #endregion

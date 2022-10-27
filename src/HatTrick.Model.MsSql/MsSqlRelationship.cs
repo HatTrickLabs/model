@@ -1,13 +1,10 @@
+using HatTrick.Model.Sql;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Data;
-using System.Data.Common;
-using System.Data.SqlClient;
 
 namespace HatTrick.Model.MsSql
 {
-    public class MsSqlRelationship : INamedMeta
+    public class MsSqlRelationship : ISqlRelationship
     {
         #region internals
         private INamedMeta _parent;

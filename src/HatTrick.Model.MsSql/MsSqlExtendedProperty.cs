@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using HatTrick.Model.Sql;
+using System;
 
 namespace HatTrick.Model.MsSql
 {
-    public class MsSqlExtendedProperty : INamedMeta
+    public class MsSqlExtendedProperty : ISqlExtendedProperty
     {
         #region interface
         public int MajorId { get; set; }//table_id or view_id

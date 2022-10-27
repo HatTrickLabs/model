@@ -1,13 +1,10 @@
+using HatTrick.Model.Sql;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Data;
-using System.Data.Common;
-using System.Data.SqlClient;
 
 namespace HatTrick.Model.MsSql
 {
-    public class MsSqlView : INamedMeta
+    public class MsSqlView : ISqlView
     {
         #region internals
         private INamedMeta _parent;
@@ -18,9 +15,9 @@ namespace HatTrick.Model.MsSql
 
         public string Name { get; set; }
 
-        public Dictionary<string, MsSqlViewColumn> Columns { get; set; }
+        public Dictionary<string, MsSqlViewColumn> Columns { get; set; } = new();
 
-        public Dictionary<string, MsSqlExtendedProperty> ExtendedProperties { get; set; }
+        public Dictionary<string, MsSqlExtendedProperty> ExtendedProperties { get; set; } = new();
 
         public string Meta { get; set; }
         #endregion

@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using HatTrick.Model.Sql;
 
 namespace HatTrick.Model.MsSql
 {
-	public class MsSqlViewColumn : MsSqlColumn
+    public class MsSqlViewColumn : MsSqlColumn, ISqlViewColumn
 	{
         #region set parent
         public void SetParent(MsSqlView view)

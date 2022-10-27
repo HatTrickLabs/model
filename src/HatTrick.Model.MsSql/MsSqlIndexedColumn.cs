@@ -1,13 +1,9 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Data;
-using System.Data.Common;
-using System.Data.SqlClient;
+using HatTrick.Model.Sql;
 
 namespace HatTrick.Model.MsSql
 {
-    public class MsSqlIndexedColumn
+    public class MsSqlIndexedColumn : ISqlIndexedColumn
     {
         #region interface
         public int ParentObjectId { get; set; }
@@ -16,13 +12,18 @@ namespace HatTrick.Model.MsSql
 
         public int ColumnId { get; set; }
 
-        public string ColumnName { get; set; }
+        [Obsolete("ColumnName will be removed in a future version.  Please use Name instead.")]
+        public string ColumnName => Name;
+
+        public string Name { get; set; }
 
         public byte KeyOrdinal { get; set; }
 
         public bool IsDescendingKey { get; set; }
 
         public bool IsIncludedColumn { get; set; }
+
+        public string Meta { get; set; }
         #endregion
 
         #region apply

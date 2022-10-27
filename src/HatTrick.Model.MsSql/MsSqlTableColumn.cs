@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Data;
+﻿using HatTrick.Model.Sql;
 
 namespace HatTrick.Model.MsSql
 {
-	public class MsSqlTableColumn : MsSqlColumn
+    public class MsSqlTableColumn : MsSqlColumn, ISqlTableColumn
 	{
         #region set parent
         public void SetParent(MsSqlTable table)

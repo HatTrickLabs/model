@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Data;
-using System.Data.Common;
-using System.Data.SqlClient;
+﻿using HatTrick.Model.Sql;
+using System;
 
 namespace HatTrick.Model.MsSql
 {
-	public class MsSqlTrigger : INamedMeta
+    public class MsSqlTrigger : ISqlTrigger
 	{
 		#region internals
 		private INamedMeta _parent;

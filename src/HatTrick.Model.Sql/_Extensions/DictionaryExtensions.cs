@@ -3,9 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace HatTrick.Model.MsSql
+namespace HatTrick.Model.Sql
 {
-	#region dictionary
 	public static class DictionaryExtensions
 	{
 		#region contains
@@ -70,5 +69,4 @@ namespace HatTrick.Model.MsSql
 		}
 		#endregion
 	}
-	#endregion
 }

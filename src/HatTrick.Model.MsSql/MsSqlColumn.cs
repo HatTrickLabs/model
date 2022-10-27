@@ -1,13 +1,11 @@
+using HatTrick.Model.Sql;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Data;
-using System.Data.Common;
-using System.Data.SqlClient;
 
 namespace HatTrick.Model.MsSql
 {
-    public abstract class MsSqlColumn : INamedMeta
+    public abstract class MsSqlColumn : ISqlColumn
     {
         #region internals
         private INamedMeta _parent;
@@ -38,7 +36,7 @@ namespace HatTrick.Model.MsSql
 
         public string DefaultDefinition { get; set; }
 
-        public Dictionary<string, MsSqlExtendedProperty> ExtendedProperties { get; set; }
+        public Dictionary<string, MsSqlExtendedProperty> ExtendedProperties { get; set; } = new();
 
         public string Meta { get; set; }
         #endregion

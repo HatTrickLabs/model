@@ -1,13 +1,9 @@
+using HatTrick.Model.Sql;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Data;
-using System.Data.Common;
-using System.Data.SqlClient;
 
 namespace HatTrick.Model.MsSql
 {
-    public class MsSqlIndex : INamedMeta
+    public class MsSqlIndex : ISqlIndex
     {
         #region interface
         public int ParentObjectId { get; set; }
@@ -22,7 +18,7 @@ namespace HatTrick.Model.MsSql
 
         public bool IsUnique { get; set; }
 
-        public MsSqlIndexedColumn[] IndexedColumns { get; set; }
+        public MsSqlIndexedColumn[] IndexedColumns { get; set; } = new MsSqlIndexedColumn[] { };
 
         public string Meta { get; set; }
         #endregion
@@ -34,13 +30,4 @@ namespace HatTrick.Model.MsSql
         }
         #endregion
     }
-
-    #region index type enum
-    public enum IndexType
-    {
-        Heap = 0,
-        Clustered = 1,
-        Nonclustered = 2
-    }
-    #endregion
 }

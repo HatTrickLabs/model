@@ -1,13 +1,10 @@
+using HatTrick.Model.Sql;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Data;
-using System.Data.Common;
-using System.Data.SqlClient;
 
 namespace HatTrick.Model.MsSql
 {
-    public class MsSqlParameter : INamedMeta
+    public class MsSqlParameter : ISqlParameter
     {
         #region interface
         public int ParentObjectId { get; set; }

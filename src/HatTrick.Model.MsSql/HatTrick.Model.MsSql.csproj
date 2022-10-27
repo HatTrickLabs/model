@@ -1,63 +1,51 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
-    <Authors>Jerrod Eiman</Authors>
-    <Company>HatTrick Labs, LLC</Company>
-    <Product>HatTrick.Model.MsSql</Product>
-    <Description>Microsoft SQL Server model extraction utility.</Description>
-    <Copyright>HatTrick Labs, LLC</Copyright>
-    <PackageProjectUrl>https://github.com/HatTrickLabs/model</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/HatTrickLabs/model</RepositoryUrl>
-    <PackageTags>sql mssql model extraction generation sql-server</PackageTags>
-    <PackageReleaseNotes>Applied explicit order by to all sql queries to ensure consistent order on extracted schema objects.  Fix for issue #15.</PackageReleaseNotes>
-    <RepositoryType>git</RepositoryType>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>2.3.0</Version>
-    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
-    <PackageIcon>htl-nuget-logo.png</PackageIcon>
-  </PropertyGroup>
+    <PropertyGroup>
+        <TargetFramework>netstandard2.0</TargetFramework>
+        <PackageTags>sql mssql model extraction generation sql-server</PackageTags>
+        <LangVersion>9.0</LangVersion>
+    </PropertyGroup>
 
-  <ItemGroup>
-    <None Remove="Sql\Procedure.sql" />
-    <None Remove="Sql\Procedure_Parameter.sql" />
-    <None Remove="Sql\Relationships.sql" />
-    <None Remove="Sql\Schema.sql" />
-    <None Remove="Sql\Table.sql" />
-    <None Remove="Sql\Table_Column.sql" />
-    <None Remove="Sql\Table_Column_Ext_Props.sql" />
-    <None Remove="Sql\Table_Ext_Props.sql" />
-    <None Remove="Sql\Table_Index.sql" />
-    <None Remove="Sql\Trigger.sql" />
-    <None Remove="Sql\View.sql" />
-    <None Remove="Sql\View_Column.sql" />
-    <None Remove="Sql\View_Column_Ext_Props.sql" />
-    <None Remove="Sql\View_Ext_Props.sql" />
-    <None Include="..\..\build\htl-nuget-logo.png">
-      <Pack>True</Pack>
-      <PackagePath></PackagePath>
-    </None>
-  </ItemGroup>
+    <ItemGroup>
+        <None Remove="Scripts\Procedure.sql" />
+        <None Remove="Scripts\Procedure_Parameter.sql" />
+        <None Remove="Scripts\Relationships.sql" />
+        <None Remove="Scripts\Schema.sql" />
+        <None Remove="Scripts\Table.sql" />
+        <None Remove="Scripts\Table_Column.sql" />
+        <None Remove="Scripts\Table_Column_Ext_Props.sql" />
+        <None Remove="Scripts\Table_Ext_Props.sql" />
+        <None Remove="Scripts\Table_Index.sql" />
+        <None Remove="Scripts\Trigger.sql" />
+        <None Remove="Scripts\View.sql" />
+        <None Remove="Scripts\View_Column.sql" />
+        <None Remove="Scripts\View_Column_Ext_Props.sql" />
+        <None Remove="Scripts\View_Ext_Props.sql" />
+    </ItemGroup>
 
-  <ItemGroup>
-    <EmbeddedResource Include="Sql\Procedure.sql" />
-    <EmbeddedResource Include="Sql\Procedure_Parameter.sql" />
-    <EmbeddedResource Include="Sql\Relationships.sql" />
-    <EmbeddedResource Include="Sql\Schema.sql" />
-    <EmbeddedResource Include="Sql\Table.sql" />
-    <EmbeddedResource Include="Sql\Table_Column.sql" />
-    <EmbeddedResource Include="Sql\Table_Column_Ext_Props.sql" />
-    <EmbeddedResource Include="Sql\Table_Ext_Props.sql" />
-    <EmbeddedResource Include="Sql\Table_Index.sql" />
-    <EmbeddedResource Include="Sql\Trigger.sql" />
-    <EmbeddedResource Include="Sql\View.sql" />
-    <EmbeddedResource Include="Sql\View_Column.sql" />
-    <EmbeddedResource Include="Sql\View_Column_Ext_Props.sql" />
-    <EmbeddedResource Include="Sql\View_Ext_Props.sql" />
-  </ItemGroup>
+    <ItemGroup>
+        <EmbeddedResource Include="Scripts\Procedure.sql" />
+        <EmbeddedResource Include="Scripts\Procedure_Parameter.sql" />
+        <EmbeddedResource Include="Scripts\Relationships.sql" />
+        <EmbeddedResource Include="Scripts\Schema.sql" />
+        <EmbeddedResource Include="Scripts\Table.sql" />
+        <EmbeddedResource Include="Scripts\Table_Column.sql" />
+        <EmbeddedResource Include="Scripts\Table_Column_Ext_Props.sql" />
+        <EmbeddedResource Include="Scripts\Table_Ext_Props.sql" />
+        <EmbeddedResource Include="Scripts\Table_Index.sql" />
+        <EmbeddedResource Include="Scripts\Trigger.sql" />
+        <EmbeddedResource Include="Scripts\View.sql" />
+        <EmbeddedResource Include="Scripts\View_Column.sql" />
+        <EmbeddedResource Include="Scripts\View_Column_Ext_Props.sql" />
+        <EmbeddedResource Include="Scripts\View_Ext_Props.sql" />
+    </ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="System.Data.SqlClient" Version="4.8.1" />
-  </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="Microsoft.Data.SqlClient" Version="5.0.1" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\HatTrick.Model.Sql\HatTrick.Model.Sql.csproj" />
+    </ItemGroup>
 
 </Project>

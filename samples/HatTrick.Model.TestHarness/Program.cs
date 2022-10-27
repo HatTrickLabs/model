@@ -5,6 +5,7 @@ using System.Data;
 using System.Linq;
 using System.Text;
 using HatTrick.Model.MsSql;
+using HatTrick.Model.Sql;
 
 namespace HatTrick.Model.TestHarness
 {
@@ -22,7 +23,7 @@ namespace HatTrick.Model.TestHarness
             sw.Start();
 
             //init builder
-            MsSqlModelBuilder builder = new MsSqlModelBuilder("Data Source=(LocalDB)\\MSSQLLocalDB;Initial Catalog=MsSqlDbExTest;Integrated Security=true;Connect Timeout=5");
+            MsSqlModelBuilder builder = new MsSqlModelBuilder("Data Source=(LocalDB)\\MSSQLLocalDB;Initial Catalog=MsSqlDbExTest;Integrated Security=true;Connect Timeout=5;Encrypt=False");
             //provide on error action callback
             bool error = false;
             builder.OnError += (ex) =>
@@ -58,7 +59,7 @@ namespace HatTrick.Model.TestHarness
             SqlDbType birthDateType1 = model.Schemas["dbo"].Tables["Person"].Columns["BirthDate"].SqlType;
 
             //resolve item by path
-            SqlModelAccessor accessor = new SqlModelAccessor(model);
+            MsSqlModelAccessor accessor = new MsSqlModelAccessor(model);
             MsSqlModel mdl = accessor.ResolveItem(".") as MsSqlModel;
 
             MsSqlTable person2 = accessor.ResolveItem("dbo.Person") as MsSqlTable;
@@ -87,13 +88,13 @@ namespace HatTrick.Model.TestHarness
             //[3] TableColumnExtendedProperty
             //[3] TableColumnExtendedProperty
 
-            var accessor = new SqlModelAccessor(model);
+            var accessor = new MsSqlModelAccessor(model);
 
             //resolve the model itself as  IList<MsSqlModel>
             IList<MsSqlModel> set = accessor.ResolveItemSet<MsSqlModel>(".");
 
             //resolve item set for all objects at depth 1 within the dbo schema (table, view, procedure, relationship)
-            IList<INamedMeta> set1 = accessor.ResolveItemSet("dbo.*"); 
+            IList<INamedMeta> set1 = accessor.ResolveItemSet("dbo.*");
             //resolve all columns and indexes within the address table
             IList<INamedMeta> set2 = accessor.ResolveItemSet("dbo.Address.*");
 
@@ -135,7 +136,7 @@ namespace HatTrick.Model.TestHarness
             model.Schemas["dbo"].Tables["Address"].Columns["AddressType"].Meta = "code-gen-type=AddressTypeCode";
 
             //or resolve by expression
-            SqlModelAccessor accessor = new SqlModelAccessor(model);
+            MsSqlModelAccessor accessor = new MsSqlModelAccessor(model);
             accessor.ResolveItem("dbo.Address.AddressType").Meta = "code-gen-type=AddressTypeCode";
         }
 

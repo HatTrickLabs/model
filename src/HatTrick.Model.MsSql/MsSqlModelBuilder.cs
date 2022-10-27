@@ -1,133 +1,59 @@
-﻿using System;
+﻿using HatTrick.Model.Sql;
+using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Data;
 using System.Data.Common;
-using System.Data.SqlClient;
-using System.Xml;
+using System.Linq;
+using Microsoft.Data.SqlClient;
 
 namespace HatTrick.Model.MsSql
 {
-    public class MsSqlModelBuilder
+    public class MsSqlModelBuilder : SqlModelBuilder<MsSqlModel>
     {
         #region internals
-        private ResourceAccessor _resourceAccessor;
-        private SqlConnection _sqlConnection;
-        #endregion
-
-        #region interface
-        public Action<Exception> OnError { get; set; }
+        private string _sqlConnectionString;
         #endregion
 
         #region constructors
-        public MsSqlModelBuilder(string sqlConnectionString)
+        public MsSqlModelBuilder(string sqlConnectionString) : base("HatTrick.Model.MsSql.Scripts")
         {
-            _resourceAccessor = new ResourceAccessor();
-            _sqlConnection = new SqlConnection(sqlConnectionString);
-        }
-
-        public MsSqlModelBuilder(SqlConnection sqlConnection)
-        {
-            _resourceAccessor = new ResourceAccessor();
-            _sqlConnection = sqlConnection;
+            var x = new DbConnectionStringBuilder();
+            _sqlConnectionString = sqlConnectionString;
         }
         #endregion
 
-        #region ensure connection
-        private DbConnection EnsureConnection()
+        #region get connection
+        protected override DbConnection GetConnection()
         {
-            if (_sqlConnection.State != ConnectionState.Open)
-            {
-                _sqlConnection.Open();
-            }
-
-            return _sqlConnection;
-        }
-        #endregion
-
-        #region close connection
-        private void CloseConnection()
-        {
-            if (_sqlConnection != null)
-            {
-                if (_sqlConnection.State != ConnectionState.Closed)
-                {
-                    _sqlConnection.Close();
-                }
-            }
+            return new SqlConnection(_sqlConnectionString);
         }
         #endregion
 
         #region build
-        public MsSqlModel Build()
+        protected override void BuildModel(ref MsSqlModel model)
         {
-            MsSqlModel model = new MsSqlModel();
-
-            try
-            {
-                this.ResolveName(ref model);
-                this.ResolveSchemas(ref model);
-                this.ResolveTables(ref model);
-                this.ResolveTableColumns(ref model);
-                this.ResolveTableIndexes(ref model);
-                this.ResolveViews(ref model);
-                this.ResolveViewColumns(ref model);
-                this.ResolveProcedures(ref model);
-                this.ResolveProcedureParameters(ref model);
-                this.ResolveRelationships(ref model);
-                this.ResolveTriggers(ref model);
-                this.ResolveTableExtendedProperties(ref model);
-                this.ResolveTableColumnExtendedProperties(ref model);
-                this.ResolveViewExtendedProperties(ref model);
-                this.ResolveViewColumnExtendedProperties(ref model);
-            }
-            catch(Exception ex)
-            {
-                if (this.OnError != null)
-                { this.OnError.Invoke(ex); }
-                else
-                { throw; }
-            }
-            finally
-            {
-                this.CloseConnection();
-            }
-            return model;
-        }
-        #endregion
-
-        #region execute sql
-        private void ExecuteSql(string sql, Action<DbDataReader> action)
-        {
-            DbDataReader reader = null;
-            try
-            {
-                var cmd = this.EnsureConnection().CreateCommand();
-#pragma warning disable CA2100 // Review SQL queries for security vulnerabilities
-                cmd.CommandText = sql;
-#pragma warning restore CA2100 // Review SQL queries for security vulnerabilities
-                cmd.CommandType = CommandType.Text;
-
-                reader = cmd.ExecuteReader(CommandBehavior.SingleResult);
-
-                action(reader);
-            }
-            catch
-            {
-                throw;
-            }
-            finally
-            {
-                if (reader != null && !reader.IsClosed) { reader.Close(); }
-            }
+            this.ResolveName(ref model);
+            this.ResolveSchemas(ref model);
+            this.ResolveTables(ref model);
+            this.ResolveTableColumns(ref model);
+            this.ResolveTableIndexes(ref model);
+            this.ResolveViews(ref model);
+            this.ResolveViewColumns(ref model);
+            this.ResolveProcedures(ref model);
+            this.ResolveProcedureParameters(ref model);
+            this.ResolveRelationships(ref model);
+            this.ResolveTriggers(ref model);
+            this.ResolveTableExtendedProperties(ref model);
+            this.ResolveTableColumnExtendedProperties(ref model);
+            this.ResolveViewExtendedProperties(ref model);
+            this.ResolveViewColumnExtendedProperties(ref model);
         }
         #endregion
 
         #region resolve name
         public void ResolveName(ref MsSqlModel model)
         {
-            var conn = this.EnsureConnection();
-            model.Name = conn.Database;
+            model.Name = new SqlConnectionStringBuilder(_sqlConnectionString).InitialCatalog;
         }
         #endregion
 
@@ -136,9 +62,9 @@ namespace HatTrick.Model.MsSql
         {
             Dictionary<string, MsSqlSchema> schemas = new Dictionary<string, MsSqlSchema>(StringComparer.OrdinalIgnoreCase);
 
-            string sql = _resourceAccessor.Get("Schema");
+            string sql = GetResource("Schema");
 
-            Action<DbDataReader> action = (dr) =>
+            Action<IDataReader> action = (dr) =>
             {
                 while (dr.Read())
                 {
@@ -162,9 +88,9 @@ namespace HatTrick.Model.MsSql
         {
             List<(string, MsSqlTable)> tables = new List<(string, MsSqlTable)>();
 
-            string sql = _resourceAccessor.Get("Table");
+            string sql = GetResource("Table");
 
-            Action<DbDataReader> action = (dr) =>
+            Action<IDataReader> action = (dr) =>
             {
                 string s = null;
                 MsSqlTable t = null;
@@ -200,9 +126,9 @@ namespace HatTrick.Model.MsSql
         {
             List<MsSqlTableColumn> columns = new List<MsSqlTableColumn>();
 
-            string sql = _resourceAccessor.Get("Table_Column");
+            string sql = GetResource("Table_Column");
 
-            Action<DbDataReader> action = (dr) =>
+            Action<IDataReader> action = (dr) =>
             {
                 SqlDbType sqlType;
                 MsSqlTableColumn c = null;
@@ -258,9 +184,9 @@ namespace HatTrick.Model.MsSql
             List<MsSqlIndex> indexes = new List<MsSqlIndex>();
             List<MsSqlIndexedColumn> indexedColumns = new List<MsSqlIndexedColumn>();
 
-            string sql = _resourceAccessor.Get("Table_Index");
+            string sql = GetResource("Table_Index");
 
-            Action<DbDataReader> action = (dr) =>
+            Action<IDataReader> action = (dr) =>
             {
                 string indexName = null;
                 MsSqlIndex index = null;
@@ -287,7 +213,7 @@ namespace HatTrick.Model.MsSql
                         ParentObjectId = (int)dr["table_id"],
                         IndexId = (int)dr["index_id"],
                         ColumnId = (int)dr["column_id"],
-                        ColumnName = (string)dr["column_name"],
+                        Name = (string)dr["column_name"],
                         KeyOrdinal = (byte)dr["key_ordinal"],
                         IsDescendingKey = (bool)dr["is_descending_key"],
                         IsIncludedColumn = (bool)dr["is_included_column"]
@@ -319,9 +245,9 @@ namespace HatTrick.Model.MsSql
         {
             List<(string, MsSqlView)> views = new List<(string, MsSqlView)>();
 
-            string sql = _resourceAccessor.Get("View");
+            string sql = GetResource("View");
 
-            Action<DbDataReader> action = (dr) =>
+            Action<IDataReader> action = (dr) =>
             {
                 string s = null;
                 MsSqlView v = null;
@@ -357,9 +283,9 @@ namespace HatTrick.Model.MsSql
         {
             List<MsSqlViewColumn> columns = new List<MsSqlViewColumn>();
 
-            string sql = _resourceAccessor.Get("View_Column");
+            string sql = GetResource("View_Column");
 
-            Action<DbDataReader> action = (dr) =>
+            Action<IDataReader> action = (dr) =>
             {
                 SqlDbType sqlType;
                 MsSqlViewColumn c = null;
@@ -413,9 +339,9 @@ namespace HatTrick.Model.MsSql
         {
             List<(string, MsSqlProcedure)> sprocs = new List<(string, MsSqlProcedure)>();
 
-            string sql = _resourceAccessor.Get("Procedure");
+            string sql = GetResource("Procedure");
 
-            Action<DbDataReader> action = (dr) =>
+            Action<IDataReader> action = (dr) =>
             {
                 string s = null;
                 MsSqlProcedure p = null;
@@ -452,9 +378,9 @@ namespace HatTrick.Model.MsSql
         {
             List<MsSqlParameter> parameters = new List<MsSqlParameter>();
 
-            string sql = _resourceAccessor.Get("Procedure_Parameter");
+            string sql = GetResource("Procedure_Parameter");
 
-            Action<DbDataReader> action = (dr) =>
+            Action<IDataReader> action = (dr) =>
             {
                 SqlDbType sqlType;
                 MsSqlParameter p = null;
@@ -505,7 +431,7 @@ namespace HatTrick.Model.MsSql
         {
             List<(string, MsSqlRelationship)> relationships = new List<(string, MsSqlRelationship)>();
 
-            string sql = _resourceAccessor.Get("Relationships");
+            string sql = GetResource("Relationships");
 
             Action<string, MsSqlRelationship> AddOrMerge = (s, r) =>
             {
@@ -524,7 +450,7 @@ namespace HatTrick.Model.MsSql
                 }
             };
 
-            Action<DbDataReader> action = (dr) =>
+            Action<IDataReader> action = (dr) =>
             {
                 string s = null;
                 MsSqlRelationship r = null;
@@ -567,9 +493,9 @@ namespace HatTrick.Model.MsSql
         {
             List<MsSqlTrigger> triggers = new List<MsSqlTrigger>();
 
-            string sql = _resourceAccessor.Get("Trigger");
+            string sql = GetResource("Trigger");
 
-            Action<DbDataReader> action = (dr) =>
+            Action<IDataReader> action = (dr) =>
             {
                 string s = null;
                 MsSqlTrigger t = null;
@@ -612,9 +538,9 @@ namespace HatTrick.Model.MsSql
         {
             List<MsSqlExtendedProperty> extProps = new List<MsSqlExtendedProperty>();
 
-            string sql = _resourceAccessor.Get("Table_Ext_Props");
+            string sql = GetResource("Table_Ext_Props");
 
-            Action<DbDataReader> action = (dr) =>
+            Action<IDataReader> action = (dr) =>
             {
                 MsSqlExtendedProperty p = null;
                 while (dr.Read())
@@ -648,9 +574,9 @@ namespace HatTrick.Model.MsSql
         {
             List<MsSqlExtendedProperty> extProps = new List<MsSqlExtendedProperty>();
 
-            string sql = _resourceAccessor.Get("Table_Column_Ext_Props");
+            string sql = GetResource("Table_Column_Ext_Props");
 
-            Action<DbDataReader> action = (dr) =>
+            Action<IDataReader> action = (dr) =>
             {
                 MsSqlExtendedProperty p = null;
                 while (dr.Read())
@@ -687,9 +613,9 @@ namespace HatTrick.Model.MsSql
         {
             List<MsSqlExtendedProperty> extProps = new List<MsSqlExtendedProperty>();
 
-            string sql = _resourceAccessor.Get("View_Ext_Props");
+            string sql = GetResource("View_Ext_Props");
 
-            Action<DbDataReader> action = (dr) =>
+            Action<IDataReader> action = (dr) =>
             {
                 MsSqlExtendedProperty p = null;
                 while (dr.Read())
@@ -723,9 +649,9 @@ namespace HatTrick.Model.MsSql
         {
             List<MsSqlExtendedProperty> extProps = new List<MsSqlExtendedProperty>();
 
-            string sql = _resourceAccessor.Get("View_Column_Ext_Props");
+            string sql = GetResource("View_Column_Ext_Props");
 
-            Action<DbDataReader> action = (dr) =>
+            Action<IDataReader> action = (dr) =>
             {
                 MsSqlExtendedProperty p = null;
                 while (dr.Read())

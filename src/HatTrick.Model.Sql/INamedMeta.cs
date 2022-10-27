@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace HatTrick.Model.MsSql
+namespace HatTrick.Model.Sql
 {
     public interface INamedMeta  : IName, IMeta
     {

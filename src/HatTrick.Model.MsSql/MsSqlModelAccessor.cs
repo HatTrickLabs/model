@@ -1,48 +1,30 @@
-﻿using System;
+﻿using HatTrick.Model.Sql;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
 namespace HatTrick.Model.MsSql
 {
-	public class SqlModelAccessor
+	public class MsSqlModelAccessor : SqlModelAccessor<MsSqlSchema>
 	{
-		#region internals
-		private readonly char _defaultWildcard = '*';
-
-		private char _wildcardOverride;
-		private MsSqlModel _model;
-		#endregion
-
-		#region interface
-		public char Wildcard => (_wildcardOverride == '\0') ? _defaultWildcard : _wildcardOverride;
-		#endregion
-
 		#region constructors
-		public SqlModelAccessor(MsSqlModel model)
+		public MsSqlModelAccessor(MsSqlModel model) : base(model)
 		{
-			_model = model;
-			_wildcardOverride = '\0';
-		}
-		#endregion
 
-		#region apply wildcard override
-		public void ApplyWildcardOverride(char wildcard)
-		{
-			_wildcardOverride = wildcard;
 		}
 		#endregion
 
 		#region resolve item
-		public INamedMeta ResolveItem(string path)
+		public override INamedMeta ResolveItem(string path)
 		{
 			if (path == null || path.Length == 0)
 				throw new ArgumentException($"{nameof(path)} must contain a value");
 
 			if (path == ".")
-				return _model;
+				return Model;
 
-			string[] segments = this.SplitPath(path);
+			string[] segments = path.SplitPath();
 
 			//-Schemas
 			//  - Tables
@@ -68,8 +50,8 @@ namespace HatTrick.Model.MsSql
 				string key = segments[i];
 				if (i == 0)
 				{
-					if (_model.Schemas.Contains(key))
-						namedMeta = s = _model.Schemas[key];
+					if (Model.Schemas.Contains(key))
+						namedMeta = s = Model.Schemas[key];
 					else
 						break;
 				}
@@ -119,16 +101,16 @@ namespace HatTrick.Model.MsSql
 		#endregion
 
 		#region resolve item set
-		public List<INamedMeta> ResolveItemSet(string path)
+		public override List<INamedMeta> ResolveItemSet(string path)
 		{
 			if (path == null || path.Length == 0)
 				throw new ArgumentException("argument must contain a value", nameof(path));
 
-			string[] segments = this.SplitPath(path);
+			string[] segments = path.SplitPath();
 			string nextSegment = null;
 
 			if (path == ".")
-				return new List<INamedMeta> { _model };
+				return new List<INamedMeta> { Model };
 
 			//-Schemas
 			//  - Tables
@@ -170,7 +152,7 @@ namespace HatTrick.Model.MsSql
 				nextSegment = segments[i];
 				if (i == 0)
 				{
-					schemas = _model.Schemas.GetMatchList(nextSegment, IsStringMatch);
+					schemas = Model.Schemas.GetMatchList(nextSegment, IsStringMatch);
 					if (i == pathDepth)
 					{
 						set.AddRange(schemas);
@@ -258,121 +240,6 @@ namespace HatTrick.Model.MsSql
 			}
 
 			return set;
-		}
-
-		public IList<T> ResolveItemSet<T>(string path) where T : INamedMeta
-		{
-			var set = this.ResolveItemSet(path);
-			List<T> typedSet = new List<T>();
-			foreach (var item in set)
-			{
-				if (item is T itm)
-					typedSet.Add(itm);
-			}
-			return typedSet;
-		}
-
-		public IList<T> ResolveItemSet<T>(string path, Predicate<T> predicate) where T : INamedMeta
-		{
-			var set = this.ResolveItemSet(path);
-			List<T> filteredSet = new List<T>();
-			foreach (var item in set)
-			{
-				if (item is T itm && (predicate == null || predicate(itm)))
-					filteredSet.Add(itm);
-			}
-			return filteredSet;
-		}
-		#endregion
-
-		#region split path
-		private string[] SplitPath(string path)
-		{
-			//walk the entire string to ensure . within [] is maintained
-			if (path == null)
-				return null;
-
-			if (path == string.Empty)
-				return new string[0];
-
-			char c;
-			bool inBracket = false;
-			List<string> segments = new List<string>();
-			StringBuilder segment = new StringBuilder();
-			for (int i = 0; i < path.Length; i++)
-			{
-				c = path[i];
-				if (c == '[' || c == ']')
-				{
-					inBracket = !inBracket;
-					continue;
-				}
-
-				if (c == '.' && !inBracket)
-				{
-					segments.Add(segment.ToString());
-					segment.Clear();
-					continue;
-				}
-
-				segment.Append(c);
-			}
-
-			if (segment.Length > 0)
-			{
-				segments.Add(segment.ToString());
-			}
-			return segments.ToArray();
-		}
-		#endregion
-
-		#region is string match
-		public bool IsStringMatch(string left, string right)
-		{
-			char wildcard = this.Wildcard;
-
-			if (string.IsNullOrEmpty(left))
-				throw new ArgumentException("argument must contain a value", nameof(left));
-
-			if (string.IsNullOrEmpty(right))
-				throw new ArgumentException("argument must contain a value", nameof(right));
-
-			if (right.Length == 1 && right[0] == wildcard)
-				return true;
-
-			bool match = false;
-			bool beginWild = (right[0] == wildcard);
-			bool endWild = (right[right.Length - 1] == wildcard);
-
-			if ((beginWild || endWild))
-			{
-				string sub = right;
-				if (beginWild)
-				{
-					sub = right.Substring(1, right.Length - 1);
-				}
-				if (endWild)
-				{
-					sub = sub.Substring(0, sub.Length - 1);
-				}
-				if (beginWild && endWild)
-				{
-					match = left.IndexOf(sub, StringComparison.OrdinalIgnoreCase) > -1;
-				}
-				else if (beginWild)
-				{
-					match = left.IndexOf(sub, StringComparison.OrdinalIgnoreCase) == (left.Length - sub.Length);
-				}
-				else if (endWild)
-				{
-					match = left.IndexOf(sub, StringComparison.OrdinalIgnoreCase) == 0;
-				}
-			}
-			else
-			{
-				match = string.Compare(left, right, true) == 0;
-			}
-			return match;
 		}
 		#endregion
 	}

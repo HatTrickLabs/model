@@ -1,13 +1,10 @@
+using HatTrick.Model.Sql;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Data;
-using System.Data.Common;
-using System.Data.SqlClient;
 
 namespace HatTrick.Model.MsSql
 {
-    public class MsSqlProcedure : INamedMeta
+    public class MsSqlProcedure : ISqlProcedure
     {
         #region internals
         private INamedMeta _parent;
@@ -20,7 +17,7 @@ namespace HatTrick.Model.MsSql
 
         public bool IsStartupProcedure { get; set; }
 
-        public Dictionary<string, MsSqlParameter> Parameters { get; set; }
+        public Dictionary<string, MsSqlParameter> Parameters { get; set; } = new();
 
         public string Meta { get; set; }
         #endregion

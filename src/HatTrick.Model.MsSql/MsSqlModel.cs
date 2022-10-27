@@ -1,31 +1,16 @@
-using System;
+using HatTrick.Model.Sql;
 using System.Collections.Generic;
-using System.Linq;
-using System.Data;
-using System.Data.Common;
-using System.Data.SqlClient;
 
 namespace HatTrick.Model.MsSql
 {
-    public class MsSqlModel : INamedMeta
+    public class MsSqlModel : ISqlModel<MsSqlSchema>
     {
-        #region internals
-        private SqlModelAccessor _accessor;
-		#endregion
-
-		#region interface
+        #region interface
 		public string Name {  get; set;  }
 
-        public Dictionary<string, MsSqlSchema> Schemas { get; set; }
+        public Dictionary<string, MsSqlSchema> Schemas { get; set; } = new();
 
         public string Meta { get; set; }
-        #endregion
-
-        #region constructors
-        public MsSqlModel()
-        {
-            _accessor = new SqlModelAccessor(this);
-        }
         #endregion
     }
 }

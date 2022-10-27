@@ -1,0 +1,60 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.3.32825.248
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HatTrick.Model.MsSql", "src\HatTrick.Model.MsSql\HatTrick.Model.MsSql.csproj", "{60694610-2946-4AC9-B6C5-B75D03077AF0}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HatTrick.Model.Sql", "src\HatTrick.Model.Sql\HatTrick.Model.Sql.csproj", "{B304DC2E-6766-4E14-A9DB-02DF55A9F34A}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{06DD615A-6E2A-4E6E-BC2D-0D0FA293C371}"
+	ProjectSection(SolutionItems) = preProject
+		..\build\htl-nuget-logo.png = ..\build\htl-nuget-logo.png
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{F8D7992A-BC41-4256-9883-07DB8277C9D3}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "samples", "samples", "{71D0ACF2-4169-4EC9-B83E-FDAEF715BBCC}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{DCFCCC6B-E186-42C5-85F5-411E9F8A515E}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HatTrick.Model.MsSql.Tests", "test\HatTrick.Model.MsSql.Tests\HatTrick.Model.MsSql.Tests.csproj", "{FDC46BAB-1651-43C1-816A-CF247BE4BFC0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HatTrick.Model.TestHarness", "samples\HatTrick.Model.TestHarness\HatTrick.Model.TestHarness.csproj", "{BFD11749-1733-450C-8357-25163B090CBD}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{60694610-2946-4AC9-B6C5-B75D03077AF0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{60694610-2946-4AC9-B6C5-B75D03077AF0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{60694610-2946-4AC9-B6C5-B75D03077AF0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{60694610-2946-4AC9-B6C5-B75D03077AF0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B304DC2E-6766-4E14-A9DB-02DF55A9F34A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B304DC2E-6766-4E14-A9DB-02DF55A9F34A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B304DC2E-6766-4E14-A9DB-02DF55A9F34A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B304DC2E-6766-4E14-A9DB-02DF55A9F34A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FDC46BAB-1651-43C1-816A-CF247BE4BFC0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FDC46BAB-1651-43C1-816A-CF247BE4BFC0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FDC46BAB-1651-43C1-816A-CF247BE4BFC0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FDC46BAB-1651-43C1-816A-CF247BE4BFC0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BFD11749-1733-450C-8357-25163B090CBD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BFD11749-1733-450C-8357-25163B090CBD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BFD11749-1733-450C-8357-25163B090CBD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BFD11749-1733-450C-8357-25163B090CBD}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{60694610-2946-4AC9-B6C5-B75D03077AF0} = {F8D7992A-BC41-4256-9883-07DB8277C9D3}
+		{B304DC2E-6766-4E14-A9DB-02DF55A9F34A} = {F8D7992A-BC41-4256-9883-07DB8277C9D3}
+		{FDC46BAB-1651-43C1-816A-CF247BE4BFC0} = {DCFCCC6B-E186-42C5-85F5-411E9F8A515E}
+		{BFD11749-1733-450C-8357-25163B090CBD} = {71D0ACF2-4169-4EC9-B83E-FDAEF715BBCC}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {6DDAF459-BAF8-49DF-984C-E2EC0FB152DB}
+	EndGlobalSection
+EndGlobal

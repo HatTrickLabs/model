@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace HatTrick.Model.MsSql
+namespace HatTrick.Model.Sql
 {
     public interface IMeta
     {
