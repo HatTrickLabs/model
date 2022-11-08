@@ -1,0 +1,416 @@
+﻿CREATE SCHEMA dbo;
+
+USE dbo;
+
+CREATE TABLE Region(
+	State CHAR(2) NOT NULL,
+	Zip VARCHAR(10) NOT NULL,
+    CONSTRAINT UIX_Region UNIQUE KEY(State,Zip)
+);
+
+CREATE TABLE Address(
+	Id INT AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	AddressType INT NULL,
+	Line1 VARCHAR(50) NOT NULL,
+	Line2 VARCHAR(50) NULL,
+	City VARCHAR(60) NOT NULL,
+	State CHAR(2) NOT NULL,
+	Zip VARCHAR(10) NOT NULL,
+	DateCreated DATETIME NOT NULL DEFAULT (NOW()),
+	DateUpdated DATETIME NOT NULL DEFAULT (NOW()),
+	CONSTRAINT FK_Address_Region FOREIGN KEY(State,Zip) REFERENCES dbo.Region (State,Zip)
+);
+
+CREATE INDEX IX_City ON Address (City);
+
+DELIMITER //
+CREATE TRIGGER TR_Address_DateUpdated
+	BEFORE UPDATE 
+	ON Address FOR EACH ROW
+    BEGIN
+		IF (NEW.DateUpdated <=> OLD.DateUpdated) THEN
+			SET NEW.DateUpdated = NOW();
+		END IF;
+	END; //
+DELIMITER ;
+
+
+CREATE TABLE Person(
+	Id INT AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	FirstName VARCHAR(20) NOT NULL,
+	LastName VARCHAR(20) NOT NULL,
+	BirthDate DATE NULL,
+	GenderType INT NOT NULL,
+	CreditLimit INT NULL,
+	YearOfLastCreditLimitReview INT NULL,
+	RegistrationDate DATETIME NOT NULL DEFAULT (NOW()),
+	LastLoginDate DATETIME NULL,
+	DateCreated DATETIME NOT NULL DEFAULT (NOW()),
+	DateUpdated DATETIME NOT NULL DEFAULT (NOW())
+);
+
+CREATE INDEX IX_LastName_FirstName ON Person (LastName, FirstName);
+CREATE INDEX IX_LastLoginDate ON Person (LastLoginDate DESC);
+
+DELIMITER //
+CREATE TRIGGER TR_Person_DateUpdated
+	BEFORE UPDATE 
+	ON Person FOR EACH ROW
+    BEGIN
+		IF (NEW.DateUpdated <=> OLD.DateUpdated) THEN
+			SET NEW.DateUpdated = NOW();
+		END IF;
+	END; //
+DELIMITER ;
+
+
+CREATE TABLE Person_Address(
+	Id INT AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	PersonId INT NOT NULL,
+	AddressId INT NOT NULL,
+	DateCreated DATETIME NOT NULL DEFAULT (NOW()),
+	CONSTRAINT FK_Person_Address_Address FOREIGN KEY(AddressId) REFERENCES dbo.Address (Id),
+	CONSTRAINT FK_Person_Address_Person FOREIGN KEY(PersonId) REFERENCES dbo.Person (Id)
+);
+
+
+CREATE TABLE Product(
+	Id INT AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	ProductCategoryType INT NULL,
+	Name VARCHAR(80) NOT NULL,
+	Description NVARCHAR(2000) NULL,
+	ListPrice DECIMAL(13,2) NOT NULL,
+	Price DECIMAL(13,2) NOT NULL,
+	Quantity INT NOT NULL,
+	Image LONGBLOB NULL,
+	Height DECIMAL(4, 1) NULL,
+	Width DECIMAL(4, 1) NULL,
+	Depth DECIMAL(4, 1) NULL,
+	Weight DECIMAL(4, 1) NULL,
+	ShippingWeight DECIMAL(4, 1) NOT NULL,
+	ValidStartTimeOfDayForPurchase TIME NULL,
+	ValidEndTimeOfDayForPurchase TIME NULL,
+	DateCreated DATETIME NOT NULL DEFAULT (NOW()),
+	DateUpdated DATETIME NOT NULL DEFAULT (NOW())
+);
+
+
+DELIMITER //
+CREATE TRIGGER TR_Product_DateUpdated
+	BEFORE UPDATE 
+	ON Product FOR EACH ROW
+    BEGIN
+		IF (NEW.DateUpdated <=> OLD.DateUpdated) THEN
+			SET NEW.DateUpdated = NOW();
+		END IF;
+	END; //
+DELIMITER ;
+
+
+CREATE TABLE Purchase(
+	Id INT AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	PersonId INT NOT NULL,
+	OrderNumber VARCHAR(20) NOT NULL,
+	TotalPurchaseQuantity INT NOT NULL,
+	TotalPurchaseAmount DECIMAL(13,2) NOT NULL,
+	PurchaseDate DATETIME NOT NULL,
+	ShipDate DATETIME NULL,
+	ExpectedDeliveryDate DATETIME NULL,
+	TrackingIdentifier VARCHAR(36) NULL,
+	PaymentMethodType VARCHAR(20) NOT NULL,
+	PaymentSourceType VARCHAR(20) NULL,
+	DateCreated DATETIME NOT NULL DEFAULT (NOW()),
+	DateUpdated DATETIME NOT NULL DEFAULT (NOW()),
+	CONSTRAINT FK_Purchase_Person FOREIGN KEY(PersonId) REFERENCES dbo.Person (Id)
+);
+
+
+DELIMITER //
+CREATE TRIGGER TR_Purchase_DateUpdated
+	BEFORE UPDATE 
+	ON Purchase FOR EACH ROW
+    BEGIN
+		IF (NEW.DateUpdated <=> OLD.DateUpdated) THEN
+			SET NEW.DateUpdated = NOW();
+		END IF;
+	END; //
+DELIMITER ;
+
+
+CREATE TABLE PurchaseLine(
+	Id INT AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	PurchaseId INT NOT NULL,
+	ProductId INT NOT NULL,
+	PurchasePrice DECIMAL(12, 2) NOT NULL,
+	Quantity INT NOT NULL,
+	DateCreated DATETIME NOT NULL DEFAULT (NOW()),
+	DateUpdated DATETIME NOT NULL DEFAULT (NOW()),
+	CONSTRAINT FK_PurchaseLine_Purchase FOREIGN KEY(PurchaseId) REFERENCES dbo.Purchase (Id),
+	CONSTRAINT FK_PurchaseLine_Product FOREIGN KEY(ProductId) REFERENCES dbo.Product (Id)
+);
+
+
+DELIMITER //
+CREATE TRIGGER TR_PurchaseLine_DateUpdated
+	BEFORE UPDATE 
+	ON PurchaseLine FOR EACH ROW
+    BEGIN
+		IF (NEW.DateUpdated <=> OLD.DateUpdated) THEN
+			SET NEW.DateUpdated = NOW();
+		END IF;
+	END; //
+DELIMITER ;
+
+
+CREATE TABLE AccessAuditLog(
+	Id INT AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	PersonId INT NOT NULL,
+	AccessResult INT NOT NULL,
+	DateCreated DATETIME NOT NULL DEFAULT (NOW())
+);
+
+
+CREATE SCHEMA unit_test;
+
+USE unit_test;
+
+CREATE TABLE DataType(
+	`Bit` BIT(6) NOT NULL,
+	`NullableBit` BIT(6) NULL,
+	`DateTime` DATETIME NOT NULL,
+	`NullableDateTime` DATETIME NULL,
+	`Date` DATE NOT NULL,
+	`NullableDate` DATE NULL,
+	`Timestamp` TIMESTAMP NOT NULL,
+	`NullableTimestamp` TIMESTAMP NULL,
+	`Time` TIME NOT NULL,
+	`NullableTime` TIME NULL,
+	`Year` YEAR NOT NULL,
+	`NullableYear` YEAR NULL,
+	`VarChar` VARCHAR(20) NOT NULL,
+	`NullableVarChar` VARCHAR(20) NULL,
+	`Char` CHAR(20) NOT NULL,
+	`NullableChar` CHAR(20) NULL,
+	`Blob` BLOB NOT NULL,
+	`NullableBlob` BLOB NULL,
+	`TinyBlob` TINYBLOB NOT NULL,
+	`NullableTinyBlob` TINYBLOB NULL,
+	`MediumBlob` MEDIUMBLOB NOT NULL,
+	`NullableMediumBlob` MEDIUMBLOB NULL,
+	`LongBlob` LONGBLOB NOT NULL,
+	`NullableLongBlob` LONGBLOB NULL,
+	`TinyInt` TINYINT NOT NULL,
+	`NullableTinyInt` TINYINT NULL,
+	`SmallInt` SMALLINT NOT NULL,
+	`NullableSmallInt` SMALLINT NULL,
+	`MediumInt` MEDIUMINT NOT NULL,
+	`NullableMediumInt` MEDIUMINT NULL,
+	`Int` INT NOT NULL,
+	`NullableInt` INT NULL,
+	`BigInt` BIGINT NOT NULL,
+	`NullableBigInt` BIGINT NULL,
+	`Double` DOUBLE NOT NULL,
+	`NullableDouble` DOUBLE NULL,
+	`Decimal` DECIMAL(5,4) NOT NULL,
+	`NullableDecimal` DECIMAL(5,4) NULL,
+	`Float` FLOAT NOT NULL,
+	`NullableFloat` FLOAT NULL,
+	`Binary` BINARY NOT NULL,
+	`NullableBinary` BINARY NULL,
+	`VarBinary` VARBINARY(20) NOT NULL,
+	`NullableVarBinary` VARBINARY(20) NULL,
+	`TinyText` TINYTEXT NOT NULL,
+	`NullableTinyText` TINYTEXT NULL,
+	`Text` TEXT NOT NULL,
+	`NullableText` TEXT NULL,
+	`MediumText` MEDIUMTEXT NOT NULL,
+	`NullableMediumText` MEDIUMTEXT NULL,
+	`LongText` LONGTEXT NOT NULL,
+	`NullableLongText` LONGTEXT NULL,
+	`Set` SET('a','b','c','d') NOT NULL,
+	`NullableSet` SET('a','b','c','d') NULL,
+	`Enum` ENUM('a','b','c','d') NOT NULL,
+	`NullableEnum` ENUM('a','b','c','d') NULL
+);
+
+CREATE SCHEMA sec;
+
+USE sec;
+
+
+CREATE TABLE Person(
+	Id INT PRIMARY KEY NOT NULL,
+	SSN CHAR(11) NOT NULL,
+	DateCreated DATETIME NOT NULL DEFAULT (NOW()),
+	DateUpdated DATETIME NOT NULL DEFAULT (NOW())
+);
+
+
+DELIMITER //
+CREATE TRIGGER TR_Person_DateUpdated
+	BEFORE UPDATE 
+	ON Person FOR EACH ROW
+    BEGIN
+		IF (NEW.DateUpdated <=> OLD.DateUpdated) THEN
+			SET NEW.DateUpdated = NOW();
+		END IF;
+	END; //
+DELIMITER ;
+
+USE sec;
+
+CREATE VIEW PersonView
+AS
+SELECT    
+	sec.Person.Id
+FROM      
+	sec.Person
+GROUP BY 
+	sec.Person.Id;
+
+
+DELIMITER //
+CREATE PROCEDURE Procedure_With_In (
+	IN P1_IN INT
+)
+BEGIN
+	SELECT 
+		TOP(1)
+	FROM 
+		Person
+	WHERE 
+		Person.Id = @P1;
+END //
+DELIMITER ;
+
+DELIMITER //
+CREATE PROCEDURE Procedure_With_Multiple_In (
+	IN P1_IN INT,
+	IN P2_IN INT
+)
+BEGIN
+	SELECT 
+		TOP(1)
+	FROM 
+		Person
+	WHERE 
+		Person.Id = @P1;
+END //
+DELIMITER ;
+
+DELIMITER //
+CREATE PROCEDURE Procedure_With_Out (
+	OUT P1_OUT INT
+)
+BEGIN
+	SELECT 
+		@P1_OUT = Person.Id
+	FROM 
+		Person
+	WHERE 
+		Person.Id = 1;
+END //
+DELIMITER ;
+
+DELIMITER //
+CREATE PROCEDURE Procedure_With_In_And_Out (
+	IN P1_IN INT,
+	OUT P2_OUT INT
+)
+BEGIN
+	SELECT 
+		TOP(1)
+	FROM 
+		Person
+	WHERE 
+		Person.Id = @P1;
+
+	SELECT 
+		@P2_OUT = Person.Id
+	FROM 
+		Person
+	WHERE 
+		Person.Id = @P1;
+END //
+DELIMITER ;
+
+USE dbo;
+
+CREATE VIEW PersonTotalPurchasesView
+AS
+SELECT    
+	dbo.Person.Id, 
+	SUM(dbo.Purchase.TotalPurchaseAmount) AS TotalAmount,
+	COUNT(dbo.Purchase.Id) AS TotalCount
+FROM      
+	dbo.Person 
+	INNER JOIN dbo.Purchase ON dbo.Purchase.PersonId = dbo.Person.Id
+GROUP BY 
+	dbo.Person.Id;
+
+
+DELIMITER //
+CREATE PROCEDURE Procedure_With_In (
+	IN P1_IN INT
+)
+BEGIN
+	SELECT 
+		TOP(1)
+	FROM 
+		Person
+	WHERE 
+		Person.Id = @P1;
+END //
+DELIMITER ;
+
+DELIMITER //
+CREATE PROCEDURE Procedure_With_Multiple_In (
+	IN P1_IN INT,
+	IN P2_IN INT
+)
+BEGIN
+	SELECT 
+		TOP(1)
+	FROM 
+		Person
+	WHERE 
+		Person.Id = @P1;
+END //
+DELIMITER ;
+
+DELIMITER //
+CREATE PROCEDURE Procedure_With_Out (
+	OUT P1_OUT INT
+)
+BEGIN
+	SELECT 
+		@P1_OUT = Person.Id
+	FROM 
+		Person
+	WHERE 
+		Person.Id = 1;
+END //
+DELIMITER ;
+
+DELIMITER //
+CREATE PROCEDURE Procedure_With_In_And_Out (
+	IN P1_IN INT,
+	OUT P2_OUT INT
+)
+BEGIN
+	SELECT 
+		TOP(1)
+	FROM 
+		Person
+	WHERE 
+		Person.Id = @P1;
+
+	SELECT 
+		@P2_OUT = Person.Id
+	FROM 
+		Person
+	WHERE 
+		Person.Id = @P1;
+END //
+DELIMITER ;
+

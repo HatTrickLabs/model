@@ -4,43 +4,44 @@ using System.Collections.Generic;
 
 namespace HatTrick.Model.MsSql
 {
-    public class MsSqlView : ISqlView
+    public class MsSqlView : IDatabaseObjectModifier<MsSqlView>, ISqlView, IChildOf<MsSqlSchema>
     {
         #region internals
-        private INamedMeta _parent;
-		#endregion
-
-		#region interface
-		public int ObjectId { get; set; }
-
-        public string Name { get; set; }
-
-        public Dictionary<string, MsSqlViewColumn> Columns { get; set; } = new();
-
-        public Dictionary<string, MsSqlExtendedProperty> ExtendedProperties { get; set; } = new();
-
-        public string Meta { get; set; }
+        private MsSqlSchema? _parent;
         #endregion
 
-        #region set parent
-        public void SetParent(MsSqlSchema schema)
-        {
-            _parent = schema;
-        }
-		#endregion
+        #region interface
+        public string Name { get; set; } = string.Empty;
 
-		#region get parent
-		public INamedMeta GetParent()
-        {
-            return _parent;
-        }
-		#endregion
+        public string Meta { get; set; } = string.Empty;
 
-		#region apply
+        public string Identifier { get; set; } = string.Empty;
+
+        public string ParentIdentifier => _parent?.Identifier ?? string.Empty;
+
+        public DatabaseObjectList<MsSqlViewColumn> Columns { get; set; } = new();
+
+        public DatabaseObjectList<MsSqlExtendedProperty> ExtendedProperties { get; set; } = new();
+        #endregion
+
+		#region methods
 		public void Apply(Action<MsSqlView> action)
         {
             action(this);
         }
+
+        public void SetParent(MsSqlSchema schema)
+        {
+            _parent = schema;
+        }
+
+        public MsSqlSchema? GetParent()
+        {
+            return _parent;
+        }
+
+        public override string ToString()
+            => $"{Identifier}:{Name}";
         #endregion
     }
 }

@@ -1,6 +1,7 @@
 ﻿select 
 sys.objects.name as sproc_name, 
 sys.objects.object_id,
+sys.objects.schema_id,
 sys.schemas.name as schema_name,
 sys.procedures.is_auto_executed as is_startup_sproc
 from sys.objects

@@ -3,34 +3,46 @@ using HatTrick.Model.Sql;
 
 namespace HatTrick.Model.MsSql
 {
-    public class MsSqlIndexedColumn : ISqlIndexedColumn
+    public class MsSqlIndexedColumn : IDatabaseObjectModifier<MsSqlIndexedColumn>, ISqlIndexedColumn, IChildOf<MsSqlIndex>
     {
+        #region internals
+        private MsSqlIndex? _parent;
+        #endregion
+
         #region interface
-        public int ParentObjectId { get; set; }
+        public string Name { get; set; } = string.Empty;
 
-        public int IndexId { get; set; }
+        public string Meta { get; set; } = string.Empty;
 
-        public int ColumnId { get; set; }
+        public string Identifier { get; set; } = string.Empty;
 
-        [Obsolete("ColumnName will be removed in a future version.  Please use Name instead.")]
-        public string ColumnName => Name;
-
-        public string Name { get; set; }
-
-        public byte KeyOrdinal { get; set; }
-
-        public bool IsDescendingKey { get; set; }
+        public string ParentIdentifier => _parent?.Identifier ?? string.Empty;
 
         public bool IsIncludedColumn { get; set; }
 
-        public string Meta { get; set; }
+        public short OrdinalPosition { get; set; }
+
+        public bool IsDescending { get; set; }
         #endregion
 
-        #region apply
+        #region methods
         public void Apply(Action<MsSqlIndexedColumn> action)
         {
             action(this);
         }
+
+        public void SetParent(MsSqlIndex index)
+        {
+            _parent = index;
+        }
+
+        public MsSqlIndex? GetParent()
+        {
+            return _parent;
+        }
+
+        public override string ToString()
+            => $"{Identifier}:{Name}, Ordinal: {OrdinalPosition}";
         #endregion
     }
 }

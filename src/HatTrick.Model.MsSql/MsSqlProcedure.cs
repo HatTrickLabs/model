@@ -1,46 +1,48 @@
 using HatTrick.Model.Sql;
 using System;
 using System.Collections.Generic;
+using System.Data;
 
 namespace HatTrick.Model.MsSql
 {
-    public class MsSqlProcedure : ISqlProcedure
+    public class MsSqlProcedure : IDatabaseObjectModifier<MsSqlProcedure>, ISqlProcedure, IChildOf<MsSqlSchema>
     {
         #region internals
-        private INamedMeta _parent;
-		#endregion
+        private MsSqlSchema? _parent;
+        #endregion
 
-		#region interface
-		public int ObjectId { get; set; }
+        #region interface
+        public string Name { get; set; } = string.Empty;
 
-        public string Name { get; set; }
+        public string Meta { get; set; } = string.Empty;
+
+        public string Identifier { get; set; } = string.Empty;
+
+        public string ParentIdentifier => _parent?.Identifier ?? string.Empty;
 
         public bool IsStartupProcedure { get; set; }
 
-        public Dictionary<string, MsSqlParameter> Parameters { get; set; } = new();
-
-        public string Meta { get; set; }
+        public DatabaseObjectList<MsSqlParameter> Parameters { get; set; } = new();
         #endregion
 
-        #region set parent
-        public void SetParent(MsSqlSchema schema)
-        {
-            _parent = schema;
-        }
-        #endregion
-
-        #region get parent
-        public INamedMeta GetParent()
-        {
-            return _parent;
-        }
-        #endregion
-
-        #region apply
+        #region methods
         public void Apply(Action<MsSqlProcedure> action)
         {
             action(this);
         }
+
+        public void SetParent(MsSqlSchema schema)
+        {
+            _parent = schema;
+        }
+
+        public MsSqlSchema? GetParent()
+        {
+            return _parent;
+        }
+
+        public override string ToString()
+            => $"{Identifier}:{Name}";
         #endregion
     }
 }

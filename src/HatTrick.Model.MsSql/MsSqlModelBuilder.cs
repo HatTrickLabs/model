@@ -17,7 +17,6 @@ namespace HatTrick.Model.MsSql
         #region constructors
         public MsSqlModelBuilder(string sqlConnectionString) : base("HatTrick.Model.MsSql.Scripts")
         {
-            var x = new DbConnectionStringBuilder();
             _sqlConnectionString = sqlConnectionString;
         }
         #endregion
@@ -30,655 +29,572 @@ namespace HatTrick.Model.MsSql
         #endregion
 
         #region build
-        protected override void BuildModel(ref MsSqlModel model)
+        protected override void BuildModel(MsSqlModel model)
         {
-            this.ResolveName(ref model);
-            this.ResolveSchemas(ref model);
-            this.ResolveTables(ref model);
-            this.ResolveTableColumns(ref model);
-            this.ResolveTableIndexes(ref model);
-            this.ResolveViews(ref model);
-            this.ResolveViewColumns(ref model);
-            this.ResolveProcedures(ref model);
-            this.ResolveProcedureParameters(ref model);
-            this.ResolveRelationships(ref model);
-            this.ResolveTriggers(ref model);
-            this.ResolveTableExtendedProperties(ref model);
-            this.ResolveTableColumnExtendedProperties(ref model);
-            this.ResolveViewExtendedProperties(ref model);
-            this.ResolveViewColumnExtendedProperties(ref model);
+            this.ResolveName(model);
+            this.ResolveSchemas(model);
+            this.ResolveTables(model);
+            this.ResolveTableColumns(model);
+            this.ResolveTableIndexes(model);
+            this.ResolveViews(model);
+            this.ResolveViewColumns(model);
+            this.ResolveProcedures(model);
+            this.ResolveProcedureParameters(model);
+            this.ResolveRelationships(model);
+            this.ResolveTriggers(model);
+            this.ResolveTableExtendedProperties(model);
+            this.ResolveTableColumnExtendedProperties(model);
+            this.ResolveViewExtendedProperties(model);
+            this.ResolveViewColumnExtendedProperties(model);
         }
         #endregion
 
         #region resolve name
-        public void ResolveName(ref MsSqlModel model)
+        public void ResolveName(MsSqlModel model)
         {
             model.Name = new SqlConnectionStringBuilder(_sqlConnectionString).InitialCatalog;
         }
         #endregion
 
         #region resolve schemas
-        public void ResolveSchemas(ref MsSqlModel model)
+        public void ResolveSchemas(MsSqlModel model)
         {
-            Dictionary<string, MsSqlSchema> schemas = new Dictionary<string, MsSqlSchema>(StringComparer.OrdinalIgnoreCase);
+            DatabaseObjectList<MsSqlSchema> schemas = new();
 
             string sql = GetResource("Schema");
 
-            Action<IDataReader> action = (dr) =>
+            void hydrate(IDataReader dr)
             {
                 while (dr.Read())
                 {
                     MsSqlSchema s = new MsSqlSchema()
                     {
-                        SchemaId = (int)dr["schema_id"],
+                        Identifier = dr["schema_id"].ToString(),
                         Name = (string)dr["name"]
                     };
                     schemas.Add(s);
                 }
             };
 
-            this.ExecuteSql(sql, action);
+            this.ExecuteSql(sql, hydrate);
 
             model.Schemas = schemas;
         }
         #endregion
 
         #region resolve tables
-        public void ResolveTables(ref MsSqlModel model)
+        public void ResolveTables(MsSqlModel model)
         {
-            List<(string, MsSqlTable)> tables = new List<(string, MsSqlTable)>();
+            List<(string schema, MsSqlTable table)> tables = new List<(string schema, MsSqlTable table)>();
 
             string sql = GetResource("Table");
 
-            Action<IDataReader> action = (dr) =>
+            void hydrate(IDataReader dr)
             {
-                string s = null;
-                MsSqlTable t = null;
                 while (dr.Read())
                 {
-                    s = (string)dr["schema_name"];
-                    t = new MsSqlTable()
+                    MsSqlTable table = new MsSqlTable()
                     {
-                        ObjectId = (int)dr["object_id"],
+                        Identifier = dr["object_id"].ToString(),
                         Name = (string)dr["table_name"]
                     };
-                    tables.Add((s, t));
+                    tables.Add((dr["schema_id"].ToString(), table));
                 }
             };
 
-            this.ExecuteSql(sql, action);
+            this.ExecuteSql(sql, hydrate);
 
-            foreach (MsSqlSchema schema in model.Schemas.Values)
+            foreach (MsSqlSchema schema in model.Schemas)
             {
-                schema.Tables = new Dictionary<string, MsSqlTable>(StringComparer.OrdinalIgnoreCase)
-                    .AddRange(tables.FindAll(t => t.Item1 == schema.Name).ConvertAll(t => t.Item2));
+                schema.Tables = tables.Where(t => t.schema == schema.Identifier).Select(t => t.table).ToDatabaseObjectList();
 
-                foreach (var table in schema.Tables.Values)
-                {
+                foreach (var table in schema.Tables)
                     table.SetParent(schema);
-                }
             }
         }
         #endregion
 
         #region resolve table columns
-        public void ResolveTableColumns(ref MsSqlModel model)
+        public void ResolveTableColumns(MsSqlModel model)
         {
-            List<MsSqlTableColumn> columns = new List<MsSqlTableColumn>();
+            List<(string table, MsSqlTableColumn column)> columns = new List<(string table, MsSqlTableColumn column)>();
 
             string sql = GetResource("Table_Column");
 
-            Action<IDataReader> action = (dr) =>
+            void hydrate(IDataReader dr)
             {
-                SqlDbType sqlType;
-                MsSqlTableColumn c = null;
                 while (dr.Read())
                 {
                     string typeName = (string)dr["data_type_name"];
 
-                    //need to swap out numeric for decimal.. SqlDbType enum does NOT have 'numeric'
-                    if (string.Compare(typeName, "numeric", true) == 0)
-                        typeName = "decimal";
+                    MsSqlTypeDescriptor? resolved = MsSqlDataTypes.GetTypeDescriptor(typeName) ?? throw new DataException($"{typeName} is not a recognized Sql type.");
 
-                    bool knownType = Enum.TryParse<SqlDbType>(typeName, true, out sqlType);
-                    c = new MsSqlTableColumn
-                    {
-                        ColumnId = (int)dr["column_id"],
-                        ParentObjectId = (int)dr["table_id"],
-                        Name = (string)dr["column_name"],
-                        IsIdentity = (bool)dr["is_identity"],
-                        SqlTypeName = typeName,
-                        SqlType = knownType ? sqlType : SqlDbType.Udt,
-                        IsNullable = (bool)dr["is_nullable"],
-                        MaxLength = (short)dr["max_length"],
-                        Precision = (byte)dr["precision"],
-                        Scale = (byte)dr["scale"],
-                        IsComputed = (bool)dr["is_computed"],
-                        DefaultDefinition = dr["definition"] == DBNull.Value ? null : (string)dr["definition"]
-                    };
-                    columns.Add(c);
+                    var column = new MsSqlTableColumn();
+                    column.SqlTypeName = resolved.DbTypeName;
+                    column.SqlType = resolved.DbType;
+                    column.Precision = dr["precision"] == DBNull.Value ? null : (byte?)dr["precision"];
+                    column.Scale = dr["scale"] == DBNull.Value ? null : (byte?)dr["scale"];
+                    column.MaxLength = dr["max_length"] == DBNull.Value ? null : Convert.ToInt64((short?)dr["max_length"]);
+                    column.Identifier = dr["column_id"].ToString();
+                    column.Name = (string)dr["column_name"];
+                    column.IsIdentity = (bool)dr["is_identity"];
+                    column.OrdinalPosition = (int)dr["column_id"];
+                    column.IsNullable = (bool)dr["is_nullable"];
+                    column.IsComputed = (bool)dr["is_computed"];
+                    column.DefaultDefinition = dr["definition"] == DBNull.Value ? null : (string)dr["definition"];
+                    columns.Add((dr["table_id"].ToString(), column));
                 }
             };
 
-            this.ExecuteSql(sql, action);
+            this.ExecuteSql(sql, hydrate);
 
-            foreach (MsSqlSchema schema in model.Schemas.Values)
+            foreach (MsSqlTable table in model.Schemas.SelectMany(s => s.Tables))
             {
-                foreach (MsSqlTable table in schema.Tables.Values)
-                {
-                    table.Columns = new Dictionary<string, MsSqlTableColumn>(StringComparer.OrdinalIgnoreCase)
-                        .AddRange(columns.FindAll(c => c.ParentObjectId == table.ObjectId));
+                table.Columns = columns.Where(c => c.table == table.Identifier).Select(c => c.column).ToDatabaseObjectList();
 
-                    foreach (var column in table.Columns.Values)
-                    {
-                        column.SetParent(table);
-                    }
-                }
+                foreach (var column in table.Columns)
+                    column.SetParent(table);
             }
         }
         #endregion
 
         #region resolve table indexes
-        public void ResolveTableIndexes(ref MsSqlModel model)
+        public void ResolveTableIndexes(MsSqlModel model)
         {
-            List<MsSqlIndex> indexes = new List<MsSqlIndex>();
-            List<MsSqlIndexedColumn> indexedColumns = new List<MsSqlIndexedColumn>();
+            List<(string table, MsSqlIndex index, List<MsSqlIndexedColumn> columns)> indexedColumns = new List<(string table, MsSqlIndex index, List<MsSqlIndexedColumn> columns)>();
 
             string sql = GetResource("Table_Index");
 
-            Action<IDataReader> action = (dr) =>
+            void hydrate(IDataReader dr)
             {
-                string indexName = null;
-                MsSqlIndex index = null;
-                MsSqlIndexedColumn idxCol = null;
                 while (dr.Read())
                 {
-                    indexName = (string)dr["index_name"];
-                    if (!indexes.Exists(i => i.Name == indexName))
+                    var indexName = (string)dr["index_name"];
+                    //MsSql reports a different table id for indexes that are primary keys vs other indexes.  Must use a munge using table_name instead of table_id.
+                    var indexIdentifier = model.ComputeIdentifier(dr["schema_id"].ToString(), dr["table_name"].ToString(), dr["index_id"].ToString());
+
+                    var existing = indexedColumns.SingleOrDefault(i => i.index.Identifier == indexIdentifier);
+                    if (existing == default)
                     {
-                        index = new MsSqlIndex()
+                        var idx = new MsSqlIndex()
                         {
-                            ParentObjectId = (int)dr["table_id"],
                             Name = indexName,
-                            IndexId = (int)dr["index_id"],
+                            Identifier = indexIdentifier,
                             IsPrimaryKey = (bool)dr["is_primary_key"],
                             IndexType = (IndexType)(byte)dr["index_type_code"],
                             IsUnique = (bool)dr["is_unique"]
                         };
-                        indexes.Add(index);
+                        existing = (dr["table_id"].ToString(), idx, new List<MsSqlIndexedColumn>());
+                        indexedColumns.Add(existing);
                     }
 
-                    idxCol = new MsSqlIndexedColumn
+                    var idxCol = new MsSqlIndexedColumn
                     {
-                        ParentObjectId = (int)dr["table_id"],
-                        IndexId = (int)dr["index_id"],
-                        ColumnId = (int)dr["column_id"],
+                        Identifier = model.ComputeIdentifier(dr["schema_id"].ToString(), dr["table_name"].ToString(), dr["index_id"].ToString(), dr["column_id"].ToString()),
                         Name = (string)dr["column_name"],
-                        KeyOrdinal = (byte)dr["key_ordinal"],
-                        IsDescendingKey = (bool)dr["is_descending_key"],
+                        OrdinalPosition = (byte)dr["key_ordinal"],
+                        IsDescending = (bool)dr["is_descending_key"],
                         IsIncludedColumn = (bool)dr["is_included_column"]
                     };
-                    indexedColumns.Add(idxCol);
+                    existing.columns.Add(idxCol);
                 }
             };
 
-            this.ExecuteSql(sql, action);
+            this.ExecuteSql(sql, hydrate);
 
-            foreach (MsSqlSchema schema in model.Schemas.Values)
+            foreach (MsSqlTable table in model.Schemas.SelectMany(s => s.Tables))
             {
-                foreach (MsSqlTable table in schema.Tables.Values)
-                {
-                    table.Indexes = new Dictionary<string, MsSqlIndex>(StringComparer.OrdinalIgnoreCase)
-                        .AddRange(indexes.FindAll(i => i.ParentObjectId == table.ObjectId));
+                table.Indexes = indexedColumns.Where(c => c.table == table.Identifier).Select(c => c.index).ToDatabaseObjectList();
+                foreach (var idx in table.Indexes)
+                    idx.SetParent(table);
 
-                    foreach (MsSqlIndex index in table.Indexes.Values)
-                    {
-                        index.IndexedColumns = indexedColumns.FindAll(ic => ic.ParentObjectId == index.ParentObjectId && ic.IndexId == index.IndexId).ToArray();
-                    }
+                foreach (MsSqlIndex index in table.Indexes)
+                {
+                    index.IndexedColumns = indexedColumns.Where(c => c.index.Identifier == index.Identifier).SelectMany(c => c.columns).ToDatabaseObjectList();
+                    foreach (var idx in index.IndexedColumns)
+                        idx.SetParent(index);
                 }
             }
         }
         #endregion
 
         #region resolve views
-        public void ResolveViews(ref MsSqlModel model)
+        public void ResolveViews(MsSqlModel model)
         {
-            List<(string, MsSqlView)> views = new List<(string, MsSqlView)>();
+            List<(string schema, MsSqlView view)> views = new List<(string schema, MsSqlView view)>();
 
             string sql = GetResource("View");
 
-            Action<IDataReader> action = (dr) =>
+            void hydrate(IDataReader dr)
             {
-                string s = null;
-                MsSqlView v = null;
                 while (dr.Read())
                 {
-                    s = (string)dr["schema_name"];
-                    v = new MsSqlView()
+                    var view = new MsSqlView()
                     {
-                        ObjectId = (int)dr["object_id"],
+                        Identifier = dr["object_id"].ToString(),
                         Name = (string)dr["view_name"]
                     };
-                    views.Add((s, v));
+                    views.Add((dr["schema_id"].ToString(), view));
                 }
             };
 
-            this.ExecuteSql(sql, action);
+            this.ExecuteSql(sql, hydrate);
 
-            foreach (MsSqlSchema schema in model.Schemas.Values)
+            foreach (MsSqlSchema schema in model.Schemas)
             {
-                schema.Views = new Dictionary<string, MsSqlView>(StringComparer.OrdinalIgnoreCase)
-                    .AddRange(views.FindAll(v => v.Item1 == schema.Name).ConvertAll(v => v.Item2));
+                schema.Views = views.Where(v => v.schema == schema.Identifier).Select(v => v.view).ToDatabaseObjectList();
 
-                foreach (var view in schema.Views.Values)
-                {
+                foreach (var view in schema.Views)
                     view.SetParent(schema);
-                }
             }
         }
         #endregion
 
         #region resolve view columns
-        public void ResolveViewColumns(ref MsSqlModel model)
+        public void ResolveViewColumns(MsSqlModel model)
         {
-            List<MsSqlViewColumn> columns = new List<MsSqlViewColumn>();
+            List<(string view, MsSqlViewColumn column)> columns = new List<(string view, MsSqlViewColumn column)>();
 
             string sql = GetResource("View_Column");
 
-            Action<IDataReader> action = (dr) =>
+            void hydrate(IDataReader dr)
             {
-                SqlDbType sqlType;
-                MsSqlViewColumn c = null;
                 while (dr.Read())
                 {
                     string typeName = (string)dr["data_type_name"];
 
-                    //need to swap out numeric for decimal.. SqlDbType enum does NOT have 'numeric'
-                    if (string.Compare(typeName, "numeric", true) == 0)
-                        typeName = "decimal";
+                    MsSqlTypeDescriptor? resolved = MsSqlDataTypes.GetTypeDescriptor(typeName) ?? throw new DataException($"{typeName} is not a recognized Sql type.");
 
-                    bool knownType = Enum.TryParse<SqlDbType>(typeName, true, out sqlType);
-                    c = new MsSqlViewColumn
-                    {
-                        ColumnId = (int)dr["column_id"],
-                        ParentObjectId = (int)dr["view_id"],
-                        Name = (string)dr["column_name"],
-                        IsIdentity = (bool)dr["is_identity"],
-                        SqlTypeName = (string)dr["data_type_name"],
-                        SqlType = knownType ? sqlType : SqlDbType.Udt,
-                        IsNullable = (bool)dr["is_nullable"],
-                        IsComputed = (bool)dr["is_computed"],
-                        MaxLength = (short)dr["max_length"],
-                        Precision = (byte)dr["precision"],
-                        Scale = (byte)dr["scale"]
-                    };
-                    columns.Add(c);
+                    var column = new MsSqlViewColumn();
+                    column.SqlTypeName = resolved.DbTypeName;
+                    column.SqlType = resolved.DbType;
+                    column.Precision = dr["precision"] == DBNull.Value ? null : (byte?)dr["precision"];
+                    column.Scale = dr["scale"] == DBNull.Value ? null : (byte?)dr["scale"];
+                    column.MaxLength = dr["max_length"] == DBNull.Value ? null : Convert.ToInt64((short?)dr["max_length"]);
+
+                    column.Identifier = dr["column_id"].ToString();
+                    column.Name = (string)dr["column_name"];
+                    column.IsIdentity = (bool)dr["is_identity"];
+                    column.OrdinalPosition = (int)dr["column_id"];
+                    column.IsNullable = (bool)dr["is_nullable"];
+                    column.IsComputed = (bool)dr["is_computed"];
+
+                    columns.Add((dr["view_id"].ToString(), column));
                 }
             };
 
-            this.ExecuteSql(sql, action);
+            this.ExecuteSql(sql, hydrate);
 
-            foreach (MsSqlSchema schema in model.Schemas.Values)
+            foreach (MsSqlView view in model.Schemas.SelectMany(s => s.Views))
             {
-                foreach (MsSqlView view in schema.Views.Values)
-                {
-                    view.Columns = new Dictionary<string, MsSqlViewColumn>(StringComparer.OrdinalIgnoreCase)
-                        .AddRange(columns.FindAll(c => c.ParentObjectId == view.ObjectId));
+                view.Columns = columns.Where(c => c.view == view.Identifier).Select(c => c.column).ToDatabaseObjectList();
 
-                    foreach (var column in view.Columns.Values)
-                    {
-                        column.SetParent(view);
-                    }
-                }
+                foreach (var column in view.Columns)
+                    column.SetParent(view);
             }
         }
         #endregion
 
         #region resolve sprocs
-        public void ResolveProcedures(ref MsSqlModel model)
+        public void ResolveProcedures(MsSqlModel model)
         {
-            List<(string, MsSqlProcedure)> sprocs = new List<(string, MsSqlProcedure)>();
+            List<(string schema, MsSqlProcedure procedure)> sprocs = new List<(string schema, MsSqlProcedure procedure)>();
 
             string sql = GetResource("Procedure");
 
-            Action<IDataReader> action = (dr) =>
+            void hydrate(IDataReader dr)
             {
-                string s = null;
-                MsSqlProcedure p = null;
                 while (dr.Read())
                 {
-                    s = (string)dr["schema_name"];
-                    p = new MsSqlProcedure()
+                    var procedure = new MsSqlProcedure()
                     {
-                        ObjectId = (int)dr["object_id"],
+                        Identifier = dr["object_id"].ToString(),
                         Name = (string)dr["sproc_name"],
                         IsStartupProcedure = (bool)dr["is_startup_sproc"],
                     };
-                    sprocs.Add((s, p));
+                    sprocs.Add((dr["schema_id"].ToString(), procedure));
                 }
             };
 
-            this.ExecuteSql(sql, action);
+            this.ExecuteSql(sql, hydrate);
 
-            foreach (MsSqlSchema schema in model.Schemas.Values)
+            foreach (MsSqlSchema schema in model.Schemas)
             {
-                schema.Procedures = new Dictionary<string, MsSqlProcedure>(StringComparer.OrdinalIgnoreCase)
-                    .AddRange(sprocs.FindAll(p => p.Item1 == schema.Name).ConvertAll(p => p.Item2).ToList());
+                schema.Procedures = sprocs.Where(s => s.schema == schema.Identifier).Select(s => s.procedure).ToDatabaseObjectList();
 
-                foreach (var procedure in schema.Procedures.Values)
-                {
+                foreach (var procedure in schema.Procedures)
                     procedure.SetParent(schema);
-                }
             }
         }
         #endregion
 
         #region resolve sproc parameters
-        public void ResolveProcedureParameters(ref MsSqlModel model)
+        public void ResolveProcedureParameters(MsSqlModel model)
         {
-            List<MsSqlParameter> parameters = new List<MsSqlParameter>();
+            List<(string procedure, MsSqlParameter parameter)> parameters = new List<(string procedure, MsSqlParameter parameter)>();
 
             string sql = GetResource("Procedure_Parameter");
 
-            Action<IDataReader> action = (dr) =>
+            void hydrate(IDataReader dr)
             {
-                SqlDbType sqlType;
-                MsSqlParameter p = null;
                 while (dr.Read())
                 {
                     string typeName = (string)dr["data_type_name"];
 
-                    //need to swap out numeric for decimal.. SqlDbType enum does NOT have 'numeric'
-                    if (string.Compare(typeName, "numeric", true) == 0)
-                        typeName = "decimal";
+                    MsSqlTypeDescriptor? resolved = MsSqlDataTypes.GetTypeDescriptor(typeName) ?? throw new DataException($"{typeName} is not a recognized Sql type.");
 
-                    bool knownType = Enum.TryParse<SqlDbType>(typeName, true, out sqlType);
-                    p = new MsSqlParameter
-                    {
-                        ParentObjectId = (int)dr["sproc_id"],
-                        ParameterId = (int)dr["parameter_id"],
-                        Name = (string)dr["parameter_name"],
-                        SqlTypeName = (string)dr["data_type_name"],
-                        SqlType = knownType ? sqlType : SqlDbType.Udt,
-                        IsOutput = (bool)dr["is_output"],
-                        IsReadOnly = (bool)dr["is_readonly"],
-                        HasDefaultValue = (bool)dr["has_default_value"],
-                        IsNullable = (bool)dr["is_nullable"],
-                        DefaultValue = dr["default_value"] == DBNull.Value ? null : (object)dr["default_value"],//only valid on clr procedures
-                        Precision = (byte)dr["precision"],
-                        Scale = (byte)dr["scale"],
-                        MaxLength = (short)dr["max_length"]
-                    };
-                    parameters.Add(p);
+                    var parameter = new MsSqlParameter();
+                    parameter.SqlTypeName = resolved.DbTypeName;
+                    parameter.SqlType = resolved.DbType;
+                    parameter.Precision = dr["precision"] == DBNull.Value ? null : (byte?)dr["precision"];
+                    parameter.Scale = dr["scale"] == DBNull.Value ? null : (byte?)dr["scale"];
+                    parameter.MaxLength = dr["max_length"] == DBNull.Value ? null : Convert.ToInt64((short?)dr["max_length"]);
+
+                    parameter.Identifier = dr["parameter_id"].ToString();
+                    parameter.Name = (string)dr["parameter_name"];
+                    parameter.IsOutput = (bool)dr["is_output"];
+                    parameter.IsReadOnly = (bool)dr["is_readonly"];
+                    parameter.HasDefaultValue = (bool)dr["has_default_value"];
+                    parameter.IsNullable = (bool)dr["is_nullable"];
+                    parameter.DefaultValue = dr["default_value"] == DBNull.Value ? null : (object)dr["default_value"];//only valid on clr procedures
+                    parameters.Add((dr["sproc_id"].ToString(), parameter));
                 }
             };
 
-            this.ExecuteSql(sql, action);
+            this.ExecuteSql(sql, hydrate);
 
-            foreach (MsSqlSchema schema in model.Schemas.Values)
+            foreach (MsSqlProcedure sproc in model.Schemas.SelectMany(s => s.Procedures))
             {
-                foreach (MsSqlProcedure sproc in schema.Procedures.Values)
-                {
-                    sproc.Parameters = new Dictionary<string, MsSqlParameter>(StringComparer.OrdinalIgnoreCase)
-                        .AddRange(parameters.FindAll(p => p.ParentObjectId == sproc.ObjectId));
-                }
+                sproc.Parameters = parameters.Where(p => p.procedure == sproc.Identifier).Select(s => s.parameter).ToDatabaseObjectList();
+
+                foreach (MsSqlParameter parameter in sproc.Parameters)
+                    parameter.SetParent(sproc);
             }
         }
         #endregion
 
         #region resolve relationships
-        public void ResolveRelationships(ref MsSqlModel model)
+        public void ResolveRelationships(MsSqlModel model)
         {
-            List<(string, MsSqlRelationship)> relationships = new List<(string, MsSqlRelationship)>();
+            List<(string table, MsSqlRelationship relationship)> relationships = new List<(string table, MsSqlRelationship relationship)>();
 
             string sql = GetResource("Relationships");
 
-            Action<string, MsSqlRelationship> AddOrMerge = (s, r) =>
+            void addOrMerge(string table, MsSqlRelationship relationship)
             {
-                int idx = relationships.FindIndex(x => x.Item2.Name == r.Name);
+                int idx = relationships.FindIndex(x => x.relationship.Identifier == relationship.Identifier);
                 if (idx > -1) //multi column FK..just add the colmn info to the existing
                 {
-                    MsSqlRelationship tmp = relationships[idx].Item2;
-                    tmp.BaseColumnIds.Add(r.BaseColumnIds[0]);
-                    tmp.BaseColumnNames.Add(r.BaseColumnNames[0]);
-                    tmp.ReferenceColumnIds.Add(r.ReferenceColumnIds[0]);
-                    tmp.ReferenceColumnNames.Add(r.ReferenceColumnNames[0]);
+                    MsSqlRelationship tmp = relationships[idx].relationship;
+                    tmp.ReferenceTableIdentifier = relationship.ReferenceTableIdentifier;
+                    tmp.BaseColumnIdentifiers.Add(relationship.BaseColumnIdentifiers[0]);
+                    tmp.ReferenceColumnIdentifiers.Add(relationship.ReferenceColumnIdentifiers[0]);
                 }
                 else
                 {
-                    relationships.Add((s, r));
+                    relationships.Add((table, relationship));
                 }
             };
 
-            Action<IDataReader> action = (dr) =>
+            void hydrate(IDataReader dr)
             {
-                string s = null;
-                MsSqlRelationship r = null;
                 while (dr.Read())
                 {
-                    s = (string)dr["schema_name"];
-                    r = new MsSqlRelationship()
+                    var table = dr["base_table_id"].ToString();
+                    var relationship = new MsSqlRelationship
                     {
                         Name = (string)dr["relationship_name"],
-                        BaseTableId = (int)dr["base_table_id"],
-                        BaseTableName = (string)dr["base_table_name"],
-                        BaseColumnIds = new List<int> { (int)dr["base_column_id"] },
-                        BaseColumnNames = new List<string> { (string)dr["base_column_name"] },
-                        ReferenceTableId = (int)dr["referenced_table_id"],
-                        ReferenceTableName = (string)dr["referenced_table_name"],
-                        ReferenceColumnIds = new List<int> { (int)dr["referenced_column_id"] },
-                        ReferenceColumnNames = new List<string> { (string)dr["referenced_column_name"] }
+                        Identifier = (string)dr["relationship_name"],
+                        BaseColumnIdentifiers = new List<string> { dr["base_column_id"].ToString() },
+                        ReferenceTableIdentifier = dr["referenced_table_id"].ToString(),
+                        ReferenceColumnIdentifiers = new List<string> { dr["referenced_column_id"].ToString() }
                     };
-                    AddOrMerge(s, r);
+                    addOrMerge(table, relationship);
                 }
             };
 
-            this.ExecuteSql(sql, action);
+            this.ExecuteSql(sql, hydrate);
 
-            foreach (MsSqlSchema schema in model.Schemas.Values)
+            foreach (MsSqlTable table in model.Schemas.SelectMany(s => s.Tables))
             {
-                schema.Relationships = new Dictionary<string, MsSqlRelationship>(StringComparer.OrdinalIgnoreCase)
-                    .AddRange(relationships.FindAll(p => p.Item1 == schema.Name).ConvertAll(p => p.Item2));
+                table.Relationships = relationships.Where(r => r.table == table.Identifier).Select(r => r.relationship).ToDatabaseObjectList();
 
-                foreach (var relationship in schema.Relationships.Values)
-                {
-                    relationship.SetParent(schema);
-                }
+                foreach (var relationship in table.Relationships)
+                    relationship.SetParent(table);
             }
         }
         #endregion
 
         #region resolve triggers
-        public void ResolveTriggers(ref MsSqlModel model)
+        public void ResolveTriggers(MsSqlModel model)
         {
-            List<MsSqlTrigger> triggers = new List<MsSqlTrigger>();
+            List<(string table, MsSqlTrigger trigger)> triggers = new List<(string table, MsSqlTrigger trigger)>();
 
             string sql = GetResource("Trigger");
 
-            Action<IDataReader> action = (dr) =>
+            void hydrate(IDataReader dr)
             {
-                string s = null;
-                MsSqlTrigger t = null;
                 while (dr.Read())
                 {
-                    s = (string)dr["schema_name"];
-                    t = new MsSqlTrigger()
+                    var table = dr["table_object_id"].ToString();
+                    var trigger = new MsSqlTrigger
                     {
-                        ParentObjectId = (int)dr["table_object_id"],
-                        ObjectId = (int)dr["object_id"],
+                        Identifier = dr["object_id"].ToString(),
                         Name = (string)dr["trigger_name"],
-                        EventType = (string)dr["type_desc"],
+                        EventType = (TriggerEventType)Enum.Parse(typeof(TriggerEventType), (string)dr["type_desc"], true),
                         IsDisabled = (bool)dr["is_disabled"],
                         IsInsteadOfTrigger = (bool)dr["is_instead_of_trigger"]
                     };
-                    triggers.Add(t);
+                    triggers.Add((table, trigger));
                 }
             };
 
-            this.ExecuteSql(sql, action);
+            this.ExecuteSql(sql, hydrate);
 
-            foreach (MsSqlSchema schema in model.Schemas.Values)
+            foreach (MsSqlTable table in model.Schemas.SelectMany(s => s.Tables))
             {
-                foreach (MsSqlTable table in schema.Tables.Values)
-                {
-                    table.Triggers = new Dictionary<string, MsSqlTrigger>(StringComparer.OrdinalIgnoreCase)
-                        .AddRange(triggers.FindAll(t => t.ParentObjectId == table.ObjectId));
+                table.Triggers = triggers.Where(t => t.table == table.Identifier).Select(t => t.trigger).ToDatabaseObjectList();
 
-                    foreach (var trigger in table.Triggers.Values)
-                    {
-                        trigger.SetParent(table);
-                    }
-                }
+                foreach (var trigger in table.Triggers)
+                    trigger.SetParent(table);
             }
         }
 		#endregion
 
 		#region resolve table ext props
-		public void ResolveTableExtendedProperties(ref MsSqlModel model)
+		public void ResolveTableExtendedProperties(MsSqlModel model)
         {
-            List<MsSqlExtendedProperty> extProps = new List<MsSqlExtendedProperty>();
+            List<(string table, MsSqlExtendedProperty extProp)> extProps = new List<(string table, MsSqlExtendedProperty extProp)>();
 
             string sql = GetResource("Table_Ext_Props");
 
-            Action<IDataReader> action = (dr) =>
+            void hydrate(IDataReader dr)
             {
-                MsSqlExtendedProperty p = null;
                 while (dr.Read())
                 {
-                    p = new MsSqlExtendedProperty
+                    var table = dr["table_id"].ToString();
+                    var p = new MsSqlExtendedProperty
                     {
-                        MajorId = (int)dr["table_id"],
-                        MinorId = null,
+                        MinorIdentifier = null,
                         Name = dr["name"].ToString(),
                         Value = dr["value"].ToString()
                     };
-                    extProps.Add(p);
+                    extProps.Add((table, p));
                 }
             };
 
-            this.ExecuteSql(sql, action);
+            this.ExecuteSql(sql, hydrate);
 
-            foreach (MsSqlSchema schema in model.Schemas.Values)
+            foreach (MsSqlTable table in model.Schemas.SelectMany(s => s.Tables))
             {
-                foreach (MsSqlTable table in schema.Tables.Values)
-                {
-                    table.ExtendedProperties = new Dictionary<string, MsSqlExtendedProperty>(StringComparer.OrdinalIgnoreCase)
-                        .AddRange(extProps.FindAll(p => p.MajorId == table.ObjectId));
-                }
+                table.ExtendedProperties = extProps.Where(e => e.table == table.Identifier).Select(e => e.extProp).ToDatabaseObjectList();
+
+                foreach (MsSqlExtendedProperty prop in table.ExtendedProperties)
+                    prop.SetParent(table);
             }
         }
         #endregion
 
         #region resolve table column ext props
-        public void ResolveTableColumnExtendedProperties(ref MsSqlModel model)
+        public void ResolveTableColumnExtendedProperties(MsSqlModel model)
         {
-            List<MsSqlExtendedProperty> extProps = new List<MsSqlExtendedProperty>();
+            List<(string table, string column, MsSqlExtendedProperty extProp)> extProps = new List<(string table, string column, MsSqlExtendedProperty extProp)>();
 
             string sql = GetResource("Table_Column_Ext_Props");
 
-            Action<IDataReader> action = (dr) =>
+            void hydrate(IDataReader dr)
             {
-                MsSqlExtendedProperty p = null;
                 while (dr.Read())
                 {
-                    p = new MsSqlExtendedProperty
+                    var table = dr["table_id"].ToString();
+                    var column = dr["column_id"].ToString();
+                    var p = new MsSqlExtendedProperty
                     {
-                        MajorId = (int)dr["table_id"],
-                        MinorId = (int)dr["column_id"],
+                        MinorIdentifier = dr["column_id"].ToString(),
                         Name = dr["name"].ToString(),
                         Value = dr["value"].ToString()
                     };
-                    extProps.Add(p);
+                    extProps.Add((table, column, p));
                 }
             };
 
-            this.ExecuteSql(sql, action);
+            this.ExecuteSql(sql, hydrate);
 
-            foreach (MsSqlSchema schema in model.Schemas.Values)
+            foreach (MsSqlTableColumn column in model.Schemas.SelectMany(s => s.Tables).SelectMany(t => t.Columns))
             {
-                foreach (MsSqlTable table in schema.Tables.Values)
-                {
-                    foreach (MsSqlColumn column in table.Columns.Values)
-                    {
-                        column.ExtendedProperties = new Dictionary<string, MsSqlExtendedProperty>(StringComparer.OrdinalIgnoreCase)
-                            .AddRange(extProps.FindAll(p => p.MajorId == table.ObjectId && p.MinorId == column.ColumnId));
-                    }
-                }
+                column.ExtendedProperties = extProps.Where(e => e.table == column.ParentIdentifier && e.column == column.Identifier).Select(e => e.extProp).ToDatabaseObjectList();
+
+                foreach (MsSqlExtendedProperty prop in column.ExtendedProperties)
+                    prop.SetParent(column);
             }
         }
         #endregion
 
         #region resolve view ext props
-        public void ResolveViewExtendedProperties(ref MsSqlModel model)
+        public void ResolveViewExtendedProperties(MsSqlModel model)
         {
-            List<MsSqlExtendedProperty> extProps = new List<MsSqlExtendedProperty>();
+            List<(string view, MsSqlExtendedProperty extProp)> extProps = new List<(string view, MsSqlExtendedProperty extProp)>();
 
             string sql = GetResource("View_Ext_Props");
 
-            Action<IDataReader> action = (dr) =>
+            void hydrate(IDataReader dr)
             {
-                MsSqlExtendedProperty p = null;
                 while (dr.Read())
                 {
-                    p = new MsSqlExtendedProperty
+                    var view = dr["view_id"].ToString();
+                    var p = new MsSqlExtendedProperty
                     {
-                        MajorId = (int)dr["view_id"],
-                        MinorId = null,
+                        MinorIdentifier = null,
                         Name = dr["name"].ToString(),
                         Value = dr["value"].ToString()
                     };
-                    extProps.Add(p);
+                    extProps.Add((view, p));
                 }
             };
 
-            this.ExecuteSql(sql, action);
+            this.ExecuteSql(sql, hydrate);
 
-            foreach (MsSqlSchema schema in model.Schemas.Values)
+            foreach (MsSqlView view in model.Schemas.SelectMany(s => s.Views))
             {
-                foreach (MsSqlView view in schema.Views.Values)
-                {
-                    view.ExtendedProperties = new Dictionary<string, MsSqlExtendedProperty>(StringComparer.OrdinalIgnoreCase)
-                        .AddRange(extProps.FindAll(p => p.MajorId == view.ObjectId));
-                }
+                view.ExtendedProperties = extProps.Where(e => e.view == view.Identifier).Select(e => e.extProp).ToDatabaseObjectList();
+
+                foreach (MsSqlExtendedProperty prop in view.ExtendedProperties)
+                    prop.SetParent(view);
             }
         }
         #endregion
 
         #region resolve view column ext props
-        public void ResolveViewColumnExtendedProperties(ref MsSqlModel model)
+        public void ResolveViewColumnExtendedProperties(MsSqlModel model)
         {
-            List<MsSqlExtendedProperty> extProps = new List<MsSqlExtendedProperty>();
+            List<(string view, string column, MsSqlExtendedProperty extProp)> extProps = new List<(string view, string column, MsSqlExtendedProperty extProp)>();
 
             string sql = GetResource("View_Column_Ext_Props");
 
-            Action<IDataReader> action = (dr) =>
+            void hydrate(IDataReader dr)
             {
-                MsSqlExtendedProperty p = null;
                 while (dr.Read())
                 {
-                    p = new MsSqlExtendedProperty
+                    var view = dr["view_id"].ToString();
+                    var column = dr["column_id"].ToString();
+                    var p = new MsSqlExtendedProperty
                     {
-                        MajorId = (int)dr["view_id"],
-                        MinorId = (int)dr["column_id"],
+                        MinorIdentifier = dr["column_id"].ToString(),
                         Name = dr["name"].ToString(),
                         Value = dr["value"].ToString()
                     };
-                    extProps.Add(p);
+                    extProps.Add((view, column, p));
                 }
             };
 
-            this.ExecuteSql(sql, action);
+            this.ExecuteSql(sql, hydrate);
 
-            foreach (MsSqlSchema schema in model.Schemas.Values)
+            foreach (MsSqlViewColumn column in model.Schemas.SelectMany(s => s.Views).SelectMany(t => t.Columns))
             {
-                foreach (MsSqlView view in schema.Views.Values)
-                {
-                    foreach (MsSqlColumn column in view.Columns.Values)
-                    {
-                        column.ExtendedProperties = new Dictionary<string, MsSqlExtendedProperty>(StringComparer.OrdinalIgnoreCase)
-                            .AddRange(extProps.FindAll(p => p.MajorId == view.ObjectId && p.MinorId == column.ColumnId));
-                    }
-                }
+                column.ExtendedProperties = extProps.Where(e => e.view == column.ParentIdentifier && e.column == column.Identifier).Select(e => e.extProp).ToDatabaseObjectList();
+
+                foreach (MsSqlExtendedProperty prop in column.ExtendedProperties)
+                    prop.SetParent(column);
             }
         }
         #endregion

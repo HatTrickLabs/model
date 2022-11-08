@@ -1,16 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace HatTrick.Model.Sql
 {
     public static class StringExtensions
     {
-		public static string[] SplitPath(this string path)
+		public static string[] SplitPath(this string path, char segmentStart, char segmentEnd)
 		{
-			//walk the entire string to ensure . within [] is maintained
+			//walk the entire string to ensure . within segmentStart and segmentEnd is maintained
 			if (path == null)
-				return null;
+				return Array.Empty<string>();
 
 			if (path == string.Empty)
 				return new string[0];
@@ -22,7 +24,7 @@ namespace HatTrick.Model.Sql
 			for (int i = 0; i < path.Length; i++)
 			{
 				c = path[i];
-				if (c == '[' || c == ']')
+				if (c == segmentStart || c == segmentEnd)
 				{
 					inBracket = !inBracket;
 					continue;
@@ -44,5 +46,13 @@ namespace HatTrick.Model.Sql
 			}
 			return segments.ToArray();
 		}
-	}
+
+        public static string ComputeIdentifier(this ISqlModel _, params string[] values)
+        {
+            var value = string.Join(":", values);
+            var hash = MD5.Create();
+            var hashed = hash.ComputeHash(Encoding.UTF8.GetBytes(value));
+            return Convert.ToBase64String(hashed).TrimEnd('=').Replace('+', '-').Replace('/', '_');
+        }
+    }
 }

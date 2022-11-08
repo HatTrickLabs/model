@@ -13,8 +13,8 @@ namespace HatTrick.Model.TestHarness
     {
         /*********************************************************************************/
         /* To run this program as is, you must create an accessible sql server database 
-        /* named MsSqlTest and run the \DbScripts\MsSqlTest.sql script located in this
-        /* project to create the sample schema.  Or just change the connection string to point
+        /* named 'model_tests' and run the \test\mssql_schema.sql script located in this
+        /* solution to create the sample schema.  Or just change the connection string to point
         /* to any accessible Ms Sql Server Db and modify the overrides to work with your schema. 
         /*********************************************************************************/
         static void Main(string[] args)
@@ -23,7 +23,7 @@ namespace HatTrick.Model.TestHarness
             sw.Start();
 
             //init builder
-            MsSqlModelBuilder builder = new MsSqlModelBuilder("Data Source=(LocalDB)\\MSSQLLocalDB;Initial Catalog=MsSqlDbExTest;Integrated Security=true;Connect Timeout=5;Encrypt=False");
+            MsSqlModelBuilder builder = new MsSqlModelBuilder("Data Source=(LocalDB)\\MSSQLLocalDB;Initial Catalog=model_tests;Integrated Security=true;Connect Timeout=5;Encrypt=False");
             //provide on error action callback
             bool error = false;
             builder.OnError += (ex) =>
@@ -60,12 +60,12 @@ namespace HatTrick.Model.TestHarness
 
             //resolve item by path
             MsSqlModelAccessor accessor = new MsSqlModelAccessor(model);
-            MsSqlModel mdl = accessor.ResolveItem(".") as MsSqlModel;
+            MsSqlModel? mdl = accessor.ResolveItem(".") as MsSqlModel;
 
-            MsSqlTable person2 = accessor.ResolveItem("dbo.Person") as MsSqlTable;
-            MsSqlColumn firstName2 = accessor.ResolveItem("dbo.Person.FirstName") as MsSqlColumn;
-            MsSqlColumn zip2 = accessor.ResolveItem("dbo.Address.Zip") as MsSqlColumn;
-            SqlDbType birthDateType2 = (accessor.ResolveItem("dbo.Person.BirthDate") as MsSqlColumn).SqlType;
+            MsSqlTable? person2 = accessor.ResolveItem("dbo.Person") as MsSqlTable;
+            MsSqlColumn? firstName2 = accessor.ResolveItem("dbo.Person.FirstName") as MsSqlColumn;
+            MsSqlColumn? zip2 = accessor.ResolveItem("dbo.Address.Zip") as MsSqlColumn;
+            SqlDbType? birthDateType2 = (accessor.ResolveItem("dbo.Person.BirthDate") as MsSqlColumn)?.SqlType;
 
             //not found
             var isNull = accessor.ResolveItem("dbo.Address.ABCCC");
@@ -107,7 +107,7 @@ namespace HatTrick.Model.TestHarness
 
             //resolve all columns within the dbo schema that match: name: Id, IsIdentity: true
             IList<MsSqlColumn> set6 = accessor.ResolveItemSet<MsSqlColumn>("dbo.*.Id", (c) => c.IsIdentity);
-            IList<MsSqlColumn> set7 = accessor.ResolveItemSet<MsSqlColumn>("dbo.*.Id", null);
+            IList<MsSqlColumn> set7 = accessor.ResolveItemSet<MsSqlColumn>("dbo.*.Id", null!);
 
             IList<MsSqlTrigger> set8 = accessor.ResolveItemSet<MsSqlTrigger>("dbo.*.*");
         }
@@ -137,7 +137,7 @@ namespace HatTrick.Model.TestHarness
 
             //or resolve by expression
             MsSqlModelAccessor accessor = new MsSqlModelAccessor(model);
-            accessor.ResolveItem("dbo.Address.AddressType").Meta = "code-gen-type=AddressTypeCode";
+            accessor.ResolveItem("dbo.Address.AddressType")!.Meta = "code-gen-type=AddressTypeCode";
         }
 
         static void TestRemoveObjects(MsSqlModel model)

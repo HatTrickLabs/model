@@ -1,4 +1,5 @@
 ﻿select
+sys.objects.schema_id as schema_id,
 sys.indexes.name as index_name,
 sys.indexes.index_id,
 sys.objects.name as table_name,

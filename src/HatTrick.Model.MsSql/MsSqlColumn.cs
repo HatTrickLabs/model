@@ -5,61 +5,46 @@ using System.Data;
 
 namespace HatTrick.Model.MsSql
 {
-    public abstract class MsSqlColumn : ISqlColumn
+    public abstract class MsSqlColumn : IDatabaseObjectModifier<MsSqlColumn>, ISqlColumn
     {
-        #region internals
-        private INamedMeta _parent;
-		#endregion
+        #region interface
+        public string Name { get; set; } = string.Empty;
 
-		#region interface
-		public int ParentObjectId { get; set; }
+        public string Meta { get; set; } = string.Empty;
 
-        public int ColumnId { get; set; } //also ordinal
-
-        public string Name { get; set; }
+        public string Identifier { get; set; } = string.Empty;
 
         public bool IsIdentity { get; set; }
 
-        public string SqlTypeName { get; set; }
+        public bool IsComputed { get; set; }
+
+        public string SqlTypeName { get; set; } = string.Empty;
 
         public SqlDbType SqlType { get; set; }
 
         public bool IsNullable { get; set; }
 
-        public byte Scale { get; set; }
+        public int OrdinalPosition { get; set; }
 
-        public byte Precision { get; set; }
+        public byte? Scale { get; set; }
 
-        public short MaxLength { get; set; }
+        public byte? Precision { get; set; }
 
-        public bool IsComputed { get; set; }
+        public long? MaxLength { get; set; }
 
-        public string DefaultDefinition { get; set; }
+        public string? DefaultDefinition { get; set; }
 
-        public Dictionary<string, MsSqlExtendedProperty> ExtendedProperties { get; set; } = new();
-
-        public string Meta { get; set; }
+        public DatabaseObjectList<MsSqlExtendedProperty> ExtendedProperties { get; set; } = new();
         #endregion
 
-        #region set parent
-        protected void SetParent(INamedMeta parent)
-        {
-            _parent = parent;
-        }
-        #endregion
-
-        #region get parent
-        public INamedMeta GetParent()
-        {
-            return _parent;
-        }
-        #endregion
-
-        #region apply
+        #region methods
         public void Apply(Action<MsSqlColumn> action)
         {
             action(this);
         }
+
+        public override string ToString()
+            => $"{Identifier}:{Name} {SqlTypeName}";
         #endregion
     }
 }

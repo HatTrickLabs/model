@@ -1,7 +1,7 @@
 ﻿namespace HatTrick.Model.Sql
 {
-    public interface ISqlTableColumn : INamedMeta
-	{
+    public interface ISqlTableColumn : ISqlColumn
+    {
 
 	}
 }

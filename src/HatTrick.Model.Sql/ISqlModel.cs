@@ -1,7 +1,9 @@
-﻿namespace HatTrick.Model.Sql
+﻿using System.Collections.Generic;
+
+namespace HatTrick.Model.Sql
 {
-    public interface ISqlModel : INamedMeta
+    public interface ISqlModel : IDatabaseObject
 	{
 
-	}
+    }
 }

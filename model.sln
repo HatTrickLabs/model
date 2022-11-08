@@ -9,6 +9,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HatTrick.Model.Sql", "src\H
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{06DD615A-6E2A-4E6E-BC2D-0D0FA293C371}"
 	ProjectSection(SolutionItems) = preProject
+		Directory.Build.props = Directory.Build.props
 		..\build\htl-nuget-logo.png = ..\build\htl-nuget-logo.png
 	EndProjectSection
 EndProject
@@ -17,10 +18,22 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "samples", "samples", "{71D0ACF2-4169-4EC9-B83E-FDAEF715BBCC}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{DCFCCC6B-E186-42C5-85F5-411E9F8A515E}"
+	ProjectSection(SolutionItems) = preProject
+		test\mssql_schema._sql = test\mssql_schema._sql
+		test\mysql_schema._sql = test\mysql_schema._sql
+	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HatTrick.Model.MsSql.Tests", "test\HatTrick.Model.MsSql.Tests\HatTrick.Model.MsSql.Tests.csproj", "{FDC46BAB-1651-43C1-816A-CF247BE4BFC0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HatTrick.Model.MsSql.Test", "test\HatTrick.Model.MsSql.Test\HatTrick.Model.MsSql.Test.csproj", "{FDC46BAB-1651-43C1-816A-CF247BE4BFC0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HatTrick.Model.TestHarness", "samples\HatTrick.Model.TestHarness\HatTrick.Model.TestHarness.csproj", "{BFD11749-1733-450C-8357-25163B090CBD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HatTrick.Model.TestHarness", "samples\HatTrick.Model.TestHarness\HatTrick.Model.TestHarness.csproj", "{BFD11749-1733-450C-8357-25163B090CBD}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HatTrick.Model.MySql", "src\HatTrick.Model.MySql\HatTrick.Model.MySql.csproj", "{17DDE649-C380-4A08-A3F8-7558352C1AB6}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HatTrick.Model.MsSql.Test.Integration", "HatTrick.Model.MsSql.Test.Integration\HatTrick.Model.MsSql.Test.Integration.csproj", "{10A220FF-17EC-415C-925D-4FCA5D63BAD4}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HatTrick.Model.MySql.Test.Integration", "test\HatTrick.Model.MySql.Test.Integration\HatTrick.Model.MySql.Test.Integration.csproj", "{973135D1-FCB6-4838-AA71-1048B72FEB86}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HatTrick.Model.MySql.Test", "test\HatTrick.Model.MySql.Test\HatTrick.Model.MySql.Test.csproj", "{58F86D9F-3377-4C9F-9E8F-B78286AB9AAE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -44,6 +57,22 @@ Global
 		{BFD11749-1733-450C-8357-25163B090CBD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BFD11749-1733-450C-8357-25163B090CBD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BFD11749-1733-450C-8357-25163B090CBD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{17DDE649-C380-4A08-A3F8-7558352C1AB6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{17DDE649-C380-4A08-A3F8-7558352C1AB6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{17DDE649-C380-4A08-A3F8-7558352C1AB6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{17DDE649-C380-4A08-A3F8-7558352C1AB6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{10A220FF-17EC-415C-925D-4FCA5D63BAD4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{10A220FF-17EC-415C-925D-4FCA5D63BAD4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{10A220FF-17EC-415C-925D-4FCA5D63BAD4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{10A220FF-17EC-415C-925D-4FCA5D63BAD4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{973135D1-FCB6-4838-AA71-1048B72FEB86}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{973135D1-FCB6-4838-AA71-1048B72FEB86}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{973135D1-FCB6-4838-AA71-1048B72FEB86}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{973135D1-FCB6-4838-AA71-1048B72FEB86}.Release|Any CPU.Build.0 = Release|Any CPU
+		{58F86D9F-3377-4C9F-9E8F-B78286AB9AAE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{58F86D9F-3377-4C9F-9E8F-B78286AB9AAE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{58F86D9F-3377-4C9F-9E8F-B78286AB9AAE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{58F86D9F-3377-4C9F-9E8F-B78286AB9AAE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -53,6 +82,10 @@ Global
 		{B304DC2E-6766-4E14-A9DB-02DF55A9F34A} = {F8D7992A-BC41-4256-9883-07DB8277C9D3}
 		{FDC46BAB-1651-43C1-816A-CF247BE4BFC0} = {DCFCCC6B-E186-42C5-85F5-411E9F8A515E}
 		{BFD11749-1733-450C-8357-25163B090CBD} = {71D0ACF2-4169-4EC9-B83E-FDAEF715BBCC}
+		{17DDE649-C380-4A08-A3F8-7558352C1AB6} = {F8D7992A-BC41-4256-9883-07DB8277C9D3}
+		{10A220FF-17EC-415C-925D-4FCA5D63BAD4} = {DCFCCC6B-E186-42C5-85F5-411E9F8A515E}
+		{973135D1-FCB6-4838-AA71-1048B72FEB86} = {DCFCCC6B-E186-42C5-85F5-411E9F8A515E}
+		{58F86D9F-3377-4C9F-9E8F-B78286AB9AAE} = {DCFCCC6B-E186-42C5-85F5-411E9F8A515E}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {6DDAF459-BAF8-49DF-984C-E2EC0FB152DB}

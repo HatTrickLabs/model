@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 
@@ -9,11 +10,11 @@ namespace HatTrick.Model.Sql
     {
         #region internals
         private ResourceAccessor<T> _resourceAccessor;
-        private DbConnection _connection;
+        private DbConnection? _connection;
         #endregion
 
         #region interface
-        public Action<Exception> OnError { get; set; }
+        public Action<Exception>? OnError { get; set; }
         #endregion
 
         #region constructors
@@ -63,7 +64,7 @@ namespace HatTrick.Model.Sql
 
             try
             {
-                BuildModel(ref model);
+                BuildModel(model);
             }
             catch(Exception ex)
             {
@@ -79,13 +80,13 @@ namespace HatTrick.Model.Sql
             return model;
         }
 
-        protected abstract void BuildModel(ref T model);
+        protected abstract void BuildModel(T model);
         #endregion
 
         #region execute sql
         protected virtual void ExecuteSql(string sql, Action<DbDataReader> action)
         {
-            DbDataReader reader = null;
+            DbDataReader? reader = null;
             try
             {
                 var cmd = this.EnsureConnection().CreateCommand();
@@ -94,13 +95,9 @@ namespace HatTrick.Model.Sql
 #pragma warning restore CA2100 // Review SQL queries for security vulnerabilities
                 cmd.CommandType = CommandType.Text;
 
-                reader = cmd.ExecuteReader(CommandBehavior.SingleResult);
+                reader = cmd.ExecuteReader();
 
                 action(reader);
-            }
-            catch
-            {
-                throw;
             }
             finally
             {
@@ -110,9 +107,9 @@ namespace HatTrick.Model.Sql
         #endregion
 
         #region get resource
-        public string GetResource(string name)
+        public string GetResource(string name, string extension = "sql")
         {
-            return _resourceAccessor.Get(name);
+            return _resourceAccessor.Get(name, extension);
         }
         #endregion
     }

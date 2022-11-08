@@ -1,56 +1,50 @@
 using HatTrick.Model.Sql;
 using System;
 using System.Collections.Generic;
+using System.Data;
 
 namespace HatTrick.Model.MsSql
 {
-    public class MsSqlRelationship : ISqlRelationship
+    public class MsSqlRelationship : IDatabaseObjectModifier<MsSqlRelationship>, ISqlRelationship, IChildOf<MsSqlTable>
     {
         #region internals
-        private INamedMeta _parent;
-		#endregion
-
-		#region interface
-		public string Name { get; set; }
-
-        public int BaseTableId { get; set; }
-
-        public string BaseTableName { get; set; }//Primary Key Table
-
-        public IList<int> BaseColumnIds { get; set; }
-
-        public IList<string> BaseColumnNames { get; set; }
-
-        public int ReferenceTableId { get; set; }//Foreign Key Table
-
-        public string ReferenceTableName { get; set; }
-
-        public IList<int> ReferenceColumnIds { get; set; }
-
-        public IList<string> ReferenceColumnNames { get; set; }
-
-        public string Meta { get; set; }
+        private MsSqlTable? _parent;
         #endregion
 
-        #region set parent
-        public void SetParent(MsSqlSchema schema)
-        {
-            _parent = schema;
-        }
+        #region interface
+        public string Name { get; set; } = string.Empty;
+
+        public string Meta { get; set; } = string.Empty;
+
+        public string Identifier { get; set; } = string.Empty;
+
+        public string ParentIdentifier => _parent?.Identifier ?? string.Empty;
+
+        public IList<string> BaseColumnIdentifiers { get; set; } = new List<string>();
+
+        public string? ReferenceTableIdentifier { get; set; }//Foreign Key Table
+
+        public IList<string> ReferenceColumnIdentifiers { get; set; } = new List<string>();
         #endregion
 
-        #region get parent
-        public INamedMeta GetParent()
-        {
-            return _parent;
-        }
-        #endregion
-
-        #region apply
+        #region methods
         public void Apply(Action<MsSqlRelationship> action)
         {
             action(this);
         }
+
+        public void SetParent(MsSqlTable table)
+        {
+            _parent = table;
+        }
+
+        public MsSqlTable? GetParent()
+        {
+            return _parent;
+        }
+
+        public override string ToString()
+            => $"{Identifier}:{Name} {ParentIdentifier}<->{ReferenceTableIdentifier}";
         #endregion
     }
 }

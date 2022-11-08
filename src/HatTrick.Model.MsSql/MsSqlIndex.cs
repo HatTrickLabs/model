@@ -1,26 +1,31 @@
 using HatTrick.Model.Sql;
 using System;
+using System.Collections.Generic;
 
 namespace HatTrick.Model.MsSql
 {
-    public class MsSqlIndex : ISqlIndex
+    public class MsSqlIndex : IDatabaseObjectModifier<MsSqlIndex>, ISqlIndex, IChildOf<MsSqlTable>
     {
+        #region internals
+        private MsSqlTable? _parent;
+        #endregion
+
         #region interface
-        public int ParentObjectId { get; set; }
+        public string Name { get; set; } = string.Empty;
 
-        public string Name { get; set; }
+        public string Meta { get; set; } = string.Empty;
 
-        public int IndexId { get; set; }
+        public string Identifier { get; set; } = string.Empty;
+
+        public string ParentIdentifier => _parent?.Identifier ?? string.Empty;
 
         public bool IsPrimaryKey { get; set; }
 
-        public IndexType IndexType { get; set; }
-
         public bool IsUnique { get; set; }
 
-        public MsSqlIndexedColumn[] IndexedColumns { get; set; } = new MsSqlIndexedColumn[] { };
+        public DatabaseObjectList<MsSqlIndexedColumn> IndexedColumns { get; set; } = new();
 
-        public string Meta { get; set; }
+        public IndexType? IndexType { get; set; }
         #endregion
 
         #region apply
@@ -28,6 +33,19 @@ namespace HatTrick.Model.MsSql
         {
             action(this);
         }
+
+        public void SetParent(MsSqlTable table)
+        {
+            _parent = table;
+        }
+
+        public MsSqlTable? GetParent()
+        {
+            return _parent;
+        }
+
+        public override string ToString()
+            => $"{Identifier}:{Name} IsPrimaryKey: {IsPrimaryKey}, IsUnique: {IsUnique}";
         #endregion
     }
 }

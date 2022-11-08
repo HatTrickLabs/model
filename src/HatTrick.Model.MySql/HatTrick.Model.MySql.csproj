@@ -1,0 +1,61 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <PackageTags>sql mysql model extraction generation sql-server</PackageTags>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <NoWarn>1701;1702</NoWarn>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <NoWarn>1701;1702</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Scripts\Procedure._sql" />
+    <None Remove="Scripts\Procedure_Parameter._sql" />
+    <None Remove="Scripts\Relationship._sql" />
+    <None Remove="Scripts\Schema._sql" />
+    <None Remove="Scripts\Table._sql" />
+    <None Remove="Scripts\Table_Column._sql" />
+    <None Remove="Scripts\Table_Index._sql" />
+    <None Remove="Scripts\Trigger._sql" />
+    <None Remove="Scripts\View._sql" />
+    <None Remove="Scripts\View_Column._sql" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\Procedure._sql" />
+    <EmbeddedResource Include="Scripts\Procedure_Parameter._sql" />
+    <EmbeddedResource Include="Scripts\Relationship._sql" />
+    <EmbeddedResource Include="Scripts\Schema._sql" />
+    <EmbeddedResource Include="Scripts\Table_Index._sql" />
+    <EmbeddedResource Include="Scripts\Trigger._sql" />
+    <EmbeddedResource Include="Scripts\View_Column._sql" />
+    <EmbeddedResource Include="Scripts\Table_Column._sql" />
+    <EmbeddedResource Include="Scripts\View._sql" />
+    <EmbeddedResource Include="Scripts\Table._sql" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="5.0.1" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="MySql.Data" Version="8.0.31" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\HatTrick.Model.Sql\HatTrick.Model.Sql.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="_Extensions\" />
+  </ItemGroup>
+
+</Project>

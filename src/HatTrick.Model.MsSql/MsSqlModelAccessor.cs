@@ -6,17 +6,20 @@ using System.Text;
 
 namespace HatTrick.Model.MsSql
 {
-	public class MsSqlModelAccessor : SqlModelAccessor<MsSqlSchema>
+	public class MsSqlModelAccessor : SqlModelAccessor<MsSqlModel>
 	{
+		private const char _segmentStart = '[';
+        private const char _segmentEnd = ']';
+        
 		#region constructors
-		public MsSqlModelAccessor(MsSqlModel model) : base(model)
+        public MsSqlModelAccessor(MsSqlModel model) : base(model)
 		{
 
 		}
 		#endregion
 
 		#region resolve item
-		public override INamedMeta ResolveItem(string path)
+		public override INamedMeta? ResolveItem(string path)
 		{
 			if (path == null || path.Length == 0)
 				throw new ArgumentException($"{nameof(path)} must contain a value");
@@ -24,7 +27,7 @@ namespace HatTrick.Model.MsSql
 			if (path == ".")
 				return Model;
 
-			string[] segments = path.SplitPath();
+			string[] segments = path.SplitPath(_segmentStart, _segmentEnd);
 
 			//-Schemas
 			//  - Tables
@@ -35,61 +38,62 @@ namespace HatTrick.Model.MsSql
 			//  - Procedures
 			//    - Parameters
 			//  - Relationships
-			MsSqlSchema s = null;
-			MsSqlTable t = null;
-			MsSqlColumn c = null;
-			MsSqlIndex ix = null;
-			MsSqlView v = null;
-			MsSqlProcedure p = null;
-			MsSqlParameter pm = null;
-			MsSqlRelationship r = null;
+			MsSqlSchema? schema = null;
+			MsSqlTable? table = null;
+			MsSqlColumn? column = null;
+			MsSqlIndex? index = null;
+			MsSqlView? view = null;
+			MsSqlProcedure? procedure = null;
+			MsSqlParameter? parameter = null;
+			MsSqlRelationship? relationship = null;
+
 			int i; //declare outside loop scope so we can ensure we found the path ALL the way through on exit...
-			INamedMeta namedMeta = null;
+			INamedMeta? namedMeta = null;
 			for (i = 0; i < segments.Length; i++)
 			{
 				string key = segments[i];
 				if (i == 0)
 				{
 					if (Model.Schemas.Contains(key))
-						namedMeta = s = Model.Schemas[key];
+						namedMeta = schema = Model.Schemas[key];
 					else
 						break;
 				}
 				else if (i == 1)
 				{
-					if (s.Tables.Contains(key))
-						namedMeta = t = s.Tables[key];
-					else if (s.Views.Contains(key))
-						namedMeta = v = s.Views[key];
-					else if (s.Procedures.Contains(key))
-						namedMeta = p = s.Procedures[key];
-					else if (s.Relationships.Contains(key))
-						namedMeta = r = s.Relationships[key];
+					if (schema!.Tables.Contains(key))
+						namedMeta = table = schema.Tables[key];
+					else if (schema.Views.Contains(key))
+						namedMeta = view = schema.Views[key];
+					else if (schema.Procedures.Contains(key))
+						namedMeta = procedure = schema.Procedures[key];
 					else
 						break;
 				}
 				else if (i == 2)
 				{
-					if (t != null)
+					if (table != null)
 					{
-						if (t.Columns.Contains(key))
-							namedMeta = c = t.Columns[key];
-						else if (t.Indexes.Contains(key))
-							namedMeta = ix = t.Indexes[key]; 
+						if (table.Columns.Contains(key))
+							namedMeta = column = table.Columns[key];
+						else if (table.Indexes.Contains(key))
+							namedMeta = index = table.Indexes[key];
+                        else if (table.Relationships.Contains(key))
+                            namedMeta = relationship = table.Relationships[key];
+                        else
+                            break;
+					}
+					else if (view != null)
+					{
+						if (view.Columns.Contains(key))
+							namedMeta = column = view.Columns[key];
 						else
 							break;
 					}
-					else if (v != null)
+					else if (procedure != null)
 					{
-						if (v.Columns.Contains(key))
-							namedMeta = c = v.Columns[key];
-						else
-							break;
-					}
-					else if (p != null)
-					{
-						if (p.Parameters.Contains(key))
-							namedMeta = pm = p.Parameters[key];
+						if (procedure.Parameters.Contains(key))
+							namedMeta = parameter = procedure.Parameters[key];
 						else
 							break;
 					}
@@ -106,8 +110,8 @@ namespace HatTrick.Model.MsSql
 			if (path == null || path.Length == 0)
 				throw new ArgumentException("argument must contain a value", nameof(path));
 
-			string[] segments = path.SplitPath();
-			string nextSegment = null;
+			string[] segments = path.SplitPath(_segmentStart, _segmentEnd);
+			string? nextSegment = null;
 
 			if (path == ".")
 				return new List<INamedMeta> { Model };
@@ -126,24 +130,15 @@ namespace HatTrick.Model.MsSql
 			//  - Procedures
 			//    - Parameters
 			//  - Relationships
-			List<MsSqlSchema> schemas = null;
 
-			List<MsSqlTable> tables = null;
-			List<MsSqlTableColumn> tableColumns = null;
-			List<MsSqlIndex> indexes = null;
-			List<MsSqlTrigger> triggers = null;
-			List<MsSqlExtendedProperty> tableColExtProps = null;
-			List<MsSqlExtendedProperty> tableExtProps = null;
+			//common lists
+			List<MsSqlSchema> schemas = new();
+			List<MsSqlTable> tables = new();
+			List<MsSqlTableColumn> tableColumns = new();
+			List<MsSqlView> views = new();
+			List<MsSqlViewColumn> viewColumns = new();
+			List<MsSqlProcedure> procs = new();
 
-			List<MsSqlView> views = null;
-			List<MsSqlViewColumn> viewColumns = null;
-			List<MsSqlExtendedProperty> viewColExtProps = null;
-			List<MsSqlExtendedProperty> viewExtProps = null;
-
-			List<MsSqlProcedure> procs = null;
-			List<MsSqlParameter> parameters = null;
-
-			List<MsSqlRelationship> relations = null;
 			int i; //declare outside loop scope so we can ensure we found the path ALL the way through on exit...
 			List<INamedMeta> set = new List<INamedMeta>();
 			int pathDepth = segments.Length - 1;
@@ -160,48 +155,42 @@ namespace HatTrick.Model.MsSql
 				}
 				else if (i == 1)
 				{
-					tables = new List<MsSqlTable>();
-					views = new List<MsSqlView>();
-					procs = new List<MsSqlProcedure>();
-					relations = new List<MsSqlRelationship>();
-					foreach (var schema in schemas)
+                    foreach (var schema in schemas)
 					{
 						tables.AddRange(schema.Tables.GetMatchList(nextSegment, IsStringMatch));
 						views.AddRange(schema.Views.GetMatchList(nextSegment, IsStringMatch));
 						procs.AddRange(schema.Procedures.GetMatchList(nextSegment, IsStringMatch));
-						relations.AddRange(schema.Relationships.GetMatchList(nextSegment, IsStringMatch));
 					}
 					if (pathDepth == i)
 					{
 						set.AddRange(tables);
 						set.AddRange(views);
 						set.AddRange(procs);
-						set.AddRange(relations);
 					}
 				}
 				else if (i == 2)
 				{
-					tableColumns = new List<MsSqlTableColumn>();
-					indexes = new List<MsSqlIndex>();
-					triggers = new List<MsSqlTrigger>();
-					tableExtProps = new List<MsSqlExtendedProperty>();
+                    List<MsSqlRelationship> relations = new();
+                    List<MsSqlIndex> indexes = new();
+                    List<MsSqlTrigger> triggers = new();
+                    List<MsSqlExtendedProperty> tableExtProps = new();
 					foreach (var table in tables)
 					{
 						tableColumns.AddRange(table.Columns.GetMatchList(nextSegment, IsStringMatch));
 						indexes.AddRange(table.Indexes.GetMatchList(nextSegment, IsStringMatch));
 						triggers.AddRange(table.Triggers.GetMatchList(nextSegment, IsStringMatch));
-						tableExtProps.AddRange(table.ExtendedProperties.GetMatchList(nextSegment, IsStringMatch));
+                        relations.AddRange(table.Relationships.GetMatchList(nextSegment, IsStringMatch));
+                        tableExtProps.AddRange(table.ExtendedProperties.GetMatchList(nextSegment, IsStringMatch));
 					}
 
-					viewColumns = new List<MsSqlViewColumn>();
-					viewExtProps = new List<MsSqlExtendedProperty>();
+                    List<MsSqlExtendedProperty> viewExtProps = new();
 					foreach (var view in views)
 					{
 						viewColumns.AddRange(view.Columns.GetMatchList(nextSegment, IsStringMatch));
 						viewExtProps.AddRange(view.ExtendedProperties.GetMatchList(nextSegment, IsStringMatch));
 					}
 
-					parameters = new List<MsSqlParameter>();
+                    List<MsSqlParameter> parameters = new();
 					foreach (var proc in procs)
 					{
 						parameters.AddRange(proc.Parameters.GetMatchList(nextSegment, IsStringMatch));
@@ -215,17 +204,18 @@ namespace HatTrick.Model.MsSql
 						set.AddRange(viewColumns);
 						set.AddRange(viewExtProps);
 						set.AddRange(parameters);
-					}
-				}
+                        set.AddRange(relations);
+                    }
+                }
 				else if (i == 3)
 				{
-					tableColExtProps = new List<MsSqlExtendedProperty>();
+                    List<MsSqlExtendedProperty> tableColExtProps = new();
 					foreach (var col in tableColumns)
 					{
 						tableColExtProps.AddRange(col.ExtendedProperties.GetMatchList(nextSegment, IsStringMatch));
 					}
 
-					viewColExtProps = new List<MsSqlExtendedProperty>();
+                    List<MsSqlExtendedProperty> viewColExtProps = new();
 					foreach (var col in viewColumns)
 					{
 						viewColExtProps.AddRange(col.ExtendedProperties.GetMatchList(nextSegment, IsStringMatch));
