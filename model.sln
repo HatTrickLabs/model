@@ -29,7 +29,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HatTrick.Model.TestHarness"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HatTrick.Model.MySql", "src\HatTrick.Model.MySql\HatTrick.Model.MySql.csproj", "{17DDE649-C380-4A08-A3F8-7558352C1AB6}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HatTrick.Model.MsSql.Test.Integration", "HatTrick.Model.MsSql.Test.Integration\HatTrick.Model.MsSql.Test.Integration.csproj", "{10A220FF-17EC-415C-925D-4FCA5D63BAD4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HatTrick.Model.MsSql.Test.Integration", "test\HatTrick.Model.MsSql.Test.Integration\HatTrick.Model.MsSql.Test.Integration.csproj", "{10A220FF-17EC-415C-925D-4FCA5D63BAD4}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HatTrick.Model.MySql.Test.Integration", "test\HatTrick.Model.MySql.Test.Integration\HatTrick.Model.MySql.Test.Integration.csproj", "{973135D1-FCB6-4838-AA71-1048B72FEB86}"
 EndProject

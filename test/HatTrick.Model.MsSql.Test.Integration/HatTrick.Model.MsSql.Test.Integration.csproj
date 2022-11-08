@@ -28,7 +28,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\src\HatTrick.Model.MsSql\HatTrick.Model.MsSql.csproj" />
+        <ProjectReference Include="..\..\src\HatTrick.Model.MsSql\HatTrick.Model.MsSql.csproj" />
     </ItemGroup>
 
     <ItemGroup>
