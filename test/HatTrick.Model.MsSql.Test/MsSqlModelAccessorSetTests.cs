@@ -189,4 +189,20 @@ public class MsSqlModelAccessorSetTests
             .And.OnlyHaveUniqueItems()
             .And.AllBeAssignableTo<MsSqlTable>();
     }
+
+    [Fact]
+    public void Can_resolve_columns_with_schema_and_table_wildcards()
+    {
+        //given
+        var model = GetModel();
+        var accessor = new MsSqlModelAccessor(model);
+
+        //when
+        var resolved = accessor.ResolveItemSet<MsSqlColumn>("*.*.Column_1");
+
+        //then
+        resolved.Should().HaveCount(1)
+            .And.OnlyHaveUniqueItems()
+            .And.AllBeAssignableTo<MsSqlColumn>();
+    }
 }
