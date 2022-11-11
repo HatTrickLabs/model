@@ -1,3 +1,5 @@
+using System.Data;
+
 namespace HatTrick.Model.MySql.Test.Integration;
 
 public class DataTypeTests : IntegrationTestBase
@@ -62,6 +64,8 @@ public class DataTypeTests : IntegrationTestBase
     [InlineData(54, "NullableSet", "set", MySqlDbType.Set, "set('a','b','c','d')", null, null, 7L, true, 28L)]
     [InlineData(55, "Enum", "enum", MySqlDbType.Enum, "enum('a','b','c','d')", null, null, 1L, false, 4L)]
     [InlineData(56, "NullableEnum", "enum", MySqlDbType.Enum, "enum('a','b','c','d')", null, null, 1L, true, 4L)]
+    [InlineData(57, "Json", "json", MySqlDbType.JSON, "json", null, null, null, false, null)]
+    [InlineData(58, "NullableJson", "json", MySqlDbType.JSON, "json", null, null, null, true, null)]
 
     public void Does_column_have_correct_data_attributes(int ordinal, string columnName, string dbTypeName, MySqlDbType dbType, string columnType, int? precision, int? scale, long? maxLength, bool isNullable, long? characterOctetLength)
     {
