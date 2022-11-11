@@ -1,35 +1,49 @@
+using HatTrick.Model.Sql;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Data;
-using System.Data.Common;
-using System.Data.SqlClient;
 
 namespace HatTrick.Model.MsSql
 {
-    public class MsSqlSchema : INamedMeta
+    public class MsSqlSchema : IDatabaseObjectModifier<MsSqlSchema>, ISqlSchema, IChildOf<MsSqlModel>
     {
-        #region interface
-        public int SchemaId { get; set; }
-
-        public string Name { get; set; }
-
-        public Dictionary<string, MsSqlTable> Tables { get; set; }
-
-        public Dictionary<string, MsSqlView> Views { get; set; }
-
-        public Dictionary<string, MsSqlRelationship> Relationships { get; set; }
-
-        public Dictionary<string, MsSqlProcedure> Procedures { get; set; }
-
-        public string Meta { get; set; }
+        #region internals
+        private MsSqlModel? _parent;
         #endregion
 
-        #region apply
+        #region interface
+        public string Name { get; set; } = string.Empty;
+
+        public string Meta { get; set; } = string.Empty;
+
+        public string Identifier { get; set; } = string.Empty;
+
+        public string ParentIdentifier => _parent?.Identifier ?? string.Empty;
+
+        public DatabaseObjectList<MsSqlTable> Tables { get; set; } = new();
+
+        public DatabaseObjectList<MsSqlView> Views { get; set; } = new();
+
+        public DatabaseObjectList<MsSqlProcedure> Procedures { get; set; } = new();
+        #endregion
+
+        #region methods
         public void Apply(Action<MsSqlSchema> action)
         {
             action(this);
         }
+
+        public void SetParent(MsSqlModel model)
+        {
+            _parent = model;
+        }
+
+        public MsSqlModel? GetParent()
+        {
+            return _parent;
+        }
+
+        public override string ToString()
+            => $"{Identifier}:{Name}";
         #endregion
     }
 }

@@ -1,35 +1,48 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Data;
-using System.Data.Common;
-using System.Data.SqlClient;
+using HatTrick.Model.Sql;
 
 namespace HatTrick.Model.MsSql
 {
-    public class MsSqlIndexedColumn
+    public class MsSqlIndexedColumn : IDatabaseObjectModifier<MsSqlIndexedColumn>, ISqlIndexedColumn, IChildOf<MsSqlIndex>
     {
-        #region interface
-        public int ParentObjectId { get; set; }
-
-        public int IndexId { get; set; }
-
-        public int ColumnId { get; set; }
-
-        public string ColumnName { get; set; }
-
-        public byte KeyOrdinal { get; set; }
-
-        public bool IsDescendingKey { get; set; }
-
-        public bool IsIncludedColumn { get; set; }
+        #region internals
+        private MsSqlIndex? _parent;
         #endregion
 
-        #region apply
+        #region interface
+        public string Name { get; set; } = string.Empty;
+
+        public string Meta { get; set; } = string.Empty;
+
+        public string Identifier { get; set; } = string.Empty;
+
+        public string ParentIdentifier => _parent?.Identifier ?? string.Empty;
+
+        public bool IsIncludedColumn { get; set; }
+
+        public short OrdinalPosition { get; set; }
+
+        public bool IsDescending { get; set; }
+        #endregion
+
+        #region methods
         public void Apply(Action<MsSqlIndexedColumn> action)
         {
             action(this);
         }
+
+        public void SetParent(MsSqlIndex index)
+        {
+            _parent = index;
+        }
+
+        public MsSqlIndex? GetParent()
+        {
+            return _parent;
+        }
+
+        public override string ToString()
+            => $"{Identifier}:{Name}, Ordinal: {OrdinalPosition}";
         #endregion
     }
 }

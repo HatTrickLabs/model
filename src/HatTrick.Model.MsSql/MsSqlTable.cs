@@ -1,53 +1,53 @@
+using HatTrick.Model.Sql;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Data;
-using System.Data.Common;
-using System.Data.SqlClient;
 
 namespace HatTrick.Model.MsSql
 {
-    public class MsSqlTable : INamedMeta
+    public class MsSqlTable : IDatabaseObjectModifier<MsSqlTable>, ISqlTable, IChildOf<MsSqlSchema>
     {
         #region internals
-        private INamedMeta _parent;
-		#endregion
-
-		#region interface
-		public int ObjectId { get; set; }
-
-        public string Name { get; set; }
-
-        public Dictionary<string, MsSqlTableColumn> Columns { get; set; }
-
-        public Dictionary<string, MsSqlIndex> Indexes { get; set; }
-
-        public Dictionary<string, MsSqlTrigger> Triggers { get; set; }
-
-        public Dictionary<string, MsSqlExtendedProperty> ExtendedProperties { get; set; }
-
-        public string Meta { get; set; }
+        private MsSqlSchema? _parent;
         #endregion
 
-        #region set parent
-        public void SetParent(MsSqlSchema schema)
-        {
-            _parent = schema;
-        }
+        #region interface
+        public string Name { get; set; } = string.Empty;
+
+        public string Meta { get; set; } = string.Empty;
+
+        public string Identifier { get; set; } = string.Empty;
+
+        public string ParentIdentifier => _parent?.Identifier ?? string.Empty;
+
+        public DatabaseObjectList<MsSqlTableColumn> Columns { get; set; } = new();
+
+        public DatabaseObjectList<MsSqlIndex> Indexes { get; set; } = new();
+
+        public DatabaseObjectList<MsSqlRelationship> Relationships { get; set; } = new();
+
+        public DatabaseObjectList<MsSqlTrigger> Triggers { get; set; } = new();
+
+        public DatabaseObjectList<MsSqlExtendedProperty> ExtendedProperties { get; set; } = new();
         #endregion
 
-        #region get parent
-        public INamedMeta GetParent()
-        {
-            return _parent;
-        }
-        #endregion
-
-        #region apply
+        #region methods
         public void Apply(Action<MsSqlTable> action)
         {
             action(this);
         }
+
+        public void SetParent(MsSqlSchema schema)
+        {
+            _parent = schema;
+        }
+
+        public MsSqlSchema? GetParent()
+        {
+            return _parent;
+        }
+
+        public override string ToString()
+            => $"{Identifier}:{Name}";
         #endregion
     }
 }
