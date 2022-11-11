@@ -13,6 +13,6 @@ namespace HatTrick.Model.Sql
         public DatabaseObjectNotFoundException(string name) : base($"{typeof(T).Name} with name '{name}' was not found.") { Name = name; }
         public DatabaseObjectNotFoundException(string name, string message) : base(message) { Name = name; }
         public DatabaseObjectNotFoundException(string name, string message, Exception innerException) : base(message, innerException) { Name = name; }
-        public DatabaseObjectNotFoundException(SerializationInfo info, StreamingContext context) : base(info, context) { Name = info.GetString(nameof(Name)); }
+        public DatabaseObjectNotFoundException(SerializationInfo info, StreamingContext context) : base(info, context) { Name = info.GetString(nameof(Name))!; }
     }
 }

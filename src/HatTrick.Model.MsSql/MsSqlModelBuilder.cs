@@ -69,7 +69,7 @@ namespace HatTrick.Model.MsSql
                 {
                     MsSqlSchema s = new MsSqlSchema()
                     {
-                        Identifier = dr["schema_id"].ToString(),
+                        Identifier = dr["schema_id"].ToString()!,
                         Name = (string)dr["name"]
                     };
                     schemas.Add(s);
@@ -95,10 +95,10 @@ namespace HatTrick.Model.MsSql
                 {
                     MsSqlTable table = new MsSqlTable()
                     {
-                        Identifier = dr["object_id"].ToString(),
+                        Identifier = dr["object_id"].ToString()!,
                         Name = (string)dr["table_name"]
                     };
-                    tables.Add((dr["schema_id"].ToString(), table));
+                    tables.Add((dr["schema_id"].ToString()!, table));
                 }
             };
 
@@ -140,14 +140,14 @@ namespace HatTrick.Model.MsSql
                     column.Scale = resolved.Scale;
                     column.MaxLength= resolved.MaxLength;
 
-                    column.Identifier = dr["column_id"].ToString();
+                    column.Identifier = dr["column_id"].ToString()!;
                     column.Name = (string)dr["column_name"];
                     column.IsIdentity = (bool)dr["is_identity"];
                     column.OrdinalPosition = (int)dr["column_id"];
                     column.IsNullable = (bool)dr["is_nullable"];
                     column.IsComputed = (bool)dr["is_computed"];
                     column.DefaultDefinition = dr["definition"] == DBNull.Value ? null : (string)dr["definition"];
-                    columns.Add((dr["table_id"].ToString(), column));
+                    columns.Add((dr["table_id"].ToString()!, column));
                 }
             };
 
@@ -176,7 +176,7 @@ namespace HatTrick.Model.MsSql
                 {
                     var indexName = (string)dr["index_name"];
                     //MsSql reports a different table id for indexes that are primary keys vs other indexes.  Must use a munge using table_name instead of table_id.
-                    var indexIdentifier = model.ComputeIdentifier(dr["schema_id"].ToString(), dr["table_name"].ToString(), dr["index_id"].ToString());
+                    var indexIdentifier = model.ComputeIdentifier(dr["schema_id"].ToString()!, dr["table_name"].ToString()!, dr["index_id"].ToString()!);
 
                     var existing = indexedColumns.SingleOrDefault(i => i.index.Identifier == indexIdentifier);
                     if (existing == default)
@@ -189,13 +189,13 @@ namespace HatTrick.Model.MsSql
                             IndexType = (IndexType)(byte)dr["index_type_code"],
                             IsUnique = (bool)dr["is_unique"]
                         };
-                        existing = (dr["table_id"].ToString(), idx, new List<MsSqlIndexedColumn>());
+                        existing = (dr["table_id"].ToString()!, idx, new List<MsSqlIndexedColumn>());
                         indexedColumns.Add(existing);
                     }
 
                     var idxCol = new MsSqlIndexedColumn
                     {
-                        Identifier = model.ComputeIdentifier(dr["schema_id"].ToString(), dr["table_name"].ToString(), dr["index_id"].ToString(), dr["column_id"].ToString()),
+                        Identifier = model.ComputeIdentifier(dr["schema_id"].ToString()!, dr["table_name"].ToString()!, dr["index_id"].ToString()!, dr["column_id"].ToString()!),
                         Name = (string)dr["column_name"],
                         OrdinalPosition = (byte)dr["key_ordinal"],
                         IsDescending = (bool)dr["is_descending_key"],
@@ -236,10 +236,10 @@ namespace HatTrick.Model.MsSql
                 {
                     var view = new MsSqlView()
                     {
-                        Identifier = dr["object_id"].ToString(),
+                        Identifier = dr["object_id"].ToString()!,
                         Name = (string)dr["view_name"]
                     };
-                    views.Add((dr["schema_id"].ToString(), view));
+                    views.Add((dr["schema_id"].ToString()!, view));
                 }
             };
 
@@ -281,14 +281,14 @@ namespace HatTrick.Model.MsSql
                     column.Scale = resolved.Scale;
                     column.MaxLength = resolved.MaxLength;
 
-                    column.Identifier = dr["column_id"].ToString();
+                    column.Identifier = dr["column_id"].ToString()!;
                     column.Name = (string)dr["column_name"];
                     column.IsIdentity = (bool)dr["is_identity"];
                     column.OrdinalPosition = (int)dr["column_id"];
                     column.IsNullable = (bool)dr["is_nullable"];
                     column.IsComputed = (bool)dr["is_computed"];
 
-                    columns.Add((dr["view_id"].ToString(), column));
+                    columns.Add((dr["view_id"].ToString()!, column));
                 }
             };
 
@@ -317,11 +317,11 @@ namespace HatTrick.Model.MsSql
                 {
                     var procedure = new MsSqlProcedure()
                     {
-                        Identifier = dr["object_id"].ToString(),
+                        Identifier = dr["object_id"].ToString()!,
                         Name = (string)dr["sproc_name"],
                         IsStartupProcedure = (bool)dr["is_startup_sproc"],
                     };
-                    sprocs.Add((dr["schema_id"].ToString(), procedure));
+                    sprocs.Add((dr["schema_id"].ToString()!, procedure));
                 }
             };
 
@@ -363,14 +363,14 @@ namespace HatTrick.Model.MsSql
                     parameter.Scale = resolved.Scale;
                     parameter.MaxLength = resolved.MaxLength;
 
-                    parameter.Identifier = dr["parameter_id"].ToString();
+                    parameter.Identifier = dr["parameter_id"].ToString()!;
                     parameter.Name = (string)dr["parameter_name"];
                     parameter.IsOutput = (bool)dr["is_output"];
                     parameter.IsReadOnly = (bool)dr["is_readonly"];
                     parameter.HasDefaultValue = (bool)dr["has_default_value"];
                     parameter.IsNullable = (bool)dr["is_nullable"];
                     parameter.DefaultValue = dr["default_value"] == DBNull.Value ? null : (object)dr["default_value"];//only valid on clr procedures
-                    parameters.Add((dr["sproc_id"].ToString(), parameter));
+                    parameters.Add((dr["sproc_id"].ToString()!, parameter));
                 }
             };
 
@@ -413,14 +413,14 @@ namespace HatTrick.Model.MsSql
             {
                 while (dr.Read())
                 {
-                    var table = dr["base_table_id"].ToString();
+                    var table = dr["base_table_id"].ToString()!;
                     var relationship = new MsSqlRelationship
                     {
                         Name = (string)dr["relationship_name"],
                         Identifier = (string)dr["relationship_name"],
-                        BaseColumnIdentifiers = new List<string> { dr["base_column_id"].ToString() },
-                        ReferenceTableIdentifier = dr["referenced_table_id"].ToString(),
-                        ReferenceColumnIdentifiers = new List<string> { dr["referenced_column_id"].ToString() }
+                        BaseColumnIdentifiers = new List<string> { dr["base_column_id"].ToString()! },
+                        ReferenceTableIdentifier = dr["referenced_table_id"].ToString()!,
+                        ReferenceColumnIdentifiers = new List<string> { dr["referenced_column_id"].ToString()! }
                     };
                     addOrMerge(table, relationship);
                 }
@@ -449,10 +449,10 @@ namespace HatTrick.Model.MsSql
             {
                 while (dr.Read())
                 {
-                    var table = dr["table_object_id"].ToString();
+                    var table = dr["table_object_id"].ToString()!;
                     var trigger = new MsSqlTrigger
                     {
-                        Identifier = dr["object_id"].ToString(),
+                        Identifier = dr["object_id"].ToString()!,
                         Name = (string)dr["trigger_name"],
                         EventType = (TriggerEventType)Enum.Parse(typeof(TriggerEventType), (string)dr["type_desc"], true),
                         IsDisabled = (bool)dr["is_disabled"],
@@ -485,11 +485,11 @@ namespace HatTrick.Model.MsSql
             {
                 while (dr.Read())
                 {
-                    var table = dr["table_id"].ToString();
+                    var table = dr["table_id"].ToString()!;
                     var p = new MsSqlExtendedProperty
                     {
                         MinorIdentifier = null,
-                        Name = dr["name"].ToString(),
+                        Name = dr["name"].ToString()!,
                         Value = dr["value"].ToString()
                     };
                     extProps.Add((table, p));
@@ -519,12 +519,12 @@ namespace HatTrick.Model.MsSql
             {
                 while (dr.Read())
                 {
-                    var table = dr["table_id"].ToString();
-                    var column = dr["column_id"].ToString();
+                    var table = dr["table_id"].ToString()!;
+                    var column = dr["column_id"].ToString()!;
                     var p = new MsSqlExtendedProperty
                     {
                         MinorIdentifier = dr["column_id"].ToString(),
-                        Name = dr["name"].ToString(),
+                        Name = dr["name"].ToString()!,
                         Value = dr["value"].ToString()
                     };
                     extProps.Add((table, column, p));
@@ -554,11 +554,11 @@ namespace HatTrick.Model.MsSql
             {
                 while (dr.Read())
                 {
-                    var view = dr["view_id"].ToString();
+                    var view = dr["view_id"].ToString()!;
                     var p = new MsSqlExtendedProperty
                     {
                         MinorIdentifier = null,
-                        Name = dr["name"].ToString(),
+                        Name = dr["name"].ToString()!,
                         Value = dr["value"].ToString()
                     };
                     extProps.Add((view, p));
@@ -588,12 +588,12 @@ namespace HatTrick.Model.MsSql
             {
                 while (dr.Read())
                 {
-                    var view = dr["view_id"].ToString();
-                    var column = dr["column_id"].ToString();
+                    var view = dr["view_id"].ToString()!;
+                    var column = dr["column_id"].ToString()!;
                     var p = new MsSqlExtendedProperty
                     {
                         MinorIdentifier = dr["column_id"].ToString(),
-                        Name = dr["name"].ToString(),
+                        Name = dr["name"].ToString()!,
                         Value = dr["value"].ToString()
                     };
                     extProps.Add((view, column, p));

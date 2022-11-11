@@ -32,6 +32,7 @@ namespace HatTrick.Model.MsSql
         private static readonly MsSqlTypeDescriptor _geometry = MsSqlTypeDescriptor.Create(SqlDbType.Udt, "geometry", 0, 0, -1);
         private static readonly MsSqlTypeDescriptor _geography = MsSqlTypeDescriptor.Create(SqlDbType.Udt,"geography",  0, 0, -1);
 
+
         private static readonly Dictionary<string, Func<byte?,byte?,long?,MsSqlTypeDescriptor>> _typeMap = new Dictionary<string, Func<byte?, byte?, long?, MsSqlTypeDescriptor>>(StringComparer.OrdinalIgnoreCase)
         {
             { "bit", (_,_,_) => _bit },
