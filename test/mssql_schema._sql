@@ -176,6 +176,9 @@ GO
 CREATE SCHEMA [unit_test]
 GO
 
+CREATE TYPE [unit_test].[MyType] FROM [bigint] NOT NULL
+GO
+
 CREATE TABLE [unit_test].[DataType](
 	[Bit] BIT NOT NULL,
 	[NullableBit] BIT NULL,
@@ -237,7 +240,9 @@ CREATE TABLE [unit_test].[DataType](
 	[Geography] [geography] NOT NULL,
 	[NullableGeography] [geography] NULL,
 	[Xml] [xml] NOT NULL,
-	[NullableXml] [xml] NULL
+	[NullableXml] [xml] NULL,
+	[MyType] [unit_test].[MyType] NOT NULL,
+	[NullableMyType] [unit_test].[MyType] NULL
 );
 GO
 

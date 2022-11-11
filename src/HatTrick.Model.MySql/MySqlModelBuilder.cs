@@ -129,15 +129,24 @@ namespace HatTrick.Model.MySql
                 while (dr.Read())
                 {
                     string typeName = (string)dr["DATA_TYPE"];
+                    byte? precision = dr["NUMERIC_PRECISION"] == DBNull.Value ? null : Convert.ToByte((ulong?)dr["NUMERIC_PRECISION"]);
+                    byte? scale = dr["NUMERIC_SCALE"] == DBNull.Value ? null : Convert.ToByte((ulong?)dr["NUMERIC_SCALE"]);
+                    long? maxLength = dr["CHARACTER_MAXIMUM_LENGTH"] == DBNull.Value ? null : (long?)dr["CHARACTER_MAXIMUM_LENGTH"];
+                    string columnType = dr["COLUMN_TYPE"] == DBNull.Value ? typeName : (string)dr["COLUMN_TYPE"];
+                    long? characterOctetLength = dr["CHARACTER_OCTET_LENGTH"] == DBNull.Value ? null : (long?)dr["CHARACTER_OCTET_LENGTH"];
 
-                    MySqlTypeDescriptor? resolved = MySqlDataTypes.GetTypeDescriptor(typeName) ?? throw new DataException($"{typeName} is not a recognized Sql type.");
+                    MySqlTypeDescriptor? resolved = MySqlDataTypes.GetTypeDescriptor(typeName, columnType, precision, scale, maxLength, characterOctetLength)
+                        ?? throw new DataException($"{typeName} is not a recognized Sql type.");
 
                     var column = new MySqlTableColumn();
                     column.SqlTypeName = resolved.DbTypeName;
                     column.SqlType = resolved.DbType;
-                    column.Precision = dr["NUMERIC_PRECISION"] == DBNull.Value ? null : Convert.ToByte((ulong?)dr["NUMERIC_PRECISION"]);
-                    column.Scale = dr["NUMERIC_SCALE"] == DBNull.Value ? null : Convert.ToByte((ulong?)dr["NUMERIC_SCALE"]);
-                    column.MaxLength = dr["CHARACTER_MAXIMUM_LENGTH"] == DBNull.Value ? null : (long?)dr["CHARACTER_MAXIMUM_LENGTH"];
+                    column.ColumnType = resolved.ColumnType;
+                    column.Precision = resolved.Precision;
+                    column.Scale = resolved.Scale;
+                    column.MaxLength = resolved.MaxLength;
+                    column.CharacterOctetLength = resolved.CharacterOctetLength;
+
                     column.OrdinalPosition = Convert.ToInt32((uint)dr["ORDINAL_POSITION"]);
                     column.Identifier = model.ComputeIdentifier((string)dr["TABLE_SCHEMA"], (string)dr["TABLE_NAME"], (string)dr["COLUMN_NAME"]);
                     column.Name = (string)dr["COLUMN_NAME"];
@@ -145,8 +154,7 @@ namespace HatTrick.Model.MySql
                     column.IsNullable = (int)dr["IS_NULLABLE"] == 1;
                     column.GenerationExpression = dr["GENERATION_EXPRESSION"] == DBNull.Value ? null : (string)dr["GENERATION_EXPRESSION"];
                     column.DefaultDefinition = dr["COLUMN_DEFAULT"] == DBNull.Value ? null : (string)dr["COLUMN_DEFAULT"];
-                    column.ColumnType = dr["COLUMN_TYPE"] == DBNull.Value ? null : (string)dr["COLUMN_TYPE"];
-                    column.CharacterOctetLength = dr["CHARACTER_OCTET_LENGTH"] == DBNull.Value ? null : (long?)dr["CHARACTER_OCTET_LENGTH"];
+ 
                     columns.Add((model.ComputeIdentifier((string)dr["TABLE_SCHEMA"], (string)dr["TABLE_NAME"]), column));
                 }
             };
@@ -262,15 +270,23 @@ namespace HatTrick.Model.MySql
                 while (dr.Read())
                 {
                     string typeName = (string)dr["DATA_TYPE"];
+                    byte? precision = dr["NUMERIC_PRECISION"] == DBNull.Value ? null : Convert.ToByte((ulong?)dr["NUMERIC_PRECISION"]);
+                    byte? scale = dr["NUMERIC_SCALE"] == DBNull.Value ? null : Convert.ToByte((ulong?)dr["NUMERIC_SCALE"]);
+                    long? maxLength = dr["CHARACTER_MAXIMUM_LENGTH"] == DBNull.Value ? null : (long?)dr["CHARACTER_MAXIMUM_LENGTH"];
+                    string columnType = dr["COLUMN_TYPE"] == DBNull.Value ? typeName : (string)dr["COLUMN_TYPE"];
+                    long? characterOctetLength = dr["CHARACTER_OCTET_LENGTH"] == DBNull.Value ? null : (long?)dr["CHARACTER_OCTET_LENGTH"];
 
-                    MySqlTypeDescriptor? resolved = MySqlDataTypes.GetTypeDescriptor(typeName) ?? throw new DataException($"{typeName} is not a recognized Sql type.");
+                    MySqlTypeDescriptor? resolved = MySqlDataTypes.GetTypeDescriptor(typeName, columnType, precision, scale, maxLength, characterOctetLength)
+                        ?? throw new DataException($"{typeName} is not a recognized Sql type.");
 
                     var column = new MySqlViewColumn();
                     column.SqlTypeName = resolved.DbTypeName;
                     column.SqlType = resolved.DbType;
-                    column.Precision = dr["NUMERIC_PRECISION"] == DBNull.Value ? null : Convert.ToByte((ulong?)dr["NUMERIC_PRECISION"]);
-                    column.Scale = dr["NUMERIC_SCALE"] == DBNull.Value ? null : Convert.ToByte((ulong?)dr["NUMERIC_SCALE"]);
-                    column.MaxLength = dr["CHARACTER_MAXIMUM_LENGTH"] == DBNull.Value ? null : (long?)dr["CHARACTER_MAXIMUM_LENGTH"];
+                    column.ColumnType = resolved.ColumnType;
+                    column.Precision = resolved.Precision;
+                    column.Scale = resolved.Scale;
+                    column.MaxLength = resolved.MaxLength;
+                    column.CharacterOctetLength = resolved.CharacterOctetLength;
 
                     column.OrdinalPosition = Convert.ToInt32((uint)dr["ORDINAL_POSITION"]);
                     column.Identifier = model.ComputeIdentifier((string)dr["TABLE_SCHEMA"], (string)dr["TABLE_NAME"], (string)dr["COLUMN_NAME"]);
@@ -279,8 +295,7 @@ namespace HatTrick.Model.MySql
                     column.IsNullable = (int)dr["IS_NULLABLE"] == 1;
                     column.GenerationExpression = dr["GENERATION_EXPRESSION"] == DBNull.Value ? null : (string)dr["GENERATION_EXPRESSION"];
                     column.DefaultDefinition = dr["COLUMN_DEFAULT"] == DBNull.Value ? null : (string)dr["COLUMN_DEFAULT"];
-                    column.ColumnType = dr["COLUMN_TYPE"] == DBNull.Value ? null : (string)dr["COLUMN_TYPE"];
-                    column.CharacterOctetLength = dr["CHARACTER_OCTET_LENGTH"] == DBNull.Value ? null : (long?)dr["CHARACTER_OCTET_LENGTH"];
+
                     columns.Add((model.ComputeIdentifier((string)dr["TABLE_SCHEMA"], (string)dr["TABLE_NAME"]), column));
                 }
             };
@@ -339,19 +354,23 @@ namespace HatTrick.Model.MySql
                 while (dr.Read())
                 {
                     string typeName = (string)dr["DATA_TYPE"];
+                    //precision and scale are different data type than other queries
+                    byte? precision = dr["NUMERIC_PRECISION"] == DBNull.Value ? null : Convert.ToByte((uint)dr["NUMERIC_PRECISION"]);
+                    byte? scale = dr["NUMERIC_SCALE"] == DBNull.Value ? null : Convert.ToByte((long)dr["NUMERIC_SCALE"]);
+                    long? maxLength = dr["CHARACTER_MAXIMUM_LENGTH"] == DBNull.Value ? null : (long?)dr["CHARACTER_MAXIMUM_LENGTH"];
 
-                    MySqlTypeDescriptor? resolved = MySqlDataTypes.GetTypeDescriptor(typeName) ?? throw new DataException($"{typeName} is not a recognized Sql type.");
+                    MySqlTypeDescriptor? resolved = MySqlDataTypes.GetTypeDescriptor(typeName, null, precision, scale, maxLength, null)
+                        ?? throw new DataException($"{typeName} is not a recognized Sql type.");
 
                     var parameter = new MySqlParameter();
-                    parameter.Identifier = model.ComputeIdentifier((string)dr["ROUTINE_SCHEMA"], (string)dr["SPECIFIC_NAME"], (string)dr["PARAMETER_NAME"]);
-                    parameter.Name = (string)dr["PARAMETER_NAME"];
                     parameter.SqlTypeName = resolved.DbTypeName;
                     parameter.SqlType = resolved.DbType;
+                    parameter.Precision = resolved.Precision;
+                    parameter.Scale = resolved.Scale;
+                    parameter.MaxLength = resolved.MaxLength;
+
                     parameter.IsOutput = dr["PARAMETER_MODE"] == DBNull.Value && dr["DATA_TYPE"] != DBNull.Value;
-                    //precision and scale are different data type than other queries
-                    parameter.Precision = dr["NUMERIC_PRECISION"] == DBNull.Value ? null : Convert.ToByte((uint)dr["NUMERIC_PRECISION"]);
-                    parameter.Scale = dr["NUMERIC_SCALE"] == DBNull.Value ? null : Convert.ToByte((long)dr["NUMERIC_SCALE"]);
-                    parameter.MaxLength = dr["CHARACTER_MAXIMUM_LENGTH"] == DBNull.Value ? null : (long?)dr["CHARACTER_MAXIMUM_LENGTH"];
+ 
                     parameters.Add((model.ComputeIdentifier((string)dr["ROUTINE_SCHEMA"], (string)dr["SPECIFIC_NAME"]), parameter));
                 }
             };

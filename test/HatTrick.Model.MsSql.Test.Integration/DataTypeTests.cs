@@ -64,6 +64,8 @@ public class DataTypeTests : IntegrationTestBase
     [InlineData(59, "NullableGeography", "geography", SqlDbType.Udt, 0, 0, -1L, true)]
     [InlineData(60, "Xml", "xml", SqlDbType.Xml, 0, 0, -1L, false)]
     [InlineData(61, "NullableXml", "xml", SqlDbType.Xml, 0, 0, -1L, true)]
+    [InlineData(62, "MyType", "MyType", SqlDbType.Udt, 19, 0, 8L, false)]
+    [InlineData(63, "NullableMyType", "MyType", SqlDbType.Udt, 19, 0, 8L, true)]
 
     public void Does_column_have_correct_data_attributes(int ordinal, string columnName, string dbTypeName, SqlDbType dbType, int? precision, int? scale, long? maxLength, bool isNullable)
     {

@@ -126,15 +126,20 @@ namespace HatTrick.Model.MsSql
                 while (dr.Read())
                 {
                     string typeName = (string)dr["data_type_name"];
+                    byte? precision = dr["precision"] == DBNull.Value ? null : (byte?)dr["precision"];
+                    byte? scale = dr["scale"] == DBNull.Value ? null : (byte?)dr["scale"];
+                    long? maxLength = dr["max_length"] == DBNull.Value ? null : Convert.ToInt64((short?)dr["max_length"]);
 
-                    MsSqlTypeDescriptor? resolved = MsSqlDataTypes.GetTypeDescriptor(typeName) ?? throw new DataException($"{typeName} is not a recognized Sql type.");
+                    MsSqlTypeDescriptor? resolved = MsSqlDataTypes.GetTypeDescriptor(typeName, precision, scale, maxLength) 
+                        ?? MsSqlTypeDescriptor.Create(SqlDbType.Udt, typeName, precision, scale, maxLength);
 
                     var column = new MsSqlTableColumn();
                     column.SqlTypeName = resolved.DbTypeName;
                     column.SqlType = resolved.DbType;
-                    column.Precision = dr["precision"] == DBNull.Value ? null : (byte?)dr["precision"];
-                    column.Scale = dr["scale"] == DBNull.Value ? null : (byte?)dr["scale"];
-                    column.MaxLength = dr["max_length"] == DBNull.Value ? null : Convert.ToInt64((short?)dr["max_length"]);
+                    column.Precision = resolved.Precision;
+                    column.Scale = resolved.Scale;
+                    column.MaxLength= resolved.MaxLength;
+
                     column.Identifier = dr["column_id"].ToString();
                     column.Name = (string)dr["column_name"];
                     column.IsIdentity = (bool)dr["is_identity"];
@@ -262,15 +267,19 @@ namespace HatTrick.Model.MsSql
                 while (dr.Read())
                 {
                     string typeName = (string)dr["data_type_name"];
+                    byte? precision = dr["precision"] == DBNull.Value ? null : (byte?)dr["precision"];
+                    byte? scale = dr["scale"] == DBNull.Value ? null : (byte?)dr["scale"];
+                    long? maxLength = dr["max_length"] == DBNull.Value ? null : Convert.ToInt64((short?)dr["max_length"]);
 
-                    MsSqlTypeDescriptor? resolved = MsSqlDataTypes.GetTypeDescriptor(typeName) ?? throw new DataException($"{typeName} is not a recognized Sql type.");
+                    MsSqlTypeDescriptor? resolved = MsSqlDataTypes.GetTypeDescriptor(typeName, precision, scale, maxLength)
+                        ?? MsSqlTypeDescriptor.Create(SqlDbType.Udt, typeName, precision, scale, maxLength);
 
                     var column = new MsSqlViewColumn();
                     column.SqlTypeName = resolved.DbTypeName;
                     column.SqlType = resolved.DbType;
-                    column.Precision = dr["precision"] == DBNull.Value ? null : (byte?)dr["precision"];
-                    column.Scale = dr["scale"] == DBNull.Value ? null : (byte?)dr["scale"];
-                    column.MaxLength = dr["max_length"] == DBNull.Value ? null : Convert.ToInt64((short?)dr["max_length"]);
+                    column.Precision = resolved.Precision;
+                    column.Scale = resolved.Scale;
+                    column.MaxLength = resolved.MaxLength;
 
                     column.Identifier = dr["column_id"].ToString();
                     column.Name = (string)dr["column_name"];
@@ -340,15 +349,19 @@ namespace HatTrick.Model.MsSql
                 while (dr.Read())
                 {
                     string typeName = (string)dr["data_type_name"];
+                    byte? precision = dr["precision"] == DBNull.Value ? null : (byte?)dr["precision"];
+                    byte? scale = dr["scale"] == DBNull.Value ? null : (byte?)dr["scale"];
+                    long? maxLength = dr["max_length"] == DBNull.Value ? null : Convert.ToInt64((short?)dr["max_length"]);
 
-                    MsSqlTypeDescriptor? resolved = MsSqlDataTypes.GetTypeDescriptor(typeName) ?? throw new DataException($"{typeName} is not a recognized Sql type.");
+                    MsSqlTypeDescriptor? resolved = MsSqlDataTypes.GetTypeDescriptor(typeName, precision, scale, maxLength)
+                        ?? MsSqlTypeDescriptor.Create(SqlDbType.Udt, typeName, precision, scale, maxLength);
 
                     var parameter = new MsSqlParameter();
                     parameter.SqlTypeName = resolved.DbTypeName;
                     parameter.SqlType = resolved.DbType;
-                    parameter.Precision = dr["precision"] == DBNull.Value ? null : (byte?)dr["precision"];
-                    parameter.Scale = dr["scale"] == DBNull.Value ? null : (byte?)dr["scale"];
-                    parameter.MaxLength = dr["max_length"] == DBNull.Value ? null : Convert.ToInt64((short?)dr["max_length"]);
+                    parameter.Precision = resolved.Precision;
+                    parameter.Scale = resolved.Scale;
+                    parameter.MaxLength = resolved.MaxLength;
 
                     parameter.Identifier = dr["parameter_id"].ToString();
                     parameter.Name = (string)dr["parameter_name"];

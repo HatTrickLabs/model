@@ -230,7 +230,9 @@ CREATE TABLE DataType(
 	`Set` SET('a','b','c','d') NOT NULL,
 	`NullableSet` SET('a','b','c','d') NULL,
 	`Enum` ENUM('a','b','c','d') NOT NULL,
-	`NullableEnum` ENUM('a','b','c','d') NULL
+	`NullableEnum` ENUM('a','b','c','d') NULL,
+	`Json` JSON NOT NULL,
+	`NullableJson` JSON NULL
 );
 
 CREATE SCHEMA sec;
