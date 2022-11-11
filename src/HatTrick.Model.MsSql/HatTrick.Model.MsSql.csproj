@@ -4,7 +4,12 @@
         <TargetFramework>netstandard2.0</TargetFramework>
         <LangVersion>latest</LangVersion>
         <Nullable>enable</Nullable>
-        <PackageTags>sql mssql model extraction generation sql-server</PackageTags>
+    </PropertyGroup>
+	
+	<PropertyGroup>
+		<Product>HatTrick.Model.MsSql</Product>
+		<Description>Microsoft SQL Server model extraction utility.</Description>
+		<PackageTags>sql mssql model extraction generation sql-server</PackageTags>
     </PropertyGroup>
 
     <ItemGroup>
