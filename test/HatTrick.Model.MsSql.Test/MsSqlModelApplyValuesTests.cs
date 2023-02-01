@@ -28,24 +28,24 @@ public class MsSqlModelApplyValuesTests
         var model = GetModel();
 
         //when
-        model.Schemas["Schema_1"].Tables["Table_1"].Columns["Column_1"].Apply((c) =>
+        model.Schemas["Schema_1"]!.Tables["Table_1"]!.Columns["Column_1"]!.Apply((c) =>
         {
             c.Name = "Not_Column_1";
             c.MaxLength = 50;
             c.SqlType = SqlDbType.VarChar;
             c.SqlTypeName = "varchar";
             c.IsNullable = true;
-            c.Meta = "foobar";
+            c.Meta["foo"] = "bar";
         });
 
-        var resolved = model.Schemas["Schema_1"].Tables["Table_1"].Columns["Not_Column_1"];
+        var resolved = model.Schemas["Schema_1"]!.Tables["Table_1"]!.Columns["Not_Column_1"];
 
         //then
         resolved.MaxLength.Should().Be(50);
         resolved.SqlType.Should().Be(SqlDbType.VarChar);
         resolved.SqlTypeName.Should().Be("varchar");
         resolved.IsNullable.Should().BeTrue();
-        resolved.Meta.Should().Be("foobar");
+        resolved.Meta.Should().HaveElementAt(0, new KeyValuePair<string, object>("foo", "bar"));
     }
 
     [Fact]
@@ -55,15 +55,15 @@ public class MsSqlModelApplyValuesTests
         var model = GetModel();
 
         //when
-        model.Schemas["Schema_1"].Tables["Table_1"].Apply((c) =>
+        model.Schemas["Schema_1"]!.Tables["Table_1"]!.Apply((c) =>
         {
             c.Name = "Not_Table_1";
-            c.Meta = "foobar";
+            c.Meta["foo"] = "bar";
         });
 
-        var resolved = model.Schemas["Schema_1"].Tables["Not_Table_1"];
+        var resolved = model.Schemas["Schema_1"]!.Tables["Not_Table_1"]!;
 
         //then
-        resolved.Meta.Should().Be("foobar");
+        resolved.Meta.Should().HaveElementAt(0, new KeyValuePair<string, object>("foo", "bar"));
     }
 }

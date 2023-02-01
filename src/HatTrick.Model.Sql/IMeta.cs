@@ -8,6 +8,6 @@ namespace HatTrick.Model.Sql
 {
     public interface IMeta
     {
-        string Meta { get; set; }
+        IDictionary<string,object> Meta { get; set; }
     }
 }

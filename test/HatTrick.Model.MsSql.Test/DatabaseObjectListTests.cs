@@ -37,7 +37,7 @@ public class DatabaseObjectListTests
         var model = GetModel();
 
         //when & then
-        model.Schemas["dbo"].Tables["Table_1"].Should().NotBeNull()
+        model.Schemas["dbo"]!.Tables["Table_1"].Should().NotBeNull()
             .And.BeOfType<MsSqlTable>()
             .Which.Name.Should().Be("Table_1");
     }
@@ -49,7 +49,7 @@ public class DatabaseObjectListTests
         var model = GetModel();
 
         //when & then
-        model.Schemas["dbo"].Tables["Table_1"].Columns["Column_1"].Should().NotBeNull()
+        model.Schemas["dbo"]!.Tables["Table_1"]!.Columns["Column_1"].Should().NotBeNull()
             .And.BeAssignableTo<MsSqlColumn>()
             .Which.Name.Should().Be("Column_1");
     }
