@@ -5,7 +5,7 @@ param
     (
         # The full path (including name) to the solution to build
         [Parameter(ValueFromPipelineByPropertyName)]
-        [string]$SolutionPath = "croc.sln",
+        [string]$SolutionPath = "model.sln",
 
         # The full path (including name) to the Directory.build.props file used as a template to provide the base version (Major.Minor.Patch) version used to create assembly attributes and nuget packages.  If the fiile contains a VersionSuffix, it will be honored as provided.
         [Parameter(ValueFromPipelineByPropertyName)]
@@ -20,7 +20,7 @@ param
 
         # The branch that sources public releases.  Any build processes from this branch will not use auto-generated build numbers and revisions in the package naming strategy, but will honor a VersionSuffix if supplied in the $PropertiesPath file.
         [Parameter(ValueFromPipelineByPropertyName)]
-        [string]$PublicReleaseBranchName = "main",
+        [string]$PublicReleaseBranchName = "master",
 
         [Parameter(Mandatory,ValueFromPipelineByPropertyName)]
         [string]$BranchName,

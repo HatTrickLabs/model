@@ -20,7 +20,7 @@ jobs:
         fetch-depth: 0
         
     - name: Build
-      run: './build/build.ps1 -Configuration Release -BranchName ${{ github.ref_name }} -CommitSHA ${{ github.sha }} -PropertiesPath Directory.Build.props -UseBranchNameInPackageSuffixWhenNotSpecified'
+      run: './build/build.ps1 -Configuration Release -BranchName ${{ github.ref_name }} -CommitSHA ${{ github.sha }} -PropertiesPath ./src/Directory.Build.props -UseBranchNameInPackageSuffixWhenNotSpecified'
       working-directory: .
       shell: pwsh
 
@@ -30,7 +30,15 @@ jobs:
     - name: Test MySql
       run: dotnet test ./test/HatTrick.Model.MySql.Test/HatTrick.Model.MySql.Test.csproj --configuration Release --framework net7.0 --no-build --logger "trx;LogFileName=mysql.tests.trx" /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:Include="[HatTrick.Model.MySql.*]*" /p:Exclude="[*Test]*"
             
+    # This task will remain a manual procedure until Nuget allows for pushing unlisted packages (i.e. HatTrick.Model.Sql) 
     #- name: Push to NuGet
     #  if: startsWith(github.ref_name, 'main')
-    #  run: nuget push **\HatTrick.Model**.nupkg -Source 'https://api.nuget.org/v3/index.json' -ApiKey ${{ secrets.NUGET_API_KEY }} -SkipDuplicate
+    #  run: nuget push ./assets/*.nupkg -Source 'https://api.nuget.org/v3/index.json' -ApiKey ${{ secrets.NUGET_API_KEY }} -SkipDuplicate
+    
+    # Use this task as the manual process    
+    - uses: actions/upload-artifact@v3
+      with:
+        name: nuget-packages
+        path: ./assets/**
+
 
