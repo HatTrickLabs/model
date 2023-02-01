@@ -175,10 +175,10 @@ public class ModelTests : IntegrationTestBase
         var column = Model.Schemas["dbo"].Tables["Person"].Columns["Id"];
 
         //when
-        column.Apply(c => c.Meta = "foo");
+        column.Apply(c => c.Meta["foo"] = "bar");
         var result = Model.Schemas["dbo"].Tables["Person"].Columns["Id"];
 
         //then
-        result.Meta.Should().Be("foo");
+        result.Meta.Should().HaveElementAt(0, new KeyValuePair<string, object>("foo", "bar"));
     }
 }

@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using HatTrick.Model.MsSql;
 using HatTrick.Model.Sql;
@@ -133,11 +134,11 @@ namespace HatTrick.Model.TestHarness
         static void TestApplyObjectMeta(MsSqlModel model)
         {
             //walking the dictionary stack
-            model.Schemas["dbo"].Tables["Address"].Columns["AddressType"].Meta = "code-gen-type=AddressTypeCode";
+            model.Schemas["dbo"].Tables["Address"].Columns["AddressType"].Meta["some-random-thing"] = typeof(Program);
 
             //or resolve by expression
             MsSqlModelAccessor accessor = new MsSqlModelAccessor(model);
-            accessor.ResolveItem("dbo.Address.AddressType")!.Meta = "code-gen-type=AddressTypeCode";
+            accessor.ResolveItem("dbo.Address.AddressType")!.Meta["some-random-thing"] = typeof(Program);
         }
 
         static void TestRemoveObjects(MsSqlModel model)
