@@ -70,7 +70,7 @@ public class DataTypeTests : IntegrationTestBase
     public void Does_column_have_correct_data_attributes(int ordinal, string columnName, string dbTypeName, SqlDbType dbType, int? precision, int? scale, long? maxLength, bool isNullable)
     {
         //given
-        var result = Model.Schemas["unit_test"].Tables["DataType"].Columns[columnName];
+        var result = Model.Schemas["unit_test"]!.Tables["DataType"]!.Columns[columnName]!;
 
         //when & then
         using AssertionScope _ = new();

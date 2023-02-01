@@ -14,16 +14,7 @@ namespace HatTrick.Model.Sql
         /// <param name="name">The name of the database object.</param>
         /// <returns>A database object of type <typeparamref name="T"/> if the object is in the list.</returns>
         /// <exception cref="DatabaseObjectNotFoundException{T}">The exception thrown when the item with <paramref name="name"/> is not in the list.</exception>
-        public T this[string name]
-        {
-            get
-            { 
-                var item = this.SingleOrDefault(s => string.Equals(s.Name, name, StringComparison.OrdinalIgnoreCase));
-                if (item is null)
-                    throw new DatabaseObjectNotFoundException<T>(name);
-                return item;
-            }
-        }
+        public T this[string name] => this.SingleOrDefault(s => string.Equals(s.Name, name, StringComparison.OrdinalIgnoreCase)) ?? throw new DatabaseObjectNotFoundException<T>(name);
 
         public DatabaseObjectList() : base() { }
         public DatabaseObjectList(int capacity) : base(capacity) { }
@@ -32,9 +23,7 @@ namespace HatTrick.Model.Sql
         public bool Remove(string name)
         {
             var item = this.SingleOrDefault(s => string.Equals(s.Name, name, StringComparison.OrdinalIgnoreCase));
-            if (item is null)
-                return false;
-            return Remove(item);
+            return item is not null && Remove(item);
         }
     }
 }

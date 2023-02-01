@@ -1,6 +1,7 @@
 using HatTrick.Model.Sql;
 using MySql.Data.MySqlClient;
 using System;
+using System.Collections.Generic;
 using System.Data;
 
 namespace HatTrick.Model.MySql
@@ -14,7 +15,7 @@ namespace HatTrick.Model.MySql
         #region interface
         public string Name { get; set; } = string.Empty;
 
-        public string Meta { get; set; } = string.Empty;
+        public IDictionary<string, object> Meta { get; set; } = new Dictionary<string, object>();
 
         public string Identifier { get; set; } = string.Empty;
 
