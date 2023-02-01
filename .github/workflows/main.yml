@@ -1,0 +1,36 @@
+name: model build
+
+on:
+  push:
+    branches: [ 'master' ]
+  pull_request:
+    branches: [ 'master' ]
+  workflow_dispatch:
+
+jobs:
+
+  build_package_test_deploy:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+        
+    - name: Build
+      run: './build/build.ps1 -Configuration Release -BranchName ${{ github.ref_name }} -CommitSHA ${{ github.sha }} -PropertiesPath Directory.Build.props -UseBranchNameInPackageSuffixWhenNotSpecified'
+      working-directory: .
+      shell: pwsh
+
+    - name: Test MsSql
+      run: dotnet test ./test/HatTrick.Model.MsSql.Test/HatTrick.Model.MsSql.Test.csproj --configuration Release --framework net7.0 --no-build --logger "trx;LogFileName=mssql.tests.trx" /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:Include="[HatTrick.Model.MsSql.*]*" /p:Exclude="[*Test]*"
+            
+    - name: Test MySql
+      run: dotnet test ./test/HatTrick.Model.MySql.Test/HatTrick.Model.MySql.Test.csproj --configuration Release --framework net7.0 --no-build --logger "trx;LogFileName=mysql.tests.trx" /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:Include="[HatTrick.Model.MySql.*]*" /p:Exclude="[*Test]*"
+            
+    #- name: Push to NuGet
+    #  if: startsWith(github.ref_name, 'main')
+    #  run: nuget push **\HatTrick.Model**.nupkg -Source 'https://api.nuget.org/v3/index.json' -ApiKey ${{ secrets.NUGET_API_KEY }} -SkipDuplicate
+
